@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "dev": "dev-snippets-dev",
+    "prod": "dev-snippets-1b236",
+    "default": "dev-snippets-dev"
+  }
+}

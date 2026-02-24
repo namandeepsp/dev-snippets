@@ -1,4 +1,4 @@
-import type { UserRepository } from './repositories/user.repository'
+import type { UserPort } from './user.port'
 import type {
 	CreateUserDTO,
 	PublicUser,
@@ -60,7 +60,7 @@ export const DomainErrorMessages: Record<DomainErrorCode, string> = {
  */
 
 export class UserService {
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(private readonly userPort: UserPort) {}
 
 	/* ----------------------------------------------------------------------- */
 	/* CREATE
@@ -86,7 +86,7 @@ export class UserService {
 
 		// Business rule: Check uniqueness (repository will also check, but we want early feedback)
 		try {
-			return await this.userRepository.create(input)
+			return await this.userPort.create(input)
 		} catch (error: any) {
 			// Translate repository errors to domain errors
 			if (error.code === 'DUPLICATE_EMAIL') {
@@ -115,7 +115,7 @@ export class UserService {
 	 */
 	async getUserById(id: string): Promise<User | null> {
 		if (!id) return null
-		return this.userRepository.findById(id)
+		return this.userPort.findById(id)
 	}
 
 	/**
@@ -124,7 +124,7 @@ export class UserService {
 	 */
 	async getUserByEmail(email: string): Promise<User | null> {
 		if (!email) return null
-		return this.userRepository.findByEmail(email)
+		return this.userPort.findByEmail(email)
 	}
 
 	/**
@@ -133,7 +133,7 @@ export class UserService {
 	 */
 	async getPublicProfile(username: string): Promise<PublicUser | null> {
 		if (!username) return null
-		return this.userRepository.findByUsername(username)
+		return this.userPort.findByUsername(username)
 	}
 
 	/**
@@ -143,7 +143,7 @@ export class UserService {
 	async getUsersByIds(ids: string[]): Promise<Record<string, PublicUser>> {
 		if (ids.length === 0) return {}
 
-		const users = await this.userRepository.findManyByIds(ids)
+		const users = await this.userPort.findManyByIds(ids)
 
 		// Convert to record keyed by ID and strip sensitive data
 		return users.reduce(
@@ -181,7 +181,7 @@ export class UserService {
 		}
 
 		// Ensure user exists
-		const existing = await this.userRepository.findById(userId)
+		const existing = await this.userPort.findById(userId)
 		if (!existing) {
 			throw new UserDomainError(
 				DomainErrorMessages.USER_NOT_FOUND,
@@ -197,7 +197,7 @@ export class UserService {
 			)
 		}
 
-		await this.userRepository.update(userId, input)
+		await this.userPort.update(userId, input)
 	}
 
 	/* ----------------------------------------------------------------------- */
@@ -221,7 +221,7 @@ export class UserService {
 		}
 
 		// Ensure user exists
-		const existing = await this.userRepository.findById(userId)
+		const existing = await this.userPort.findById(userId)
 		if (!existing) {
 			throw new UserDomainError(
 				DomainErrorMessages.USER_NOT_FOUND,
@@ -229,7 +229,7 @@ export class UserService {
 			)
 		}
 
-		await this.userRepository.delete(userId)
+		await this.userPort.delete(userId)
 	}
 
 	/* ----------------------------------------------------------------------- */
@@ -256,7 +256,7 @@ export class UserService {
 		}
 
 		// Upsert - create if doesn't exist, update if does
-		return this.userRepository.upsert(dto)
+		return this.userPort.upsert(dto)
 	}
 
 	/* ----------------------------------------------------------------------- */

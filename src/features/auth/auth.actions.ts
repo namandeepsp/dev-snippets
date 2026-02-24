@@ -1,11 +1,11 @@
 'use server'
 
-import { FirebaseUserRepository } from '@/features/user/infra/repositories/firebase-user.repository'
+import { FirebaseUserPort } from '@/features/user/infra/repositories/firebase-user.repository'
 import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
 import { cookies } from 'next/headers'
 import { createUserDTOFromAuth } from '../user/core/user.types'
 
-const userRepo = new FirebaseUserRepository()
+const userRepo = new FirebaseUserPort()
 
 export async function createUserProfileAction(): Promise<void> {
 	const auth = getServerFirebaseAuth()

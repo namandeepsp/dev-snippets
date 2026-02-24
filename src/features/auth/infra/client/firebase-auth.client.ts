@@ -22,8 +22,8 @@ import type {
 	AuthProvider,
 	EmailCredentials,
 	Session,
-	SignUpCredentials,
 	SignInResult,
+	SignUpCredentials,
 } from '../../core/auth.types'
 
 const auth = getAuth(firebaseApp)

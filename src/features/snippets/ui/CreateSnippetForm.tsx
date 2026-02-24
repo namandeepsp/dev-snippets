@@ -17,8 +17,10 @@ import type {
 
 import {
 	CATEGORIES,
-	TECHNOLOGIES,
+	TECHNOLOGY_OPTIONS,
 } from '@/features/technologies/technologies.config'
+import { TechnologyIcon } from '@/features/technologies/technology-icons'
+import { CustomSelect, Select } from '@/shared/ui/design-system'
 
 const LANGUAGES: EditorLanguage[] = [
 	'javascript',
@@ -59,6 +61,7 @@ export function CreateSnippetForm() {
 	const [visibility, setVisibility] = useState<SnippetVisibility>('private')
 	const [technologies, setTechnologies] = useState<SnippetTechnology[]>([])
 	const [categories, setCategories] = useState<SnippetCategory[]>([])
+	const [techToAdd, setTechToAdd] = useState('')
 
 	// UI state
 	const [isSaving, setIsSaving] = useState(false)
@@ -128,6 +131,13 @@ export function CreateSnippetForm() {
 		)
 	}
 
+	function handleAddTechnology(value: string) {
+		const tech = value as SnippetTechnology
+		if (technologies.includes(tech)) return
+		setTechnologies((prev) => [...prev, tech])
+		setTechToAdd('')
+	}
+
 	return (
 		<form onSubmit={handleSubmit} className="space-y-8">
 			{/* Error Message */}
@@ -179,10 +189,11 @@ export function CreateSnippetForm() {
 					</label>
 					<div className="flex items-center gap-4">
 						{/* Language Selector */}
-						<select
+						<Select
 							value={language}
 							onChange={(e) => setLanguage(e.target.value as EditorLanguage)}
-							className="rounded-md border border-default bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+							uiSize="sm"
+							variant="default"
 							disabled={isSaving}
 						>
 							{LANGUAGES.map((lang) => (
@@ -190,7 +201,7 @@ export function CreateSnippetForm() {
 									{lang}
 								</option>
 							))}
-						</select>
+						</Select>
 
 						{/* Format Button */}
 						<button
@@ -247,22 +258,43 @@ export function CreateSnippetForm() {
 			{/* Technologies */}
 			<div>
 				<label className="block mb-2 font-medium">Technologies</label>
-				<div className="flex flex-wrap gap-2">
-					{TECHNOLOGIES.map((tech) => (
-						<button
-							key={tech}
-							type="button"
-							onClick={() => toggleTechnology(tech)}
-							disabled={isSaving}
-							className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-								technologies.includes(tech)
-									? 'bg-foreground text-background'
-									: 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-							}`}
-						>
-							{tech}
-						</button>
-					))}
+				<div className="space-y-3">
+					<CustomSelect
+						value={techToAdd}
+						onChange={handleAddTechnology}
+						placeholder="Add technology"
+						disabled={isSaving}
+						options={TECHNOLOGY_OPTIONS.map((tech) => ({
+							value: tech.value,
+							label: tech.label,
+							icon: <TechnologyIcon technology={tech.iconKey} />,
+							disabled: technologies.includes(tech.value),
+						}))}
+					/>
+					<div className="flex flex-wrap gap-2">
+						{technologies.map((tech) => {
+							const techOption = TECHNOLOGY_OPTIONS.find(
+								(option) => option.value === tech,
+							)
+							return (
+								<button
+									key={tech}
+									type="button"
+									onClick={() => toggleTechnology(tech)}
+									disabled={isSaving}
+									className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background transition hover:opacity-90"
+								>
+									<span className="mr-1" aria-hidden>
+										<TechnologyIcon technology={techOption?.iconKey ?? tech} />
+									</span>
+									{techOption?.label ?? tech}
+									<span className="ml-1" aria-hidden>
+										×
+									</span>
+								</button>
+							)
+						})}
+					</div>
 				</div>
 			</div>
 

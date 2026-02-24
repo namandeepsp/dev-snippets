@@ -1,8 +1,8 @@
 'use client'
 
-import { logout, useAuth } from '@/features/auth/auth.client.container'
+import { useAuth } from '@/features/auth/auth.client.container'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { ThemeToggle } from './ThemeToggle'
 
 /**
@@ -24,13 +24,9 @@ import { ThemeToggle } from './ThemeToggle'
 
 export function Header() {
 	const { user, loading } = useAuth()
-	const router = useRouter()
+	const pathname = usePathname()
 
-	async function handleLogout() {
-		await logout()
-		router.push('/')
-		router.refresh() // Force server components to re-fetch
-	}
+	if (pathname === '/login') return null
 
 	// Don't render anything while loading to prevent flash
 	if (loading) {
@@ -105,13 +101,6 @@ export function Header() {
 										{user.name}
 									</span>
 								</Link>
-
-								<button
-									onClick={handleLogout}
-									className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition"
-								>
-									Logout
-								</button>
 							</div>
 						</>
 					) : (

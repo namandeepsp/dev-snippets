@@ -1,6 +1,7 @@
 import { snippetService } from '@/features/snippets/snippet.server.container'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { userService } from '@/features/user/user.container'
+import { Select } from '@/shared/ui/design-system'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
@@ -107,11 +108,11 @@ export default async function SnippetsPage() {
 
 				{/* Filter/Sort - To be implemented */}
 				<div className="flex gap-2">
-					<select className="rounded-md border border-default bg-background px-3 py-2 text-sm">
+					<Select uiSize="sm" className="min-w-40">
 						<option>Latest</option>
 						<option>Most viewed</option>
 						<option>Most liked</option>
-					</select>
+					</Select>
 				</div>
 			</div>
 

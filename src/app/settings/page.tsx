@@ -1,5 +1,6 @@
 'use client'
 
+import { logout } from '@/features/auth/auth.client.container'
 import { RequireAuth } from '@/features/auth/ui/RequireAuth'
 import { useAuth } from '@/features/auth/ui/store/auth.store'
 import { userApiClient } from '@/features/user/infra/client/user-api.factory'
@@ -60,6 +61,21 @@ function SettingsContent() {
 			setError(
 				error instanceof Error ? error.message : 'Failed to delete account',
 			)
+			setSaving(false)
+		}
+	}
+
+	async function handleLogout() {
+		if (saving) return
+		setSaving(true)
+		setError(null)
+
+		try {
+			await logout()
+			router.push('/')
+			router.refresh()
+		} catch (error) {
+			setError(error instanceof Error ? error.message : 'Failed to logout')
 			setSaving(false)
 		}
 	}
@@ -153,6 +169,22 @@ function SettingsContent() {
 								</dd>
 							</div>
 						</dl>
+					</div>
+
+					<div className="flex items-center justify-between rounded-md border border-default p-4">
+						<div>
+							<h3 className="font-medium">Session</h3>
+							<p className="text-sm text-gray-600 dark:text-gray-400">
+								Sign out from your current device
+							</p>
+						</div>
+						<button
+							onClick={handleLogout}
+							disabled={saving}
+							className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+						>
+							Logout
+						</button>
 					</div>
 				</div>
 

@@ -46,13 +46,34 @@ export type CreateSnippetServiceInput = SnippetContent
 /**
  * User input for updating snippets (UI layer)
  */
-export type UpdateSnippetServiceInput =
-	Partial<SnippetContent> /* ------------------ Repository Interface ------------------ */
+export type UpdateSnippetServiceInput = Partial<SnippetContent>
+
+/**
+ * Sort options for listing snippets
+ */
+export type SnippetSortBy = 'latest' | 'oldest' | 'views' | 'title'
+
+export type SnippetListCursor = {
+	sortValue: number | string
+	id: string
+}
+
+export type PaginatedSnippets = {
+	items: Snippet[]
+	nextCursor: SnippetListCursor | null
+}
+
+/* ------------------ Repository Interface ------------------ */
 
 export interface SnippetRepository
 	extends IBaseRepository<Snippet, CreateSnippetInput, UpdateSnippetInput> {
 	listByUser(userId: string): Promise<Snippet[]>
-	listPublic(): Promise<Snippet[]>
+	listPublic(sortBy?: SnippetSortBy): Promise<Snippet[]>
+	listPublicPaginated(
+		sortBy?: SnippetSortBy,
+		limit?: number,
+		cursor?: SnippetListCursor | null,
+	): Promise<PaginatedSnippets>
 	listByVisibility(
 		visibility: SnippetVisibility,
 		userId?: string,

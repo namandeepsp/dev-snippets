@@ -320,9 +320,6 @@ export class FirebaseAuthClient implements AuthPort {
 
 		const authErrorCode = errorMap[code] || 'UNKNOWN_ERROR'
 
-		return new AuthError(
-			error.message || AuthErrorMessages[authErrorCode],
-			authErrorCode,
-		)
+		return new AuthError(AuthErrorMessages[authErrorCode], authErrorCode)
 	}
 }

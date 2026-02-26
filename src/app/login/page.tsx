@@ -7,6 +7,7 @@ import {
 	useAuth,
 } from '@/features/auth/auth.client.container'
 import { PageLoader } from '@/shared/ui/PageLoader'
+import { ThemeToggle } from '@/shared/ui/ThemeToggle'
 import { Button, Card, CardBody, Input, toast } from '@/shared/ui/design-system'
 import { cn } from '@/shared/utils/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -90,7 +91,6 @@ export default function LoginPage() {
 	const [password, setPassword] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
 	const [submitting, setSubmitting] = useState(false)
-	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		if (!loading && user) {
@@ -100,7 +100,6 @@ export default function LoginPage() {
 
 	async function handleGoogleLogin() {
 		setSubmitting(true)
-		setError(null)
 		try {
 			const result = await signInWithGoogle()
 			if (result.isNewUser) {
@@ -114,7 +113,6 @@ export default function LoginPage() {
 			console.error('Login failed:', error)
 			const message =
 				error instanceof Error ? error.message : 'Google sign-in failed'
-			setError(message)
 			toast.error(message)
 		} finally {
 			setSubmitting(false)
@@ -123,25 +121,24 @@ export default function LoginPage() {
 
 	async function handleEmailAuth(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault()
-		setError(null)
 
 		const normalizedEmail = email.trim().toLowerCase()
 		if (!normalizedEmail || !password) {
-			setError('Email and password are required')
+			toast.error('Email and password are required')
 			return
 		}
 
 		if (mode === 'signup') {
 			if (!name.trim()) {
-				setError('Name is required')
+				toast.error('Name is required')
 				return
 			}
 			if (password.length < 6) {
-				setError('Password should be at least 6 characters')
+				toast.error('Password should be at least 6 characters')
 				return
 			}
 			if (password !== confirmPassword) {
-				setError('Password and confirm password do not match')
+				toast.error('Password and confirm password do not match')
 				return
 			}
 		}
@@ -161,7 +158,6 @@ export default function LoginPage() {
 			console.error('Email auth failed:', error)
 			const message =
 				error instanceof Error ? error.message : 'Authentication failed'
-			setError(message)
 			toast.error(message)
 		} finally {
 			setSubmitting(false)
@@ -178,6 +174,9 @@ export default function LoginPage() {
 
 	return (
 		<div className="relative overflow-hidden px-4 py-8 sm:py-12">
+			<div className="fixed right-4 top-4 z-50">
+				<ThemeToggle />
+			</div>
 			<div className="pointer-events-none absolute -left-24 top-16 h-64 w-64 rounded-full bg-cyan-300/35 blur-3xl dark:bg-cyan-800/30" />
 			<div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-900/30" />
 			<div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_440px]">
@@ -230,18 +229,12 @@ export default function LoginPage() {
 						</div>
 
 						<div className="space-y-5">
-							{error && (
-								<div className="rounded-2xl border border-red-300/60 bg-red-50/70 p-3 text-sm text-red-700 backdrop-blur dark:border-red-900/60 dark:bg-red-950/45 dark:text-red-300">
-									{error}
-								</div>
-							)}
-
 							<Button
 								onClick={handleGoogleLogin}
 								disabled={submitting}
 								variant="glass"
 								size="lg"
-								className="w-full"
+								className="w-full border-slate-300/50 bg-white/90 hover:bg-white dark:border-white/15 dark:bg-slate-900/45"
 								leftIcon={
 									<svg viewBox="0 0 24 24" width="20" height="20">
 										<path

@@ -1,15 +1,17 @@
 'use client'
 
 import { useAuthenticatedUser } from '@/features/auth/ui/store/auth.store'
+import { CodeEditor } from '@/features/editor/CodeEditor'
 import { formatCode } from '@/features/editor/formatter/formatter.registry'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { SubmitEvent, useState } from 'react'
 import { TechnologyBadge } from './TechnologyBadge'
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import type { CreateSnippetServiceInput } from '../core/repositories/snippet.repository'
 import type {
+	Snippet,
 	SnippetCategory,
 	SnippetTechnology,
 	SnippetVisibility,
@@ -20,7 +22,8 @@ import {
 	TECHNOLOGY_OPTIONS,
 } from '@/features/technologies/technologies.config'
 import { TechnologyIcon } from '@/features/technologies/technology-icons'
-import { CustomSelect, Select } from '@/shared/ui/design-system'
+import { Button, CustomSelect, Select, toast } from '@/shared/ui/design-system'
+import { LuWandSparkles } from 'react-icons/lu'
 
 const LANGUAGES: EditorLanguage[] = [
 	'javascript',
@@ -35,37 +38,35 @@ const LANGUAGES: EditorLanguage[] = [
 	'yaml',
 ]
 
-/**
- * ============================================================================
- * CREATE SNIPPET FORM
- * ============================================================================
- *
- * Client Component for creating new snippets.
- *
- * Why Client Component?
- * - Form state - Need useState for form inputs
- * - Authentication - Uses useAuthenticatedUser hook
- * - Client-side formatting - Prettier runs in browser
- * - API client - Uses the configured API client (serverless or REST)
- */
+type Props = {
+	mode: 'create' | 'edit'
+	snippet?: Snippet
+}
 
-export function CreateSnippetForm() {
+export function SnippetForm({ mode, snippet }: Props) {
 	const router = useRouter()
-	const _user = useAuthenticatedUser() // Throws if not authenticated
+	const _user = useAuthenticatedUser()
 
 	// Form state
-	const [title, setTitle] = useState('')
-	const [description, setDescription] = useState('')
-	const [code, setCode] = useState('')
-	const [language, setLanguage] = useState<EditorLanguage>('javascript')
-	const [visibility, setVisibility] = useState<SnippetVisibility>('private')
-	const [technologies, setTechnologies] = useState<SnippetTechnology[]>([])
-	const [categories, setCategories] = useState<SnippetCategory[]>([])
+	const [title, setTitle] = useState(snippet?.title ?? '')
+	const [description, setDescription] = useState(snippet?.description ?? '')
+	const [code, setCode] = useState(snippet?.code ?? '')
+	const [language, setLanguage] = useState<EditorLanguage>(
+		(snippet?.language as EditorLanguage) ?? 'javascript',
+	)
+	const [visibility, setVisibility] = useState<SnippetVisibility>(
+		snippet?.visibility ?? 'private',
+	)
+	const [technologies, setTechnologies] = useState<SnippetTechnology[]>(
+		snippet?.technologies ?? [],
+	)
+	const [categories, setCategories] = useState<SnippetCategory[]>(
+		snippet?.categories ?? [],
+	)
 	const [techToAdd, setTechToAdd] = useState('')
 
 	// UI state
 	const [isSaving, setIsSaving] = useState(false)
-	const [error, setError] = useState<string | null>(null)
 	const [isFormatting, setIsFormatting] = useState(false)
 
 	// Form validation
@@ -79,23 +80,20 @@ export function CreateSnippetForm() {
 			const formatted = await formatCode(code, language)
 			setCode(formatted)
 		} catch (err) {
-			// Don't show error to user - formatting is optional
 			console.error('Formatting failed:', err)
 		} finally {
 			setIsFormatting(false)
 		}
 	}
 
-	async function handleSubmit(e: React.FormEvent) {
+	async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
 		e.preventDefault()
 
 		if (!isValid) return
 
 		setIsSaving(true)
-		setError(null)
 
 		try {
-			// Format code before saving
 			const formattedCode = await formatCode(code, language)
 
 			const input: CreateSnippetServiceInput = {
@@ -108,13 +106,21 @@ export function CreateSnippetForm() {
 				visibility,
 			}
 
-			const snippet = await snippetApiClient.create(input)
+			if (mode === 'edit' && snippet) {
+				await snippetApiClient.update(snippet.id, input)
+				toast.success('Snippet updated successfully!')
+				router.push(`/snippets/${snippet.id}`)
+			} else {
+				const newSnippet = await snippetApiClient.create(input)
+				toast.success('Snippet created successfully!')
+				router.push(`/snippets/${newSnippet.id}`)
+			}
 
-			// Redirect to the new snippet
-			router.push(`/snippets/${snippet.id}`)
-			router.refresh() // Refresh server components
+			router.refresh()
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to create snippet')
+			toast.error(
+				err instanceof Error ? err.message : `Failed to ${mode} snippet`,
+			)
 			setIsSaving(false)
 		}
 	}
@@ -140,13 +146,6 @@ export function CreateSnippetForm() {
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-8">
-			{/* Error Message */}
-			{error && (
-				<div className="rounded-md bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/50 dark:text-red-400">
-					{error}
-				</div>
-			)}
-
 			{/* Title & Description */}
 			<div className="space-y-4">
 				<div>
@@ -188,7 +187,6 @@ export function CreateSnippetForm() {
 						Code <span className="text-red-500">*</span>
 					</label>
 					<div className="flex items-center gap-4">
-						{/* Language Selector */}
 						<Select
 							value={language}
 							onChange={(e) => setLanguage(e.target.value as EditorLanguage)}
@@ -203,27 +201,56 @@ export function CreateSnippetForm() {
 							))}
 						</Select>
 
-						{/* Format Button */}
-						<button
+						<Button
 							type="button"
 							onClick={handleFormatCode}
 							disabled={isFormatting || !code.trim()}
-							className="text-sm text-gray-500 hover:text-foreground disabled:opacity-50 transition"
+							size="sm"
+							variant="glass"
+							data-tooltip-id="app-tooltip"
+							data-tooltip-content={isFormatting ? 'Formatting...' : 'Format code (Shift+Alt+F)'}
+							className="min-w-[140px] border-white/45 bg-white/70 px-4 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-900/5 hover:bg-white/90 dark:border-white/15 dark:bg-slate-900/45 dark:text-slate-100 dark:hover:bg-slate-900/70 max-[1024px]:min-w-[42px] max-[1024px]:px-2.5"
 						>
-							{isFormatting ? 'Formatting...' : 'Format Code'}
-						</button>
+							{isFormatting ? (
+								<svg
+									className="h-4 w-4 animate-spin"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									aria-hidden="true"
+								>
+									<circle
+										className="opacity-25"
+										cx="12"
+										cy="12"
+										r="10"
+										stroke="currentColor"
+										strokeWidth="4"
+									/>
+									<path
+										className="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+									/>
+								</svg>
+							) : (
+								<LuWandSparkles className="h-4 w-4" />
+							)}
+							<span className="max-[1024px]:hidden">
+								{isFormatting ? 'Formatting' : 'Format Code'}
+							</span>
+						</Button>
 					</div>
 				</div>
 
-				<textarea
-					id="code"
+				<CodeEditor
 					value={code}
-					onChange={(e) => setCode(e.target.value)}
+					onChange={setCode}
+					language={language}
 					placeholder="Paste your code here..."
-					rows={12}
-					className="w-full rounded-md border border-default bg-background px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-					disabled={isSaving}
-					required
+					readOnly={isSaving}
+					minHeight="300px"
+					maxHeight="600px"
 				/>
 			</div>
 
@@ -277,12 +304,13 @@ export function CreateSnippetForm() {
 								(option) => option.value === tech,
 							)
 							return (
-								<button
+								<Button
 									key={tech}
 									type="button"
 									onClick={() => toggleTechnology(tech)}
 									disabled={isSaving}
-									className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background transition hover:opacity-90"
+									size="sm"
+									className="h-auto rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-none hover:opacity-90"
 								>
 									<span className="mr-1" aria-hidden>
 										<TechnologyIcon technology={techOption?.iconKey ?? tech} />
@@ -291,7 +319,7 @@ export function CreateSnippetForm() {
 									<span className="ml-1" aria-hidden>
 										×
 									</span>
-								</button>
+								</Button>
 							)
 						})}
 					</div>
@@ -303,24 +331,25 @@ export function CreateSnippetForm() {
 				<label className="block mb-2 font-medium">Categories</label>
 				<div className="flex flex-wrap gap-2">
 					{CATEGORIES.map((cat) => (
-						<button
+						<Button
 							key={cat}
 							type="button"
 							onClick={() => toggleCategory(cat)}
 							disabled={isSaving}
-							className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-								categories.includes(cat)
-									? 'bg-foreground text-background'
-									: 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-							}`}
+							size="sm"
+							variant={categories.includes(cat) ? 'primary' : 'secondary'}
+							className={`h-auto rounded-full px-3 py-1.5 text-xs font-medium transition ${categories.includes(cat)
+								? 'bg-foreground text-background shadow-none'
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+								}`}
 						>
 							{cat}
-						</button>
+						</Button>
 					))}
 				</div>
 			</div>
 
-			{/* Preview - Show selected items */}
+			{/* Preview */}
 			{(technologies.length > 0 || categories.length > 0) && (
 				<div className="rounded-md bg-gray-50 dark:bg-gray-900 p-4">
 					<p className="text-sm font-medium mb-2">Selected:</p>
@@ -342,22 +371,26 @@ export function CreateSnippetForm() {
 
 			{/* Actions */}
 			<div className="flex items-center gap-4 pt-4">
-				<button
+				<Button
 					type="submit"
 					disabled={!isValid}
-					className="rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+					isLoading={isSaving}
+					size="md"
+					className="bg-gradient-to-r from-sky-500 to-blue-500 px-6 text-white shadow-lg shadow-blue-600/30 hover:from-sky-600 hover:to-blue-600"
 				>
-					{isSaving ? 'Creating...' : 'Create Snippet'}
-				</button>
+					{mode === 'edit' ? 'Update Snippet' : 'Create Snippet'}
+				</Button>
 
-				<button
+				<Button
 					type="button"
 					onClick={() => router.back()}
 					disabled={isSaving}
-					className="rounded-md border border-default px-6 py-2.5 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 transition"
+					variant="outline"
+					size="md"
+					className="border-gray-300 bg-white px-6 text-slate-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
 				>
 					Cancel
-				</button>
+				</Button>
 			</div>
 		</form>
 	)

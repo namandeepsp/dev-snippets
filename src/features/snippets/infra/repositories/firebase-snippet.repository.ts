@@ -1,8 +1,11 @@
 import { adminDb } from '@/services/firebase/firebase.server'
-import { FieldValue } from 'firebase-admin/firestore'
+import { FieldPath, FieldValue } from 'firebase-admin/firestore'
 import type {
 	CreateSnippetInput,
+	PaginatedSnippets,
+	SnippetListCursor,
 	SnippetRepository,
+	SnippetSortBy,
 	UpdateSnippetInput,
 } from '../../core/repositories/snippet.repository'
 import type {
@@ -13,6 +16,7 @@ import type {
 } from '../../core/snippet.types'
 
 const COLLECTION_NAME = 'snippets'
+const DEFAULT_PAGE_SIZE = 5
 
 /**
  * ============================================================================
@@ -88,12 +92,28 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 		}
 	}
 
-	async listPublic(): Promise<Snippet[]> {
-		const snapshot = await this.getCollection()
+	async listPublic(sortBy: SnippetSortBy = 'latest'): Promise<Snippet[]> {
+		let query = this.getCollection()
 			.where('visibility', '==', 'public')
 			.where('isDeleted', '==', false)
-			.orderBy('updatedAt', 'desc')
-			.get()
+
+		// Apply sorting
+		switch (sortBy) {
+			case 'latest':
+				query = query.orderBy('createdAt', 'desc')
+				break
+			case 'oldest':
+				query = query.orderBy('createdAt', 'asc')
+				break
+			case 'views':
+				query = query.orderBy('viewsCount', 'desc')
+				break
+			case 'title':
+				query = query.orderBy('title', 'asc')
+				break
+		}
+
+		const snapshot = await query.get()
 
 		return snapshot.docs.map((doc) => {
 			const data = doc.data() as FirestoreSnippet
@@ -103,6 +123,42 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 				versions: data.versions || [],
 			}
 		})
+	}
+
+	async listPublicPaginated(
+		sortBy: SnippetSortBy = 'latest',
+		limit = DEFAULT_PAGE_SIZE,
+		cursor: SnippetListCursor | null = null,
+	): Promise<PaginatedSnippets> {
+		const pageSize = Math.max(1, Math.min(limit, 25))
+		const { field, direction } = this.getSortConfig(sortBy)
+
+		let query = this.getCollection()
+			.where('visibility', '==', 'public')
+			.where('isDeleted', '==', false)
+			.orderBy(field, direction)
+			.orderBy(FieldPath.documentId(), direction)
+			.limit(pageSize)
+
+		if (cursor) {
+			query = query.startAfter(cursor.sortValue, cursor.id)
+		}
+
+		const snapshot = await query.get()
+		const items = snapshot.docs.map((doc) => this.mapDocToSnippet(doc))
+
+		if (snapshot.docs.length < pageSize) {
+			return { items, nextCursor: null }
+		}
+
+		const lastDoc = snapshot.docs[snapshot.docs.length - 1]
+		const lastData = lastDoc.data() as FirestoreSnippet
+		const nextCursor: SnippetListCursor = {
+			id: lastDoc.id,
+			sortValue: this.getSortValue(lastData, sortBy),
+		}
+
+		return { items, nextCursor }
 	}
 
 	async listByUser(
@@ -258,5 +314,51 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 		})
 
 		await batch.commit()
+	}
+
+	private getSortConfig(sortBy: SnippetSortBy): {
+		field: string
+		direction: 'asc' | 'desc'
+	} {
+		switch (sortBy) {
+			case 'latest':
+				return { field: 'createdAt', direction: 'desc' }
+			case 'oldest':
+				return { field: 'createdAt', direction: 'asc' }
+			case 'views':
+				return { field: 'viewsCount', direction: 'desc' }
+			case 'title':
+				return { field: 'title', direction: 'asc' }
+			default:
+				return { field: 'createdAt', direction: 'desc' }
+		}
+	}
+
+	private getSortValue(
+		snippet: FirestoreSnippet,
+		sortBy: SnippetSortBy,
+	): number | string {
+		switch (sortBy) {
+			case 'latest':
+			case 'oldest':
+				return snippet.createdAt
+			case 'views':
+				return snippet.viewsCount
+			case 'title':
+				return snippet.title
+			default:
+				return snippet.createdAt
+		}
+	}
+
+	private mapDocToSnippet(
+		doc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>,
+	): Snippet {
+		const data = doc.data() as FirestoreSnippet
+		return {
+			id: doc.id,
+			...data,
+			versions: data.versions || [],
+		}
 	}
 }

@@ -1,4 +1,11 @@
+'use client'
+
+import { useAuth } from '@/features/auth/auth.client.container'
+import Link from 'next/link'
+
 export default function HomePage() {
+	const { user, loading } = useAuth()
+
 	return (
 		<main className="mx-auto max-w-5xl px-4 py-12">
 			<section className="space-y-6 text-center">
@@ -9,19 +16,21 @@ export default function HomePage() {
 				</p>
 
 				<div className="flex justify-center gap-4">
-					<a
-						href="/login"
-						className="rounded-lg bg-foreground px-6 py-2 text-background font-medium"
-					>
-						Get Started
-					</a>
+					{!loading && !user && (
+						<Link
+							href="/login"
+							className="rounded-lg bg-foreground px-6 py-2 text-background font-medium"
+						>
+							Get Started
+						</Link>
+					)}
 
-					<a
+					<Link
 						href="/snippets"
 						className="rounded-lg border border-default px-6 py-2"
 					>
 						Explore Snippets
-					</a>
+					</Link>
 				</div>
 			</section>
 		</main>

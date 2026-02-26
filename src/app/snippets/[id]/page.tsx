@@ -145,18 +145,6 @@ export default async function SnippetPage({ params }: Props) {
 
 			{/* Snippet Viewer */}
 			<SnippetViewer snippet={enrichedSnippet} />
-
-			{/* Edit Button - Only for owner */}
-			{currentUser?.id === snippet.ownerId && (
-				<div className="mt-8 flex justify-end">
-					<a
-						href={`/snippets/${snippet.id}/edit`}
-						className="rounded-md border border-default px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-					>
-						Edit Snippet
-					</a>
-				</div>
-			)}
 		</div>
 	)
 }

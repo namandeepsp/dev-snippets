@@ -1,5 +1,6 @@
 'use client'
 
+import { toast } from '@/shared/ui/design-system'
 import type { AuthPort } from './core/auth.port'
 import { FirebaseAuthClient } from './infra/client/firebase-auth.client'
 
@@ -31,7 +32,10 @@ export async function signUpWithEmailAndPassword(
 }
 
 export async function logout() {
-	return authPort.signOut()
+	await authPort.signOut()
+	toast.success('Logged out successfully', {
+		description: 'You have been signed out',
+	})
 }
 
 export async function getCurrentUser() {

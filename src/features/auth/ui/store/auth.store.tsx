@@ -5,10 +5,12 @@ import {
 	createContext,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from 'react'
 
 import type { User } from '@/features/user/core/user.types'
+import { toast } from '@/shared/ui/design-system'
 import { authPort } from '../../auth.client.container'
 
 /**
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<Error | null>(null)
+	const previousUser = useRef<User | null>(null)
 
 	// Subscribe to auth state changes
 	useEffect(() => {
@@ -56,8 +59,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setError(null)
 
 		try {
-			const unsubscribe = authPort.onAuthStateChanged((user) => {
-				setUser(user)
+			const unsubscribe = authPort.onAuthStateChanged((newUser) => {
+				// Detect session expiration: user was logged in, now logged out
+				if (previousUser.current && !newUser && !loading) {
+					toast.warning('Session expired', {
+						description: 'Please sign in again to continue',
+					})
+				}
+
+				previousUser.current = newUser
+				setUser(newUser)
 				setLoading(false)
 				setError(null)
 			})

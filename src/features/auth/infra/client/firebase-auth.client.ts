@@ -76,11 +76,6 @@ export class FirebaseAuthClient implements AuthPort {
 	}
 
 	async signInWithGoogle(): Promise<SignInResult> {
-		if (this.shouldPreferRedirect()) {
-			await signInWithRedirect(auth, googleProvider)
-			return new Promise<never>(() => {})
-		}
-
 		try {
 			const result = await signInWithPopup(auth, googleProvider)
 
@@ -265,7 +260,7 @@ export class FirebaseAuthClient implements AuthPort {
 		user: FirebaseUser,
 		name?: string,
 	): Promise<SignInResult> {
-		const idToken = await user.getIdToken()
+		const idToken = await user.getIdToken(true)
 
 		const response = await fetch('/api/auth/session', {
 			method: 'POST',
@@ -321,11 +316,6 @@ export class FirebaseAuthClient implements AuthPort {
 		const redirectResult = await getRedirectResult(auth).catch(() => null)
 		const user = redirectResult?.user || firebaseUser
 		await this.createSessionCookie(user)
-	}
-
-	private shouldPreferRedirect(): boolean {
-		if (typeof window === 'undefined') return false
-		return /android|iphone|ipad|ipod|mobile/i.test(window.navigator.userAgent)
 	}
 
 	private isNewUser(user: FirebaseUser): boolean {

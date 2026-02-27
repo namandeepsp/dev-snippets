@@ -1,5 +1,5 @@
 import { UserService } from './core/user.service'
-import { FirebaseUserRepository } from './infra/repositories/firebase-user.repository'
+import { FirebaseUserPort } from './infra/repositories/firebase-user.repository'
 
 // Re-export types only - no implementations
 export type {
@@ -28,7 +28,7 @@ export type {
  * 4. Single instance (singleton) for the entire app
  *
  * Why no port/adapter?
- * - Repository IS the port. The interface defines the contract.
+ * - UserPort IS the port. The interface defines the contract.
  * - Adapter pattern was redundant - we just implement the interface.
  * - Less indirection = more maintainable.
  */
@@ -38,13 +38,13 @@ export type {
 /* ----------------------------------------------------------------------- */
 
 /**
- * Repository implementation.
+ * Port implementation.
  *
  * This is an INTERNAL detail of the user feature.
  * No other feature should import this directly.
  * Always go through the service.
  */
-const userRepository = new FirebaseUserRepository()
+const userPort = new FirebaseUserPort()
 
 /* ----------------------------------------------------------------------- */
 /* PUBLIC API - EXPORTED                                                  */
@@ -63,4 +63,4 @@ const userRepository = new FirebaseUserRepository()
  * const user = await userService.getUserById('123')
  * ```
  */
-export const userService = new UserService(userRepository)
+export const userService = new UserService(userPort)

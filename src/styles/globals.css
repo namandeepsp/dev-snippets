@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ================================
    CSS Variables for Themes
@@ -22,6 +22,11 @@
 	--border: 51 65 85;
 }
 
+@theme inline {
+	--color-background: rgb(var(--background));
+	--color-foreground: rgb(var(--foreground));
+}
+
 /* ================================
    Base Styles
 ================================ */
@@ -34,6 +39,8 @@ body {
 body {
 	background-color: rgb(var(--background));
 	color: rgb(var(--foreground));
+	font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial,
+		"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
 
 /* ================================

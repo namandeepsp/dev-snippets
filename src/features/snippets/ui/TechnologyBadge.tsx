@@ -1,3 +1,5 @@
+import { getTechnologyOption } from '@/features/technologies/technologies.config'
+import { TechnologyIcon } from '@/features/technologies/technology-icons'
 import { TECHNOLOGY_COLORS } from '../core/snippet.colors'
 import type { SnippetTechnology } from '../core/snippet.types'
 
@@ -35,6 +37,7 @@ export function TechnologyBadge({
 }: Props) {
 	const baseColor = TECHNOLOGY_COLORS[technology] || 'bg-gray-500'
 	const colorClass = `${baseColor} text-white`
+	const option = getTechnologyOption(technology)
 
 	const content = (
 		<span
@@ -58,7 +61,13 @@ export function TechnologyBadge({
 					: undefined
 			}
 		>
-			{technology}
+			<span className="mr-1" aria-hidden>
+				<TechnologyIcon
+					technology={option.iconKey}
+					className="h-3 w-3 text-white dark:text-white"
+				/>
+			</span>
+			{option.label}
 		</span>
 	)
 

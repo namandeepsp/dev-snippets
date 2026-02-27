@@ -1,35 +1,31 @@
 'use client'
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
+import { useTheme } from '@/shared/hooks/useTheme'
+import { Button } from '@/shared/ui/design-system'
+import { cpp } from '@codemirror/lang-cpp'
+import { css } from '@codemirror/lang-css'
+import { html } from '@codemirror/lang-html'
+import { java } from '@codemirror/lang-java'
+import { javascript } from '@codemirror/lang-javascript'
+import { json } from '@codemirror/lang-json'
+import { markdown } from '@codemirror/lang-markdown'
+import { php } from '@codemirror/lang-php'
+import { python } from '@codemirror/lang-python'
+import { rust } from '@codemirror/lang-rust'
+import { sql } from '@codemirror/lang-sql'
+import { sublime } from '@uiw/codemirror-theme-sublime'
+import { vscodeDark } from '@uiw/codemirror-theme-vscode'
+import CodeMirror from '@uiw/react-codemirror'
 import { useState } from 'react'
 
 type Props = {
-	/** The code to display */
 	code: string
-	/** Programming language for syntax highlighting */
 	language: EditorLanguage
-	/** Whether to show line numbers */
 	showLineNumbers?: boolean
-	/** Title/description of the code block */
 	title?: string
-	/** Maximum height before scrolling */
 	maxHeight?: string
 }
-
-/**
- * ============================================================================
- * CODE BLOCK
- * ============================================================================
- *
- * Displays code with syntax highlighting, line numbers, and copy functionality.
- *
- * Features:
- * - Copy to clipboard with feedback
- * - Optional line numbers
- * - Language badge
- * - Responsive scrolling
- * - Accessible keyboard support
- */
 
 export function CodeBlock({
 	code,
@@ -40,6 +36,7 @@ export function CodeBlock({
 }: Props) {
 	const [copied, setCopied] = useState(false)
 	const [copyError, setCopyError] = useState<string | null>(null)
+	const { resolvedTheme } = useTheme()
 
 	async function handleCopy() {
 		try {
@@ -53,42 +50,62 @@ export function CodeBlock({
 		}
 	}
 
-	// Split code into lines for line numbers
 	const lines = code.split('\n')
 	const lineCount = lines.length
+	const copyButtonBaseClasses =
+		'!bg-[#303841] !text-white dark:!bg-[#4F565E] dark:!text-gray-300'
+
+	const getLanguageExtension = (lang: EditorLanguage) => {
+		const extensions: Record<EditorLanguage, any> = {
+			javascript: javascript({ jsx: true }),
+			typescript: javascript({ typescript: true, jsx: true }),
+			json: json(),
+			html: html(),
+			css: css(),
+			python: python(),
+			java: java(),
+			cpp: cpp(),
+			rust: rust(),
+			php: php(),
+			sql: sql(),
+			markdown: markdown(),
+			go: javascript(),
+			yaml: javascript(),
+			ruby: javascript(),
+			csharp: javascript(),
+			bash: javascript(),
+			dockerfile: javascript(),
+		}
+
+		return extensions[lang] || javascript()
+	}
 
 	return (
-		<div className="rounded-lg border border-default overflow-hidden bg-gray-50 dark:bg-gray-900">
-			{/* Header */}
-			<div className="flex items-center justify-between gap-4 border-b border-default bg-gray-100/50 px-4 py-2 dark:bg-gray-800/50">
+		<div className="overflow-hidden rounded-xl border border-[#D4D4D4] bg-[#FFFEF7] dark:border-gray-700 dark:bg-gray-900">
+			<div className="flex items-center justify-between gap-4 border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]">
 				<div className="flex items-center gap-2 min-w-0">
-					{/* Language badge */}
-					<span className="rounded-md bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+					<span className="rounded-md bg-[#303841] px-2 py-1 text-xs font-semibold text-white dark:bg-[#4F565E] dark:text-gray-300">
 						{language}
 					</span>
-
-					{/* Title */}
 					{title && (
-						<span className="text-sm text-gray-600 dark:text-gray-400 truncate">
+						<span className="truncate text-sm text-[#6F6F6F] dark:text-gray-400">
 							{title}
 						</span>
 					)}
 				</div>
 
-				{/* Copy button */}
-				<button
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
 					onClick={handleCopy}
-					className={`
-            flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium
-            transition-all focus:outline-none focus:ring-2 focus:ring-foreground/20
-            ${
-							copied
-								? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-								: copyError
-									? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400'
-									: 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-						}
-          `}
+					className={`!gap-1.5 !rounded-lg !px-3 !py-1.5 !text-xs !font-semibold transition-all focus:ring-0 focus:outline-none ${
+						copied
+							? copyButtonBaseClasses
+							: copyError
+								? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+								: copyButtonBaseClasses
+					}`}
 					aria-label={
 						copied ? 'Copied!' : copyError || 'Copy code to clipboard'
 					}
@@ -109,54 +126,38 @@ export function CodeBlock({
 							<span className="hidden sm:inline">Copy</span>
 						</>
 					)}
-				</button>
+				</Button>
 			</div>
 
-			{/* Code */}
 			<div
-				className="relative overflow-auto p-4 font-mono text-sm"
+				className="relative overflow-auto bg-[#303841] dark:bg-[#1E1E1E]"
 				style={{ maxHeight }}
 			>
-				<div className="flex">
-					{/* Line numbers */}
-					{showLineNumbers && (
-						<div
-							className="select-none pr-4 text-right text-gray-400 dark:text-gray-600"
-							aria-hidden="true"
-						>
-							{Array.from({ length: lineCount }, (_, i) => i + 1).map((num) => (
-								<div key={num} className="leading-relaxed">
-									{num}
-								</div>
-							))}
-						</div>
-					)}
-
-					{/* Code content */}
-					<pre className="flex-1 overflow-visible">
-						<code
-							className={`
-              block leading-relaxed
-              ${language === 'javascript' ? 'language-javascript' : ''}
-              ${language === 'typescript' ? 'language-typescript' : ''}
-              ${language === 'html' ? 'language-html' : ''}
-              ${language === 'css' ? 'language-css' : ''}
-              ${language === 'json' ? 'language-json' : ''}
-              ${language === 'go' ? 'language-go' : ''}
-              ${language === 'python' ? 'language-python' : ''}
-              ${language === 'sql' ? 'language-sql' : ''}
-              ${language === 'yaml' ? 'language-yaml' : ''}
-              ${language === 'markdown' ? 'language-markdown' : ''}
-            `}
-						>
-							{code}
-						</code>
-					</pre>
-				</div>
+				<CodeMirror
+					value={code}
+					theme={resolvedTheme === 'dark' ? vscodeDark : sublime}
+					extensions={[getLanguageExtension(language)]}
+					editable={false}
+					readOnly
+					basicSetup={{
+						lineNumbers: showLineNumbers,
+						highlightActiveLineGutter: false,
+						highlightActiveLine: false,
+						foldGutter: false,
+						dropCursor: false,
+						drawSelection: false,
+						allowMultipleSelections: false,
+						autocompletion: false,
+						closeBrackets: false,
+						closeBracketsKeymap: false,
+						completionKeymap: false,
+						lintKeymap: false,
+					}}
+					style={{ fontSize: '14px' }}
+				/>
 			</div>
 
-			{/* Footer with metadata */}
-			<div className="flex items-center justify-between border-t border-default bg-gray-100/50 px-4 py-1.5 text-xs text-gray-500 dark:bg-gray-800/50">
+			<div className="flex items-center justify-between border-t border-[#D4D4D4] bg-[#4F565E] px-4 py-1.5 text-xs text-white dark:border-gray-700 dark:bg-[#333333] dark:text-gray-400">
 				<div className="flex items-center gap-2">
 					<span>
 						📄 {lineCount} {lineCount === 1 ? 'line' : 'lines'}
@@ -164,8 +165,6 @@ export function CodeBlock({
 					<span>•</span>
 					<span className="font-mono">{code.length} characters</span>
 				</div>
-
-				{/* Syntax highlighting notice */}
 				<span className="hidden sm:block">
 					{language.charAt(0).toUpperCase() + language.slice(1)} syntax
 				</span>

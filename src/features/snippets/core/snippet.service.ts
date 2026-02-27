@@ -2,7 +2,10 @@ import { userService } from '@/features/user/user.container'
 import type {
 	CreateSnippetInput,
 	CreateSnippetServiceInput,
+	PaginatedSnippets,
+	SnippetListCursor,
 	SnippetRepository,
+	SnippetSortBy,
 	UpdateSnippetInput,
 	UpdateSnippetServiceInput,
 } from './repositories/snippet.repository'
@@ -92,8 +95,19 @@ export class SnippetService {
 	/**
 	 * List all public snippets.
 	 */
-	async listPublic(): Promise<Snippet[]> {
-		return this.snippetRepository.listPublic()
+	async listPublic(sortBy?: SnippetSortBy): Promise<Snippet[]> {
+		return this.snippetRepository.listPublic(sortBy)
+	}
+
+	/**
+	 * List public snippets with cursor pagination.
+	 */
+	async listPublicPaginated(
+		sortBy?: SnippetSortBy,
+		limit?: number,
+		cursor?: SnippetListCursor | null,
+	): Promise<PaginatedSnippets> {
+		return this.snippetRepository.listPublicPaginated(sortBy, limit, cursor)
 	}
 
 	/**

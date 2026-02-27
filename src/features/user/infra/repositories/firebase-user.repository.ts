@@ -1,9 +1,6 @@
 import { adminDb } from '@/services/firebase/firebase.server'
-import type { UserRepository } from '../../core/repositories/user.repository'
-import {
-	ErrorMessages,
-	UserRepositoryError,
-} from '../../core/repositories/user.repository'
+import type { UserPort } from '../../core/user.port'
+import { ErrorMessages, UserPortError } from '../../core/user.port'
 import type {
 	CreateUserDTO,
 	PublicUser,
@@ -18,7 +15,7 @@ const COLLECTION_NAME = 'users'
  * FIREBASE USER REPOSITORY
  * ============================================================================
  *
- * Firebase/Firestore implementation of the UserRepository port.
+ * Firebase/Firestore implementation of the UserPort port.
  *
  * Key responsibilities:
  * 1. Map Firebase uid → Firestore document ID
@@ -30,7 +27,7 @@ const COLLECTION_NAME = 'users'
  * for user operations.
  */
 
-export class FirebaseUserRepository implements UserRepository {
+export class FirebaseUserPort implements UserPort {
 	private getCollection() {
 		return adminDb.collection(COLLECTION_NAME)
 	}
@@ -50,7 +47,7 @@ export class FirebaseUserRepository implements UserRepository {
 			// Check for duplicate email
 			const existingByEmail = await this.findByEmail(input.email)
 			if (existingByEmail) {
-				throw new UserRepositoryError(
+				throw new UserPortError(
 					ErrorMessages.DUPLICATE_EMAIL,
 					'DUPLICATE_EMAIL',
 				)
@@ -59,7 +56,7 @@ export class FirebaseUserRepository implements UserRepository {
 			// Check for duplicate username
 			const existingByUsername = await this.findByUsername(input.username)
 			if (existingByUsername) {
-				throw new UserRepositoryError(
+				throw new UserPortError(
 					ErrorMessages.DUPLICATE_USERNAME,
 					'DUPLICATE_USERNAME',
 				)
@@ -88,14 +85,11 @@ export class FirebaseUserRepository implements UserRepository {
 				...userData,
 			}
 		} catch (error) {
-			if (error instanceof UserRepositoryError) {
+			if (error instanceof UserPortError) {
 				throw error
 			}
 
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -121,10 +115,7 @@ export class FirebaseUserRepository implements UserRepository {
 				...userData,
 			}
 		} catch (_error) {
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -153,10 +144,7 @@ export class FirebaseUserRepository implements UserRepository {
 				updatedAt: data.updatedAt,
 			}
 		} catch (_error) {
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -185,10 +173,7 @@ export class FirebaseUserRepository implements UserRepository {
 				updatedAt: data.updatedAt,
 			}
 		} catch (_error) {
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -217,10 +202,7 @@ export class FirebaseUserRepository implements UserRepository {
 				updatedAt: data.updatedAt,
 			}
 		} catch (_error) {
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -248,10 +230,7 @@ export class FirebaseUserRepository implements UserRepository {
 				}
 			})
 		} catch (_error) {
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -263,10 +242,7 @@ export class FirebaseUserRepository implements UserRepository {
 		try {
 			const exists = await this.findById(id)
 			if (!exists) {
-				throw new UserRepositoryError(
-					ErrorMessages.USER_NOT_FOUND,
-					'USER_NOT_FOUND',
-				)
+				throw new UserPortError(ErrorMessages.USER_NOT_FOUND, 'USER_NOT_FOUND')
 			}
 
 			await this.getCollection()
@@ -278,14 +254,11 @@ export class FirebaseUserRepository implements UserRepository {
 					}),
 				)
 		} catch (error) {
-			if (error instanceof UserRepositoryError) {
+			if (error instanceof UserPortError) {
 				throw error
 			}
 
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 
@@ -297,22 +270,16 @@ export class FirebaseUserRepository implements UserRepository {
 		try {
 			const exists = await this.findById(id)
 			if (!exists) {
-				throw new UserRepositoryError(
-					ErrorMessages.USER_NOT_FOUND,
-					'USER_NOT_FOUND',
-				)
+				throw new UserPortError(ErrorMessages.USER_NOT_FOUND, 'USER_NOT_FOUND')
 			}
 
 			await this.getCollection().doc(id).delete()
 		} catch (error) {
-			if (error instanceof UserRepositoryError) {
+			if (error instanceof UserPortError) {
 				throw error
 			}
 
-			throw new UserRepositoryError(
-				ErrorMessages.DATABASE_ERROR,
-				'DATABASE_ERROR',
-			)
+			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
 }

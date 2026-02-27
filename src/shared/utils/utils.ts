@@ -1,4 +1,11 @@
 import type { AuthProvider } from '@/features/auth/core/auth.types'
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+/* Merge Tailwind classes */
+export function cn(...inputs: ClassValue[]) {
+	return twMerge(clsx(inputs))
+}
 
 /* Extract sign-in provider */
 function getAuthProvider(decodedToken: any): AuthProvider {

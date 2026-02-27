@@ -17,6 +17,10 @@ describe.sequential('Snippet Feature', () => {
     await script.testCreateSnippet();
   });
 
+  it('creates 100 bulk snippets', async () => {
+    await script.testCreateBulkSnippets();
+  });
+
   it('lists public snippets', async () => {
     await script.testListPublicSnippets();
   });

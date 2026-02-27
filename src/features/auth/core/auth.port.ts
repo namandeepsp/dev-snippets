@@ -3,8 +3,8 @@ import type {
 	AuthProvider,
 	EmailCredentials,
 	Session,
-	SignUpCredentials,
 	SignInResult,
+	SignUpCredentials,
 } from './auth.types'
 
 /**

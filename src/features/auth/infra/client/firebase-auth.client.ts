@@ -76,11 +76,6 @@ export class FirebaseAuthClient implements AuthPort {
 	}
 
 	async signInWithGoogle(): Promise<SignInResult> {
-		if (this.shouldPreferRedirect()) {
-			await signInWithRedirect(auth, googleProvider)
-			return new Promise<never>(() => {})
-		}
-
 		try {
 			const result = await signInWithPopup(auth, googleProvider)
 
@@ -251,7 +246,8 @@ export class FirebaseAuthClient implements AuthPort {
 				await this.completeRedirectSession(firebaseUser)
 				const hydrated = await this.getSessionPayload()
 				callback(hydrated.user)
-			} catch {
+			} catch (error) {
+				console.error('Failed to hydrate auth session from Firebase user:', error)
 				callback(null)
 			}
 		})
@@ -265,19 +261,8 @@ export class FirebaseAuthClient implements AuthPort {
 		user: FirebaseUser,
 		name?: string,
 	): Promise<SignInResult> {
-		const idToken = await user.getIdToken()
-
-		const response = await fetch('/api/auth/session', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ idToken, name }),
-		})
-
-		if (!response.ok) {
-			throw new Error('Failed to create session cookie')
-		}
-
-		const data = await response.json()
+		const idToken = await user.getIdToken(true)
+		const data = await this.postSessionWithRetry(idToken, name)
 
 		if (!data?.user || !data?.session) {
 			throw new Error('Session response missing user data')
@@ -323,9 +308,40 @@ export class FirebaseAuthClient implements AuthPort {
 		await this.createSessionCookie(user)
 	}
 
-	private shouldPreferRedirect(): boolean {
-		if (typeof window === 'undefined') return false
-		return /android|iphone|ipad|ipod|mobile/i.test(window.navigator.userAgent)
+	private async postSessionWithRetry(
+		idToken: string,
+		name?: string,
+		maxAttempts = 2,
+	): Promise<any> {
+		let lastError: unknown
+
+		for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+			try {
+				const response = await fetch('/api/auth/session', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ idToken, name }),
+				})
+
+				if (!response.ok) {
+					const payload = await response
+						.json()
+						.catch(() => ({ error: 'Failed to create session cookie' }))
+					throw new Error(payload?.error || 'Failed to create session cookie')
+				}
+
+				return await response.json()
+			} catch (error) {
+				lastError = error
+				if (attempt < maxAttempts) {
+					await new Promise((resolve) => setTimeout(resolve, attempt * 300))
+				}
+			}
+		}
+
+		throw lastError instanceof Error
+			? lastError
+			: new Error('Failed to create session cookie')
 	}
 
 	private isNewUser(user: FirebaseUser): boolean {

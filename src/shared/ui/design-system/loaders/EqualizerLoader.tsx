@@ -6,11 +6,31 @@ type EqualizerLoaderProps = {
 
 export function EqualizerLoader({ className }: EqualizerLoaderProps) {
 	const bars = [
-		{ height: 'h-6', delay: '0ms', color: 'bg-blue-500/75 dark:bg-blue-400/75' },
-		{ height: 'h-7', delay: '120ms', color: 'bg-blue-600/80 dark:bg-blue-500/80' },
-		{ height: 'h-8', delay: '240ms', color: 'bg-blue-700/85 dark:bg-blue-500/85' },
-		{ height: 'h-7', delay: '360ms', color: 'bg-blue-600/80 dark:bg-blue-500/80' },
-		{ height: 'h-6', delay: '480ms', color: 'bg-blue-500/75 dark:bg-blue-400/75' },
+		{
+			height: 'h-6',
+			delay: '0ms',
+			color: 'bg-blue-500/75 dark:bg-blue-400/75',
+		},
+		{
+			height: 'h-7',
+			delay: '120ms',
+			color: 'bg-blue-600/80 dark:bg-blue-500/80',
+		},
+		{
+			height: 'h-8',
+			delay: '240ms',
+			color: 'bg-blue-700/85 dark:bg-blue-500/85',
+		},
+		{
+			height: 'h-7',
+			delay: '360ms',
+			color: 'bg-blue-600/80 dark:bg-blue-500/80',
+		},
+		{
+			height: 'h-6',
+			delay: '480ms',
+			color: 'bg-blue-500/75 dark:bg-blue-400/75',
+		},
 	]
 
 	return (

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import { Header } from '@/shared/ui/Header'
-import { Toaster } from '@/shared/ui/design-system'
 import { TooltipProvider } from '@/shared/ui/Tooltip'
+import { Toaster } from '@/shared/ui/design-system'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {

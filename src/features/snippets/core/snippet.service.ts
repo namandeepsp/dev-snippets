@@ -37,7 +37,7 @@ export class SnippetService {
 	constructor(
 		private readonly snippetPort: SnippetPort,
 		private readonly snippetRepository: SnippetRepository,
-	) { }
+	) {}
 
 	/* ----------------------------------------------------------------------- */
 	/* CREATE

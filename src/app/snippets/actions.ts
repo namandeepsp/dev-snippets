@@ -1,11 +1,11 @@
 'use server'
 
-import { snippetService } from '@/features/snippets/snippet.server.container'
-import { userService } from '@/features/user/user.container'
 import type {
 	SnippetListCursor,
 	SnippetSortBy,
 } from '@/features/snippets/core/repositories/snippet.repository'
+import { snippetService } from '@/features/snippets/snippet.server.container'
+import { userService } from '@/features/user/user.container'
 
 const DEFAULT_PAGE_SIZE = 5
 

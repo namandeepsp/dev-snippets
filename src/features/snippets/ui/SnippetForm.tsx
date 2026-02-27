@@ -5,7 +5,7 @@ import { CodeEditor } from '@/features/editor/CodeEditor'
 import { formatCode } from '@/features/editor/formatter/formatter.registry'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
 import { useRouter } from 'next/navigation'
-import { SubmitEvent, useState } from 'react'
+import { type SubmitEvent, useState } from 'react'
 import { TechnologyBadge } from './TechnologyBadge'
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
@@ -208,7 +208,9 @@ export function SnippetForm({ mode, snippet }: Props) {
 							size="sm"
 							variant="glass"
 							data-tooltip-id="app-tooltip"
-							data-tooltip-content={isFormatting ? 'Formatting...' : 'Format code (Shift+Alt+F)'}
+							data-tooltip-content={
+								isFormatting ? 'Formatting...' : 'Format code (Shift+Alt+F)'
+							}
 							className="min-w-[140px] border-white/45 bg-white/70 px-4 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-900/5 hover:bg-white/90 dark:border-white/15 dark:bg-slate-900/45 dark:text-slate-100 dark:hover:bg-slate-900/70 max-[1024px]:min-w-[42px] max-[1024px]:px-2.5"
 						>
 							{isFormatting ? (
@@ -338,10 +340,11 @@ export function SnippetForm({ mode, snippet }: Props) {
 							disabled={isSaving}
 							size="sm"
 							variant={categories.includes(cat) ? 'primary' : 'secondary'}
-							className={`h-auto rounded-full px-3 py-1.5 text-xs font-medium transition ${categories.includes(cat)
-								? 'bg-foreground text-background shadow-none'
-								: 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-								}`}
+							className={`h-auto rounded-full px-3 py-1.5 text-xs font-medium transition ${
+								categories.includes(cat)
+									? 'bg-foreground text-background shadow-none'
+									: 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+							}`}
 						>
 							{cat}
 						</Button>

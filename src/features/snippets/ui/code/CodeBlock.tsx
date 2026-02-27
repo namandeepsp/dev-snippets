@@ -53,7 +53,7 @@ export function CodeBlock({
 	const lines = code.split('\n')
 	const lineCount = lines.length
 	const copyButtonBaseClasses =
-		'!bg-[#303841] !text-white dark:!bg-[#4F565E] dark:!text-gray-300';
+		'!bg-[#303841] !text-white dark:!bg-[#4F565E] dark:!text-gray-300'
 
 	const getLanguageExtension = (lang: EditorLanguage) => {
 		const extensions: Record<EditorLanguage, any> = {
@@ -99,12 +99,13 @@ export function CodeBlock({
 					variant="ghost"
 					size="sm"
 					onClick={handleCopy}
-					className={`!gap-1.5 !rounded-lg !px-3 !py-1.5 !text-xs !font-semibold transition-all focus:ring-0 focus:outline-none ${copied
-						? copyButtonBaseClasses
-						: copyError
-							? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-							: copyButtonBaseClasses
-						}`}
+					className={`!gap-1.5 !rounded-lg !px-3 !py-1.5 !text-xs !font-semibold transition-all focus:ring-0 focus:outline-none ${
+						copied
+							? copyButtonBaseClasses
+							: copyError
+								? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+								: copyButtonBaseClasses
+					}`}
 					aria-label={
 						copied ? 'Copied!' : copyError || 'Copy code to clipboard'
 					}

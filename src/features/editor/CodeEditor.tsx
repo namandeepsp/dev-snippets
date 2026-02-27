@@ -1,7 +1,7 @@
 'use client'
 
 import { useTheme } from '@/shared/hooks/useTheme'
-import { keymap } from '@codemirror/view'
+import { Button, toast } from '@/shared/ui/design-system'
 import { cpp } from '@codemirror/lang-cpp'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
@@ -13,15 +13,15 @@ import { php } from '@codemirror/lang-php'
 import { python } from '@codemirror/lang-python'
 import { rust } from '@codemirror/lang-rust'
 import { sql } from '@codemirror/lang-sql'
+import { keymap } from '@codemirror/view'
 import { sublime } from '@uiw/codemirror-theme-sublime'
 import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import CodeMirror from '@uiw/react-codemirror'
-import type { EditorLanguage } from './editor.config'
-import { Button, toast } from '@/shared/ui/design-system'
-import { formatCode } from './formatter/formatter.registry'
 import { useState } from 'react'
-import { MdOutlineContentCopy } from "react-icons/md"
-import { IoCheckmark } from "react-icons/io5"
+import { IoCheckmark } from 'react-icons/io5'
+import { MdOutlineContentCopy } from 'react-icons/md'
+import type { EditorLanguage } from './editor.config'
+import { formatCode } from './formatter/formatter.registry'
 
 interface CodeEditorProps {
 	value: string
@@ -90,8 +90,7 @@ export function CodeEditor({
 	}
 
 	return (
-		<div
-			className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-[#303841] dark:border-gray-700 dark:bg-[#1E1E1E]">
+		<div className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-[#303841] dark:border-gray-700 dark:bg-[#1E1E1E]">
 			<Button
 				type="button"
 				variant="ghost"
@@ -104,23 +103,22 @@ export function CodeEditor({
 			>
 				{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}
 			</Button>
-			<div
-				className="overflow-auto"
-				style={{ maxHeight }}
-			>
+			<div className="overflow-auto" style={{ maxHeight }}>
 				<CodeMirror
 					value={value}
 					onChange={onChange}
 					theme={resolvedTheme === 'dark' ? vscodeDark : sublime}
 					extensions={[
 						getLanguageExtension(language),
-						keymap.of([{
-							key: 'Shift-Alt-f',
-							run: () => {
-								handleFormat()
-								return true
+						keymap.of([
+							{
+								key: 'Shift-Alt-f',
+								run: () => {
+									handleFormat()
+									return true
+								},
 							},
-						}]),
+						]),
 					]}
 					placeholder={placeholder}
 					readOnly={readOnly}

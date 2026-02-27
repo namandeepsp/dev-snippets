@@ -1,8 +1,8 @@
 'use client'
 
+import type { SnippetSortBy } from '@/features/snippets/core/repositories/snippet.repository'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { EqualizerLoader, Select } from '@/shared/ui/design-system'
-import type { SnippetSortBy } from '@/features/snippets/core/repositories/snippet.repository'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getPublicSnippetsPage } from './actions'
 
@@ -15,9 +15,10 @@ export default function SnippetsPage() {
 	const [initialLoading, setInitialLoading] = useState(true)
 	const [loadingMore, setLoadingMore] = useState(false)
 	const [hasMore, setHasMore] = useState(true)
-	const [cursor, setCursor] = useState<
-		Awaited<ReturnType<typeof getPublicSnippetsPage>>['nextCursor']
-	>(null)
+	const [cursor, setCursor] =
+		useState<Awaited<ReturnType<typeof getPublicSnippetsPage>>['nextCursor']>(
+			null,
+		)
 	const [sortBy, setSortBy] = useState<SnippetSortBy>('latest')
 	const sentinelRef = useRef<HTMLDivElement | null>(null)
 	const isFetchingRef = useRef(false)
@@ -70,7 +71,9 @@ export default function SnippetsPage() {
 
 			setSnippets((prev) => {
 				const existingIds = new Set(prev.map((item) => item.id))
-				const uniqueNewItems = page.items.filter((item) => !existingIds.has(item.id))
+				const uniqueNewItems = page.items.filter(
+					(item) => !existingIds.has(item.id),
+				)
 				return [...prev, ...uniqueNewItems]
 			})
 			setCursor(page.nextCursor)
@@ -165,9 +168,7 @@ export default function SnippetsPage() {
 
 					{hasMore && <div ref={sentinelRef} className="h-10 w-full" />}
 
-					{loadingMore && (
-						<EqualizerLoader />
-					)}
+					{loadingMore && <EqualizerLoader />}
 
 					{!hasMore && snippets.length > 0 && (
 						<p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">

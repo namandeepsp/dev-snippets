@@ -1,3 +1,4 @@
+import { getCurrentServerUser } from '@/features/auth/auth.server.container'
 import { snippetService } from '@/features/snippets/snippet.server.container'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { userService } from '@/features/user/user.container'
@@ -49,10 +50,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProfilePage({ params }: Props) {
 	const { username } = await params
 
+	let currentUser = null
+	try {
+		currentUser = await getCurrentServerUser()
+	} catch {
+		// Continue as guest when session is invalid/missing
+	}
+
 	// Fetch user and their snippets in parallel
 	const [user, snippets] = await Promise.all([
 		userService.getPublicProfile(username),
-		snippetService.listByUsername(username), // We need to add this method
+		snippetService.listProfileByUsername(username, currentUser?.id),
 	])
 
 	if (!user) {
@@ -130,7 +138,9 @@ export default async function ProfilePage({ params }: Props) {
 				{snippetCount === 0 ? (
 					<div className="rounded-lg border border-dashed border-default p-12 text-center">
 						<p className="text-gray-600 dark:text-gray-400">
-							No public snippets yet.
+							{currentUser?.id === user.id
+								? 'No snippets yet.'
+								: 'No public snippets yet.'}
 						</p>
 					</div>
 				) : (

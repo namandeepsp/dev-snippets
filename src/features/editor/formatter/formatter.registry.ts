@@ -37,7 +37,6 @@ class FormatterRegistry {
 	 * If a formatter for a language already exists, it will be overwritten.
 	 */
 	register(formatter: CodeFormatter): void {
-		console.log('registrer called')
 		// Find all languages this formatter supports
 		const languages = this.getSupportedLanguages(formatter)
 
@@ -78,7 +77,6 @@ class FormatterRegistry {
 	async format(code: string, language: EditorLanguage): Promise<string> {
 		try {
 			const formatter = this.getFormatter(language)
-			console.log('formatter: ', formatter)
 
 			if (!formatter) {
 				return code

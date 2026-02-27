@@ -5,10 +5,12 @@ export abstract class BaseScript implements IScript {
   abstract name: string;
 
   protected ensureDevEnvironment(): void {
-    console.log(process.env.FIREBASE_PROJECT_ID, "process.env.FIREBASE_PROJECT_ID")
-    if (process.env.FIREBASE_PROJECT_ID !== 'dev-snippets-dev') {
+    const projectId = process.env.FIREBASE_PROJECT_ID
+    const allowNonDev = process.env.ALLOW_NON_DEV_SCRIPTS === 'true'
+
+    if (projectId !== 'dev-snippets-dev' && !allowNonDev) {
       throw new Error(
-        `❌ This script can only run on dev-snippets-dev!\n   Current: ${process.env.FIREBASE_PROJECT_ID}`
+        `❌ This script can only run on dev-snippets-dev by default.\n   Current: ${projectId}\n   Set ALLOW_NON_DEV_SCRIPTS=true to override intentionally.`
       );
     }
   }

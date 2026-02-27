@@ -1,6 +1,7 @@
 import { adminDb } from '../../src/services/firebase/firebase.server';
 import { BaseScript } from '../core/base.script';
 import type { FirestoreSnippet } from '../../src/features/snippets/core/snippet.types';
+import { fileURLToPath } from 'node:url';
 
 const DEFAULT_SEED_SNIPPET_COUNT = 100;
 
@@ -140,4 +141,13 @@ export class SeedScript extends BaseScript {
       };
     });
   }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  new SeedScript()
+    .run()
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
 }

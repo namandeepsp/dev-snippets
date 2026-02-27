@@ -1,5 +1,6 @@
 import { adminDb } from '../../src/services/firebase/firebase.server';
 import { BaseScript } from '../core/base.script';
+import { fileURLToPath } from 'node:url';
 
 export class ClearScript extends BaseScript {
   name = 'Clear Data';
@@ -34,4 +35,13 @@ export class ClearScript extends BaseScript {
     this.log(`Deleted ${snapshot.size} documents from ${collectionName}`);
     return snapshot.size;
   }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  new ClearScript()
+    .run()
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
 }

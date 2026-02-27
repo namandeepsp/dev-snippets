@@ -134,6 +134,27 @@ export class SnippetService {
 	}
 
 	/**
+	 * List snippets for a profile page with viewer-aware visibility:
+	 * - Owner viewing own profile: all snippets
+	 * - Other users/guests: public snippets only
+	 */
+	async listProfileByUsername(
+		username: string,
+		viewerUserId?: string,
+	): Promise<Snippet[]> {
+		if (!username) return []
+
+		const user = await userService.getPublicProfile(username)
+		if (!user) return []
+
+		if (viewerUserId && viewerUserId === user.id) {
+			return this.snippetRepository.listByUser(user.id)
+		}
+
+		return this.snippetRepository.listByUser(user.id, 'public')
+	}
+
+	/**
 	 * List snippets by visibility.
 	 */
 	async listByVisibility(

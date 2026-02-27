@@ -2,8 +2,10 @@ import {
 	type User as FirebaseUser,
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
+	getRedirectResult,
 	onAuthStateChanged as firebaseOnAuthStateChanged,
 	signInWithEmailAndPassword as firebaseSignInWithEmail,
+	signInWithRedirect,
 	signOut as firebaseSignOut,
 	getAuth,
 	signInWithPopup,
@@ -74,6 +76,11 @@ export class FirebaseAuthClient implements AuthPort {
 	}
 
 	async signInWithGoogle(): Promise<SignInResult> {
+		if (this.shouldPreferRedirect()) {
+			await signInWithRedirect(auth, googleProvider)
+			return new Promise<never>(() => {})
+		}
+
 		try {
 			const result = await signInWithPopup(auth, googleProvider)
 
@@ -88,6 +95,16 @@ export class FirebaseAuthClient implements AuthPort {
 				isNewUser,
 			}
 		} catch (error: any) {
+			const code = error?.code as string | undefined
+			if (
+				code === 'auth/popup-blocked' ||
+				code === 'auth/cancelled-popup-request' ||
+				code === 'auth/operation-not-supported-in-this-environment'
+			) {
+				await signInWithRedirect(auth, googleProvider)
+				return new Promise<never>(() => {})
+			}
+
 			throw this.mapFirebaseError(error)
 		}
 	}
@@ -225,7 +242,18 @@ export class FirebaseAuthClient implements AuthPort {
 			}
 
 			const payload = await this.getSessionPayload()
-			callback(payload.user)
+			if (payload.user) {
+				callback(payload.user)
+				return
+			}
+
+			try {
+				await this.completeRedirectSession(firebaseUser)
+				const hydrated = await this.getSessionPayload()
+				callback(hydrated.user)
+			} catch {
+				callback(null)
+			}
 		})
 	}
 
@@ -287,6 +315,17 @@ export class FirebaseAuthClient implements AuthPort {
 		} catch {
 			return { session: null, user: null }
 		}
+	}
+
+	private async completeRedirectSession(firebaseUser: FirebaseUser): Promise<void> {
+		const redirectResult = await getRedirectResult(auth).catch(() => null)
+		const user = redirectResult?.user || firebaseUser
+		await this.createSessionCookie(user)
+	}
+
+	private shouldPreferRedirect(): boolean {
+		if (typeof window === 'undefined') return false
+		return /android|iphone|ipad|ipod|mobile/i.test(window.navigator.userAgent)
 	}
 
 	private isNewUser(user: FirebaseUser): boolean {

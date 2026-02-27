@@ -183,7 +183,6 @@ import { snippetApiClient } from '../api/snippet-api.factory';
 export function CreateSnippetForm() {
   const handleSubmit = async (data: CreateSnippetInput) => {
     const snippet = await snippetApiClient.create(data);
-    console.log('Created:', snippet);
   };
 
   return <form onSubmit={handleSubmit}>...</form>;

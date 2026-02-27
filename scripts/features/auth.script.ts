@@ -1,5 +1,6 @@
 import { FirebaseAdminAuthClient } from '../../src/features/auth/infra/client/firebase-admin-auth.client'
 import { BaseScript } from '../core/base.script'
+import { fileURLToPath } from 'node:url'
 
 export class AuthScript extends BaseScript {
 	name = 'Auth Tests'
@@ -99,4 +100,13 @@ export class AuthScript extends BaseScript {
 			.replace(/[^a-z0-9]/g, '')
 			.slice(0, 20)
 	}
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	new AuthScript()
+		.run()
+		.catch((error) => {
+			console.error(error)
+			process.exit(1)
+		})
 }

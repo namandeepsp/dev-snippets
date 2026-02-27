@@ -4,6 +4,7 @@ import type {
 	CreateUserDTO,
 	UpdateUserDTO,
 } from '../../src/features/user/core/user.types'
+import { fileURLToPath } from 'node:url'
 
 export class UserScript extends BaseScript {
 	name = 'User Tests'
@@ -122,4 +123,13 @@ export class UserScript extends BaseScript {
 
 		this.log('✓ Delete user')
 	}
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	new UserScript()
+		.run()
+		.catch((error) => {
+			console.error(error)
+			process.exit(1)
+		})
 }

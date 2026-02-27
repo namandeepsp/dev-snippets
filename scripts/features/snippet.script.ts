@@ -6,6 +6,7 @@ import type {
 	UpdateSnippetServiceInput,
 } from '../../src/features/snippets/core/repositories/snippet.repository'
 import { FirebaseSnippetRepository } from '../../src/features/snippets/infra/repositories/firebase-snippet.repository'
+import { fileURLToPath } from 'node:url'
 
 const DEFAULT_BULK_SNIPPET_COUNT = 100
 
@@ -293,4 +294,13 @@ export class SnippetScript extends BaseScript {
 		const index = Math.floor(Math.random() * items.length)
 		return items[index]
 	}
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	new SnippetScript()
+		.run()
+		.catch((error) => {
+			console.error(error)
+			process.exit(1)
+		})
 }

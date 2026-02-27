@@ -15,7 +15,6 @@ export class MainRunner extends BaseScript {
     for (const script of this.scripts) {
       try {
         await script.run();
-        console.log('');
       } catch (error) {
         this.logError(`${script.name} failed: ${error}`);
         throw error;

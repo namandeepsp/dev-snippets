@@ -121,6 +121,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 			toast.error(
 				err instanceof Error ? err.message : `Failed to ${mode} snippet`,
 			)
+		} finally {
 			setIsSaving(false)
 		}
 	}

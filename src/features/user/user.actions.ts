@@ -2,6 +2,7 @@
 
 import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
 import { cookies } from 'next/headers'
+import { snippetService } from '../snippets/snippet.server.container'
 import { UserDomainError } from './core/user.service'
 import type { PublicUser, UpdateUserDTO } from './core/user.types'
 import type { ApiResponse } from './infra/client/user-api.client'
@@ -110,7 +111,20 @@ export async function updateUserProfile(
 export async function deleteUserAccount(): Promise<ApiResponse> {
 	try {
 		const decodedUser = await requireAuth()
-		await userService.deleteUser(decodedUser.uid, decodedUser.uid)
+		const userId = decodedUser.uid
+		const auth = getServerFirebaseAuth()
+
+		// Delete all snippets owned by the user first.
+		const snippets = await snippetService.listByUser(userId)
+		await Promise.all(
+			snippets.map((snippet) =>
+				snippetService.deleteSnippet(snippet.id, userId),
+			),
+		)
+
+		// Delete profile and auth account.
+		await userService.deleteUser(userId, userId)
+		await auth.deleteUser(userId)
 
 		const cookieStore = await cookies()
 		cookieStore.delete('__session')

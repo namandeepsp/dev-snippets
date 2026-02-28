@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ThemeToggle } from './ThemeToggle'
-import { Button } from './design-system'
+import { Button, Skeleton } from './design-system'
 
 /**
  * ============================================================================
@@ -45,20 +45,11 @@ export function Header() {
 
 	// Don't render anything while loading to prevent flash
 	if (loading) {
-		return (
-			<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
-				<div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-					<Link href="/" className="text-xl font-bold">
-						DevSnippets
-					</Link>
-					<div className="w-10 h-10" /> {/* Placeholder for theme toggle */}
-				</div>
-			</header>
-		)
+		return <HeaderSkeleton />
 	}
 
 	return (
-		<header className="sticky top-0 z-40 relative border-b bg-background/95 backdrop-blur-md">
+		<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
 			<div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
 				{/* Logo */}
 				<Link
@@ -232,6 +223,34 @@ export function Header() {
 						</>
 					) : null}
 				</nav>
+			</div>
+		</header>
+	)
+}
+
+function HeaderSkeleton() {
+	return (
+		<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
+			<div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+				<Link href="/" className="text-xl font-bold">
+					DevSnippets
+				</Link>
+
+				<div className="flex items-center gap-6 max-[850px]:hidden">
+					<Skeleton className="h-6 w-16" />
+					<Skeleton className="h-6 w-14" />
+					<Skeleton className="h-6 w-16" />
+					<div className="flex gap-2 items-center">
+						<Skeleton className="h-9 w-9 rounded-full" />
+						<Skeleton className="h-6 w-28" />
+					</div>
+					<Skeleton className="h-9 w-28 rounded-full" />
+				</div>
+
+				<div className="hidden items-center gap-2 max-[850px]:flex">
+					<ThemeToggle />
+					<Skeleton className="h-10 w-10 rounded-xl" />
+				</div>
 			</div>
 		</header>
 	)

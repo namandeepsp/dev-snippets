@@ -4,8 +4,9 @@ import { logout } from '@/features/auth/auth.client.container'
 import { RequireAuth } from '@/features/auth/ui/RequireAuth'
 import { useAuth } from '@/features/auth/ui/store/auth.store'
 import { userApiClient } from '@/features/user/infra/client/user-api.factory'
+import { Button, Skeleton } from '@/shared/ui/design-system'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function SettingsContent() {
 	const { user } = useAuth()
@@ -13,12 +14,30 @@ function SettingsContent() {
 
 	const [name, setName] = useState(user?.name || '')
 	const [bio, setBio] = useState(user?.bio || '')
+	const [initialName, setInitialName] = useState(user?.name || '')
+	const [initialBio, setInitialBio] = useState(user?.bio || '')
 	const [saving, setSaving] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState(false)
 
+	useEffect(() => {
+		if (!user) return
+
+		const nextName = user.name || ''
+		const nextBio = user.bio || ''
+		setName(nextName)
+		setBio(nextBio)
+		setInitialName(nextName)
+		setInitialBio(nextBio)
+	}, [user?.id, user?.name, user?.bio])
+
+	const normalizedName = name.trim()
+	const normalizedBio = bio.trim()
+	const hasProfileChanges =
+		normalizedName !== initialName.trim() || normalizedBio !== initialBio.trim()
+
 	async function handleSave() {
-		if (!user || saving) return
+		if (!user || saving || !hasProfileChanges) return
 
 		setSaving(true)
 		setError(null)
@@ -26,9 +45,14 @@ function SettingsContent() {
 
 		try {
 			await userApiClient.updateProfile({
-				name: name.trim(),
-				bio: bio.trim(),
+				name: normalizedName,
+				bio: normalizedBio,
 			})
+
+			setName(normalizedName)
+			setBio(normalizedBio)
+			setInitialName(normalizedName)
+			setInitialBio(normalizedBio)
 
 			setSuccess(true)
 			// Reset success message after 3 seconds
@@ -44,7 +68,7 @@ function SettingsContent() {
 
 	async function handleDeleteAccount() {
 		if (
-			!confirm(
+			!globalThis.confirm(
 				'Are you sure you want to delete your account? This action cannot be undone.',
 			)
 		) {
@@ -56,7 +80,12 @@ function SettingsContent() {
 
 		try {
 			await userApiClient.deleteAccount()
-			router.push('/')
+			try {
+				await logout()
+			} catch {
+				// Best effort: account is already deleted server-side.
+			}
+			router.replace('/')
 		} catch (error) {
 			setError(
 				error instanceof Error ? error.message : 'Failed to delete account',
@@ -72,8 +101,7 @@ function SettingsContent() {
 
 		try {
 			await logout()
-			router.push('/')
-			router.refresh()
+			router.replace('/')
 		} catch (error) {
 			setError(error instanceof Error ? error.message : 'Failed to logout')
 			setSaving(false)
@@ -131,13 +159,14 @@ function SettingsContent() {
 						/>
 					</div>
 
-					<button
+					<Button
 						onClick={handleSave}
-						disabled={saving || (!name.trim() && !bio.trim())}
-						className="rounded-md bg-foreground px-4 py-2 text-background disabled:opacity-50"
+						disabled={saving || !hasProfileChanges}
+						variant="ghost"
+						className="rounded-md bg-slate-900 px-4 py-2 text-white hover:bg-slate-800 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600 disabled:opacity-50"
 					>
 						{saving ? 'Saving...' : 'Save Changes'}
-					</button>
+					</Button>
 				</div>
 
 				{/* Account Information */}
@@ -178,13 +207,14 @@ function SettingsContent() {
 								Sign out from your current device
 							</p>
 						</div>
-						<button
+						<Button
 							onClick={handleLogout}
 							disabled={saving}
+							variant="ghost"
 							className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
 						>
 							Logout
-						</button>
+						</Button>
 					</div>
 				</div>
 
@@ -202,13 +232,62 @@ function SettingsContent() {
 									Permanently delete your account and all your snippets
 								</p>
 							</div>
-							<button
+							<Button
 								onClick={handleDeleteAccount}
 								disabled={saving}
+								variant="ghost"
 								className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
 							>
 								Delete Account
-							</button>
+							</Button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+function SettingsPageSkeleton() {
+	return (
+		<div className="mx-auto max-w-2xl px-4 py-8">
+			<Skeleton className="mb-6 h-10 w-36" />
+
+			<div className="space-y-6">
+				<div className="space-y-4">
+					<Skeleton className="h-7 w-44" />
+					<div>
+						<Skeleton className="mb-2 h-4 w-28" />
+						<Skeleton className="h-10 w-full rounded-md" />
+					</div>
+					<div>
+						<Skeleton className="mb-2 h-4 w-14" />
+						<Skeleton className="h-28 w-full rounded-md" />
+					</div>
+					<Skeleton className="h-10 w-36 rounded-md" />
+				</div>
+
+				<div className="space-y-4 border-t pt-6">
+					<Skeleton className="h-7 w-48" />
+					<Skeleton className="h-32 w-full rounded-md" />
+					<div className="flex items-center justify-between rounded-md border border-default p-4">
+						<div className="space-y-2">
+							<Skeleton className="h-5 w-20" />
+							<Skeleton className="h-4 w-52" />
+						</div>
+						<Skeleton className="h-10 w-24 rounded-md" />
+					</div>
+				</div>
+
+				<div className="space-y-4 border-t pt-6">
+					<Skeleton className="h-7 w-28" />
+					<div className="rounded-md border border-red-200 p-4 dark:border-red-900">
+						<div className="flex items-center justify-between">
+							<div className="space-y-2">
+								<Skeleton className="h-5 w-30" />
+								<Skeleton className="h-4 w-64 max-w-full" />
+							</div>
+							<Skeleton className="h-10 w-32 rounded-md" />
 						</div>
 					</div>
 				</div>
@@ -219,7 +298,7 @@ function SettingsContent() {
 
 export default function SettingsPage() {
 	return (
-		<RequireAuth>
+		<RequireAuth fallback={<SettingsPageSkeleton />}>
 			<SettingsContent />
 		</RequireAuth>
 	)

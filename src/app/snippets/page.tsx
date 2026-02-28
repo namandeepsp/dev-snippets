@@ -2,7 +2,8 @@
 
 import type { SnippetSortBy } from '@/features/snippets/core/repositories/snippet.repository'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
-import { EqualizerLoader, Select } from '@/shared/ui/design-system'
+import { SnippetCardSkeleton } from '@/features/snippets/ui/SnippetCardSkeleton'
+import { Select } from '@/shared/ui/design-system'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getPublicSnippetsPage } from './actions'
 
@@ -114,7 +115,7 @@ export default function SnippetsPage() {
 			<div className="mb-8 flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight mb-2">
-						Public Snippets
+						Community Snippets
 					</h1>
 					<p className="text-gray-600 dark:text-gray-400">
 						Discover reusable code snippets shared by the community
@@ -137,18 +138,7 @@ export default function SnippetsPage() {
 			{initialLoading ? (
 				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{[...Array(6)].map((_, i) => (
-						<div
-							key={i}
-							className="rounded-lg border border-default p-4 animate-pulse"
-						>
-							<div className="h-6 w-3/4 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
-							<div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-							<div className="h-4 w-2/3 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
-							<div className="flex gap-2">
-								<div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
-								<div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
-							</div>
-						</div>
+						<SnippetCardSkeleton key={i} />
 					))}
 				</div>
 			) : snippets.length === 0 ? (
@@ -168,7 +158,13 @@ export default function SnippetsPage() {
 
 					{hasMore && <div ref={sentinelRef} className="h-10 w-full" />}
 
-					{loadingMore && <EqualizerLoader />}
+					{loadingMore && (
+						<div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+							{[...Array(PAGE_SIZE)].map((_, i) => (
+								<SnippetCardSkeleton key={`loading-${i}`} />
+							))}
+						</div>
+					)}
 
 					{!hasMore && snippets.length > 0 && (
 						<p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">

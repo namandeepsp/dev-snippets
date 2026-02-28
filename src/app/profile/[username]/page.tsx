@@ -78,7 +78,7 @@ export default async function ProfilePage({ params }: Props) {
 			{/* Profile Header */}
 			<div className="mb-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
 				{/* Avatar */}
-				<div className="flex-shrink-0">
+				<div className="shrink-0">
 					{user.avatarUrl ? (
 						<img
 							src={user.avatarUrl}

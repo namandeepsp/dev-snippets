@@ -28,7 +28,7 @@ export function Select({
 	}
 
 	return (
-		<div className="w-full">
+		<div className="w-max">
 			{label && (
 				<label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
 					{label}

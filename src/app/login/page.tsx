@@ -180,7 +180,7 @@ export default function LoginPage() {
 			<div className="pointer-events-none absolute -left-24 top-16 h-64 w-64 rounded-full bg-cyan-300/35 blur-3xl dark:bg-cyan-800/30" />
 			<div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-900/30" />
 			<div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_440px]">
-				<div className="hidden rounded-[2rem] border border-white/35 bg-white/40 p-10 shadow-xl shadow-cyan-900/10 backdrop-blur-xl lg:flex lg:flex-col lg:justify-between dark:border-white/10 dark:bg-slate-950/35">
+				<div className="hidden rounded-4xl border border-white/35 bg-white/40 p-10 shadow-xl shadow-cyan-900/10 backdrop-blur-xl lg:flex lg:flex-col lg:justify-between dark:border-white/10 dark:bg-slate-950/35">
 					<div>
 						<p className="inline-flex rounded-full border border-sky-300/45 bg-sky-50/80 px-4 py-1 text-xs font-medium text-sky-700 dark:border-sky-400/30 dark:bg-sky-950/50 dark:text-sky-200">
 							Auth workspace
@@ -202,10 +202,10 @@ export default function LoginPage() {
 					</div>
 				</div>
 
-				<Card variant="glass" className="w-full rounded-[2rem]">
+				<Card variant="glass" className="w-full rounded-4xl">
 					<CardBody className="p-6 sm:p-8">
 						<div className="mb-6 text-center">
-							<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-blue-500 to-cyan-400 shadow-lg shadow-blue-600/30">
+							<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 via-blue-500 to-cyan-400 shadow-lg shadow-blue-600/30">
 								<svg
 									className="h-7 w-7 text-white"
 									fill="none"
@@ -234,7 +234,7 @@ export default function LoginPage() {
 								disabled={submitting}
 								variant="glass"
 								size="lg"
-								className="w-full border-slate-300/50 bg-white/90 hover:bg-white dark:border-white/15 dark:bg-slate-900/45"
+								className="h-12 w-full border-slate-300/50 bg-white/90 hover:bg-white dark:border-white/15 dark:bg-slate-900/45"
 								leftIcon={
 									<svg viewBox="0 0 24 24" width="20" height="20">
 										<path
@@ -270,32 +270,36 @@ export default function LoginPage() {
 								</div>
 							</div>
 
-							<div className="rounded-2xl border border-white/55 bg-white/65 p-1 backdrop-blur-xl dark:border-white/15 dark:bg-slate-950/40">
-								<div className="grid grid-cols-2 gap-1">
-									<button
+							<div className="rounded-2xl border border-white/55 bg-white/65 p-0 backdrop-blur-xl dark:border-white/15 dark:bg-slate-950/40">
+								<div className="grid h-12 grid-cols-2 gap-1">
+									<Button
 										type="button"
 										onClick={() => setMode('signin')}
+										variant="ghost"
+										size="sm"
 										className={cn(
-											'rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200',
+											'h-full text-sm font-semibold transition-all duration-200',
 											mode === 'signin'
-												? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/35'
+												? 'bg-linear-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/35'
 												: 'text-slate-600 hover:bg-white/80 dark:text-slate-300 dark:hover:bg-slate-800/60',
 										)}
 									>
 										Sign In
-									</button>
-									<button
+									</Button>
+									<Button
 										type="button"
 										onClick={() => setMode('signup')}
+										variant="ghost"
+										size="sm"
 										className={cn(
-											'rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200',
+											'h-full text-sm font-semibold transition-all duration-200',
 											mode === 'signup'
-												? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/35'
+												? 'bg-linear-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/35'
 												: 'text-slate-600 hover:bg-white/80 dark:text-slate-300 dark:hover:bg-slate-800/60',
 										)}
 									>
 										Create Account
-									</button>
+									</Button>
 								</div>
 							</div>
 
@@ -310,6 +314,7 @@ export default function LoginPage() {
 										disabled={submitting}
 										required
 										variant="glass"
+										className="h-12 py-0"
 										leftIcon={<UserIcon />}
 									/>
 								)}
@@ -322,6 +327,7 @@ export default function LoginPage() {
 									disabled={submitting}
 									required
 									variant="glass"
+									className="h-12 py-0"
 									leftIcon={<MailIcon />}
 								/>
 								<Input
@@ -335,6 +341,7 @@ export default function LoginPage() {
 									disabled={submitting}
 									required
 									variant="glass"
+									className="h-12 py-0"
 									leftIcon={<LockIcon />}
 								/>
 								{mode === 'signup' && (
@@ -347,6 +354,7 @@ export default function LoginPage() {
 										disabled={submitting}
 										required
 										variant="glass"
+										className="h-12 py-0"
 										leftIcon={<LockIcon />}
 									/>
 								)}
@@ -356,7 +364,7 @@ export default function LoginPage() {
 									disabled={submitting}
 									isLoading={submitting}
 									size="lg"
-									className="mt-2 w-full bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-blue-600/40 hover:from-sky-600 hover:to-blue-600"
+									className="mt-2 h-12 w-full bg-linear-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-blue-600/40 hover:from-sky-600 hover:to-blue-600"
 								>
 									{mode === 'signup' ? 'Create Account' : 'Sign In'}
 								</Button>

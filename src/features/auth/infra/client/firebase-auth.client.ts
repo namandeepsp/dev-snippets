@@ -2,13 +2,13 @@ import {
 	type User as FirebaseUser,
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
-	getRedirectResult,
 	onAuthStateChanged as firebaseOnAuthStateChanged,
 	signInWithEmailAndPassword as firebaseSignInWithEmail,
-	signInWithRedirect,
 	signOut as firebaseSignOut,
 	getAuth,
+	getRedirectResult,
 	signInWithPopup,
+	signInWithRedirect,
 	updateProfile,
 } from 'firebase/auth'
 
@@ -247,7 +247,10 @@ export class FirebaseAuthClient implements AuthPort {
 				const hydrated = await this.getSessionPayload()
 				callback(hydrated.user)
 			} catch (error) {
-				console.error('Failed to hydrate auth session from Firebase user:', error)
+				console.error(
+					'Failed to hydrate auth session from Firebase user:',
+					error,
+				)
 				callback(null)
 			}
 		})
@@ -302,7 +305,9 @@ export class FirebaseAuthClient implements AuthPort {
 		}
 	}
 
-	private async completeRedirectSession(firebaseUser: FirebaseUser): Promise<void> {
+	private async completeRedirectSession(
+		firebaseUser: FirebaseUser,
+	): Promise<void> {
 		const redirectResult = await getRedirectResult(auth).catch(() => null)
 		const user = redirectResult?.user || firebaseUser
 		await this.createSessionCookie(user)

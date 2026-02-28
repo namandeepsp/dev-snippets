@@ -5,7 +5,7 @@ import { CodeEditor } from '@/features/editor/CodeEditor'
 import { formatCode } from '@/features/editor/formatter/formatter.registry'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
 import { useRouter } from 'next/navigation'
-import { type SubmitEvent, useState } from 'react'
+import { type SubmitEvent, useMemo, useState } from 'react'
 import { TechnologyBadge } from './TechnologyBadge'
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
@@ -69,8 +69,42 @@ export function SnippetForm({ mode, snippet }: Props) {
 	const [isSaving, setIsSaving] = useState(false)
 	const [isFormatting, setIsFormatting] = useState(false)
 
-	// Form validation
-	const isValid = title.trim() && code.trim() && !isSaving
+	const normalizedTitle = title.trim()
+	const normalizedDescription = description.trim()
+	const hasRequiredFields = Boolean(normalizedTitle && code.trim())
+
+	const hasEditChanges = useMemo(() => {
+		if (mode !== 'edit' || !snippet) return true
+
+		const sameArray = (a: string[], b: string[]) => {
+			if (a.length !== b.length) return false
+			const left = [...a].sort()
+			const right = [...b].sort()
+			return left.every((value, index) => value === right[index])
+		}
+
+		return (
+			normalizedTitle !== snippet.title.trim() ||
+			normalizedDescription !== (snippet.description ?? '').trim() ||
+			code !== snippet.code ||
+			language !== snippet.language ||
+			visibility !== snippet.visibility ||
+			!sameArray(technologies, snippet.technologies ?? []) ||
+			!sameArray(categories, snippet.categories ?? [])
+		)
+	}, [
+		mode,
+		snippet,
+		normalizedTitle,
+		normalizedDescription,
+		code,
+		language,
+		visibility,
+		technologies,
+		categories,
+	])
+
+	const canSubmit = hasRequiredFields && !isSaving && hasEditChanges
 
 	async function handleFormatCode() {
 		if (!code.trim()) return
@@ -89,7 +123,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 	async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
 		e.preventDefault()
 
-		if (!isValid) return
+		if (!canSubmit) return
 
 		setIsSaving(true)
 
@@ -97,8 +131,8 @@ export function SnippetForm({ mode, snippet }: Props) {
 			const formattedCode = await formatCode(code, language)
 
 			const input: CreateSnippetServiceInput = {
-				title: title.trim(),
-				description: description.trim() || undefined,
+				title: normalizedTitle,
+				description: normalizedDescription || undefined,
 				code: formattedCode,
 				language,
 				technologies,
@@ -109,14 +143,12 @@ export function SnippetForm({ mode, snippet }: Props) {
 			if (mode === 'edit' && snippet) {
 				await snippetApiClient.update(snippet.id, input)
 				toast.success('Snippet updated successfully!')
-				router.push(`/snippets/${snippet.id}`)
+				router.replace(`/snippets/${snippet.id}`)
 			} else {
 				const newSnippet = await snippetApiClient.create(input)
 				toast.success('Snippet created successfully!')
-				router.push(`/snippets/${newSnippet.id}`)
+				router.replace(`/snippets/${newSnippet.id}`)
 			}
-
-			router.refresh()
 		} catch (err) {
 			toast.error(
 				err instanceof Error ? err.message : `Failed to ${mode} snippet`,
@@ -212,7 +244,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 							data-tooltip-content={
 								isFormatting ? 'Formatting...' : 'Format code (Shift+Alt+F)'
 							}
-							className="min-w-[140px] border-white/45 bg-white/70 px-4 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-900/5 hover:bg-white/90 dark:border-white/15 dark:bg-slate-900/45 dark:text-slate-100 dark:hover:bg-slate-900/70 max-[1024px]:min-w-[42px] max-[1024px]:px-2.5"
+							className="min-w-35 border-white/45 bg-white/70 px-4 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-900/5 hover:bg-white/90 dark:border-white/15 dark:bg-slate-900/45 dark:text-slate-100 dark:hover:bg-slate-900/70 max-[1024px]:min-w-10.5 max-[1024px]:px-2.5"
 						>
 							{isFormatting ? (
 								<svg
@@ -333,21 +365,21 @@ export function SnippetForm({ mode, snippet }: Props) {
 			<div>
 				<label className="block mb-2 font-medium">Categories</label>
 				<div className="flex flex-wrap gap-2">
-					{CATEGORIES.map((cat) => (
+					{CATEGORIES.map((category) => (
 						<Button
-							key={cat}
+							key={category}
 							type="button"
-							onClick={() => toggleCategory(cat)}
+							onClick={() => toggleCategory(category)}
 							disabled={isSaving}
 							size="sm"
-							variant={categories.includes(cat) ? 'primary' : 'secondary'}
+							variant={categories.includes(category) ? 'primary' : 'secondary'}
 							className={`h-auto rounded-full px-3 py-1.5 text-xs font-medium transition ${
-								categories.includes(cat)
+								categories.includes(category)
 									? 'bg-foreground text-background shadow-none'
 									: 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
 							}`}
 						>
-							{cat}
+							{category}
 						</Button>
 					))}
 				</div>
@@ -377,10 +409,10 @@ export function SnippetForm({ mode, snippet }: Props) {
 			<div className="flex items-center gap-4 pt-4">
 				<Button
 					type="submit"
-					disabled={!isValid}
+					disabled={!canSubmit}
 					isLoading={isSaving}
 					size="md"
-					className="bg-gradient-to-r from-sky-500 to-blue-500 px-6 text-white shadow-lg shadow-blue-600/30 hover:from-sky-600 hover:to-blue-600"
+					className="bg-linear-to-r from-sky-500 to-blue-500 px-6 text-white shadow-lg shadow-blue-600/30 hover:from-sky-600 hover:to-blue-600"
 				>
 					{mode === 'edit' ? 'Update Snippet' : 'Create Snippet'}
 				</Button>

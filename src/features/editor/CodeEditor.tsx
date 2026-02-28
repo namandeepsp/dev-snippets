@@ -98,7 +98,7 @@ export function CodeEditor({
 				onClick={handleCopy}
 				data-tooltip-id="app-tooltip"
 				data-tooltip-content={copied ? 'Copied!' : 'Copy code'}
-				className="absolute top-2 right-2 z-10 pointer-events-auto !rounded-lg !px-3 !py-2 !text-lg transition-all focus:ring-0 focus:outline-none !bg-gray-200 !text-slate-700 hover:!bg-gray-300 dark:!bg-slate-800/90 dark:!text-slate-200 dark:hover:!bg-slate-800"
+				className="absolute top-2 right-2 z-10 pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800!"
 				aria-label={copied ? 'Copied!' : 'Copy code to clipboard'}
 			>
 				{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}

@@ -99,7 +99,7 @@ export function CodeBlock({
 					variant="ghost"
 					size="sm"
 					onClick={handleCopy}
-					className={`!gap-1.5 !rounded-lg !px-3 !py-1.5 !text-xs !font-semibold transition-all focus:ring-0 focus:outline-none ${
+					className={`gap-1.5! rounded-lg! px-3! py-1.5! text-xs! font-semibold! transition-all focus:ring-0 focus:outline-none ${
 						copied
 							? copyButtonBaseClasses
 							: copyError

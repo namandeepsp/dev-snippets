@@ -2,6 +2,7 @@
 
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useEffect, useState } from 'react'
+import { Button } from './design-system'
 
 export function ThemeToggle() {
 	const { theme, setTheme } = useTheme()
@@ -30,21 +31,23 @@ export function ThemeToggle() {
 				const active = theme === item.id
 
 				return (
-					<button
+					<Button
 						key={item.id}
 						type="button"
 						onClick={() => setTheme(item.id)}
 						aria-label={item.label}
-						className={`cursor-pointer rounded-full px-2.5 py-1.5 text-base transition ${
+						variant="ghost"
+						size="sm"
+						className={`rounded-full px-2.5 py-1.5 text-base transition ${
 							active
-								? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-blue-500/35'
+								? 'bg-linear-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-blue-500/35'
 								: 'text-slate-600 hover:bg-white/70 dark:text-slate-300 dark:hover:bg-slate-800/60'
 						}`}
 						data-tooltip-id="app-tooltip"
 						data-tooltip-content={item.tooltip}
 					>
 						{item.icon}
-					</button>
+					</Button>
 				)
 			})}
 		</div>

@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/features/auth/auth.client.container'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
+import { Button } from '@/shared/ui/design-system'
 import { formatDate } from '@/shared/utils/date'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -53,11 +54,10 @@ export function SnippetViewer({ snippet }: Props) {
 		setIsDeleting(true)
 		try {
 			await snippetApiClient.delete(snippet.id)
-			router.push('/snippets')
-			router.refresh()
+			router.replace('/snippets')
 		} catch (error) {
 			console.error('Failed to delete snippet:', error)
-			alert('Failed to delete snippet. Please try again.')
+			globalThis.alert('Failed to delete snippet. Please try again.')
 		} finally {
 			setIsDeleting(false)
 			setShowDeleteConfirm(false)
@@ -190,13 +190,14 @@ export function SnippetViewer({ snippet }: Props) {
 						Edit Snippet
 					</Link>
 
-					<button
+					<Button
 						onClick={() => setShowDeleteConfirm(true)}
 						disabled={isDeleting}
+						variant="ghost"
 						className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/50 transition disabled:opacity-50"
 					>
 						{isDeleting ? 'Deleting...' : 'Delete'}
-					</button>
+					</Button>
 				</div>
 			)}
 
@@ -233,9 +234,14 @@ export function SnippetViewer({ snippet }: Props) {
 								</div>
 							))}
 						{snippet.versions.length > 3 && (
-							<button className="text-sm text-blue-600 hover:underline dark:text-blue-400">
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								className="h-auto px-0 py-0 text-sm text-blue-600 hover:underline dark:text-blue-400"
+							>
 								View all versions
-							</button>
+							</Button>
 						)}
 					</div>
 				</div>
@@ -251,19 +257,21 @@ export function SnippetViewer({ snippet }: Props) {
 							cannot be undone.
 						</p>
 						<div className="flex justify-end gap-3">
-							<button
+							<Button
 								onClick={() => setShowDeleteConfirm(false)}
+								variant="ghost"
 								className="rounded-md border border-default px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition"
 							>
 								Cancel
-							</button>
-							<button
+							</Button>
+							<Button
 								onClick={handleDelete}
 								disabled={isDeleting}
+								variant="ghost"
 								className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition disabled:opacity-50"
 							>
 								{isDeleting ? 'Deleting...' : 'Delete'}
-							</button>
+							</Button>
 						</div>
 					</div>
 				</div>

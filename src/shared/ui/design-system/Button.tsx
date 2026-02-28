@@ -31,7 +31,7 @@ export function Button({
 	...props
 }: ButtonProps) {
 	const baseStyles =
-		'inline-flex cursor-pointer items-center justify-center gap-2.5 font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-4'
+		'inline-flex cursor-pointer items-center justify-center gap-2.5 font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 focus:outline-none focus:ring-4'
 
 	const variants = {
 		primary:
@@ -86,9 +86,9 @@ export function Button({
 				</>
 			) : (
 				<>
-					{leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
+					{leftIcon && <span className="shrink-0">{leftIcon}</span>}
 					{children}
-					{rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
+					{rightIcon && <span className="shrink-0">{rightIcon}</span>}
 				</>
 			)}
 		</button>

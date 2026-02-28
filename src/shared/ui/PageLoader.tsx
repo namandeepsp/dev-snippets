@@ -10,7 +10,7 @@ export function PageLoader({ fullScreen = true }: PageLoaderProps) {
 			className={cn(
 				'relative isolate flex w-full items-center justify-center overflow-hidden',
 				fullScreen
-					? 'fixed inset-0 z-[9999] min-h-screen'
+					? 'fixed inset-0 z-9999 min-h-screen'
 					: 'min-h-[70vh] rounded-3xl',
 			)}
 		>

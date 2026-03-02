@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger'
 import { format } from 'prettier'
 import parserMarkdown from 'prettier/plugins/markdown'
 import type { EditorLanguage } from '../editor.config'
@@ -37,7 +38,7 @@ const markdownFormatter: CodeFormatter = {
 
 			return { formattedCode }
 		} catch (error) {
-			console.error('[Markdown] Formatting failed:', error)
+			logger.error('Markdown formatting failed', error)
 
 			return {
 				formattedCode: request.code,

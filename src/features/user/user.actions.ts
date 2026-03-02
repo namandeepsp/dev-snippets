@@ -1,6 +1,7 @@
 'use server'
 
 import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
+import { logger } from '@/shared/utils/logger'
 import { cookies } from 'next/headers'
 import { snippetService } from '../snippets/snippet.server.container'
 import { UserDomainError } from './core/user.service'
@@ -50,7 +51,7 @@ export async function getUserProfile(
 		const user = await userService.getPublicProfile(username)
 		return { success: true, data: user }
 	} catch (error) {
-		console.error('Failed to get user profile:', error)
+		logger.error('Failed to get user profile', error)
 		return {
 			success: false,
 			error: 'Failed to load user profile',
@@ -65,7 +66,7 @@ export async function getUsersByIds(
 		const users = await userService.getUsersByIds(ids)
 		return { success: true, data: users }
 	} catch (error) {
-		console.error('Failed to get users:', error)
+		logger.error('Failed to get users', error)
 		return {
 			success: false,
 			error: 'Failed to load users',
@@ -85,7 +86,7 @@ export async function updateUserProfile(
 		await userService.updateUser(decodedUser.uid, input, decodedUser.uid)
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to update user:', error)
+		logger.error('Failed to update user', error)
 
 		if (error instanceof UserDomainError) {
 			switch (error.code) {
@@ -131,7 +132,7 @@ export async function deleteUserAccount(): Promise<ApiResponse> {
 
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to delete user:', error)
+		logger.error('Failed to delete user', error)
 
 		if (error instanceof UserDomainError) {
 			switch (error.code) {

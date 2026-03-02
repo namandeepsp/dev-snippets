@@ -45,11 +45,7 @@ export default function SnippetDetailLoading() {
 						<Skeleton className="h-4 w-12" />
 						<Skeleton className="h-4 w-20" />
 					</div>
-					<div className="rounded-xl border border-default bg-card p-4">
-						{Array.from({ length: 9 }).map((_, idx) => (
-							<Skeleton key={idx} className="mb-2 h-4 w-full last:mb-0" />
-						))}
-					</div>
+					<CodeBlockSkeleton />
 				</div>
 
 				<div className="flex items-center gap-4 pt-4">
@@ -57,6 +53,56 @@ export default function SnippetDetailLoading() {
 					<Skeleton className="h-10 w-24" />
 				</div>
 			</article>
+		</div>
+	)
+}
+
+function CodeBlockSkeleton() {
+	const lineWidths = [
+		'w-[92%]',
+		'w-[78%]',
+		'w-[88%]',
+		'w-[66%]',
+		'w-[84%]',
+		'w-[74%]',
+		'w-[90%]',
+		'w-[70%]',
+		'w-[82%]',
+	]
+
+	return (
+		<div className="flex flex-col gap-2 overflow-hidden rounded-xl border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]">
+			<div className="flex items-center justify-between gap-3">
+				<div className="flex min-w-0 items-center gap-2">
+					<Skeleton className="h-6 w-20 rounded-md bg-white/25 dark:bg-white/10" />
+				</div>
+				<div className="flex items-center gap-2">
+					<Skeleton className="h-8 w-16 rounded-[10px] bg-white/20 dark:bg-white/10" />
+					<Skeleton className="h-8 w-16 rounded-[10px] bg-white/20 dark:bg-white/10" />
+				</div>
+			</div>
+
+			<div className="overflow-hidden bg-[#303841] py-4 dark:bg-[#1E1E1E]">
+				<div className="space-y-3 px-4">
+					{lineWidths.map((width, idx) => (
+						<Skeleton
+							key={idx}
+							className={`h-3 ${width} rounded-sm bg-white/15 dark:bg-white/10`}
+						/>
+					))}
+				</div>
+			</div>
+
+			<div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#D4D4D4] py-1.5 dark:border-gray-600">
+				<div className="flex items-center gap-2">
+					<Skeleton className="h-3.5 w-3.5 rounded-full bg-white/20 dark:bg-white/10" />
+					<Skeleton className="h-3 w-24 bg-white/20 dark:bg-white/10" />
+					<Skeleton className="h-3 w-3 rounded-sm bg-white/20 dark:bg-white/10" />
+					<Skeleton className="h-3 w-28 bg-white/20 dark:bg-white/10" />
+				</div>
+				<Skeleton className="hidden h-3 w-24 sm:block bg-white/20 dark:bg-white/10" />
+				<Skeleton className="h-3 w-16 sm:hidden bg-white/20 dark:bg-white/10" />
+			</div>
 		</div>
 	)
 }

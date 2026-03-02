@@ -1,6 +1,7 @@
 import type { Session } from '@/features/auth/core/auth.types'
 import { userService } from '@/features/user/user.container'
 import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
+import { logger } from '@/shared/utils/logger'
 import { getAuthProvider } from '@/shared/utils/utils'
 import { cookies } from 'next/headers'
 import { type NextRequest, NextResponse } from 'next/server'
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
 			isNewUser: decodedToken.auth_time === decodedToken.iat, // First sign-in
 		})
 	} catch (error: any) {
-		console.error('Session creation failed:', error)
+		logger.error('Session creation failed', error)
 
 		// Handle specific Firebase errors
 		if (error.code === 'auth/id-token-expired') {

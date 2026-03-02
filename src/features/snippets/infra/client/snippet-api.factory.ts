@@ -1,5 +1,6 @@
 'use client'
 
+import { logger } from '@/shared/utils/logger'
 import { ServerActionSnippetClient } from './server-action.client'
 import type { SnippetAPIClient } from './snippet-api.client'
 
@@ -84,9 +85,8 @@ function createSnippetAPIClient(): SnippetAPIClient {
 
 	// Log warning in development when not using serverless
 	if (process.env.NODE_ENV === 'development' && mode !== 'serverless') {
-		console.warn(
-			`[Snippets] Using ${mode} mode. ` +
-				`Make sure your ${mode} API is running.`,
+		logger.warn(
+			`[Snippets] Using ${mode} mode. Make sure your ${mode} API is running.`,
 		)
 	}
 

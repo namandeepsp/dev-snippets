@@ -1,13 +1,26 @@
 import { cn } from '@/shared/utils/utils'
 import type { IconType } from 'react-icons'
-import { LuCode, LuPuzzle } from 'react-icons/lu'
+import {
+	LuBraces,
+	LuCode,
+	LuDatabase,
+	LuFileText,
+	LuPuzzle,
+	LuServer,
+} from 'react-icons/lu'
 import {
 	SiAngular,
+	SiCss3,
+	SiDocker,
 	SiExpress,
 	SiGo,
+	SiHtml5,
 	SiJavascript,
+	SiMarkdown,
 	SiNextdotjs,
 	SiNodedotjs,
+	SiPostgresql,
+	SiPython,
 	SiReact,
 	SiRedux,
 	SiRollupdotjs,
@@ -18,19 +31,38 @@ import type { SnippetTechnology } from '../snippets/core/snippet.types'
 
 const iconClass = 'h-3.5 w-3.5 shrink-0 text-slate-700 dark:text-slate-200'
 
-const TECHNOLOGY_ICON_MAP: Partial<Record<SnippetTechnology, IconType>> = {
-	javascript: SiJavascript,
-	typescript: SiTypescript,
-	react: SiReact,
-	redux: SiRedux,
-	node: SiNodedotjs,
-	express: SiExpress,
-	golang: SiGo,
-	webpack: SiWebpack,
-	rollup: SiRollupdotjs,
-	'browser-extension': LuPuzzle,
-	nextjs: SiNextdotjs,
-	angular: SiAngular,
+type IconConfig = {
+	icon: IconType
+	className?: string
+}
+
+const TECHNOLOGY_ICON_MAP: Partial<Record<SnippetTechnology, IconConfig>> = {
+	javascript: { icon: SiJavascript },
+	typescript: { icon: SiTypescript },
+	react: { icon: SiReact },
+	redux: { icon: SiRedux },
+	node: { icon: SiNodedotjs },
+	express: {
+		icon: SiExpress,
+		className: 'h-4 w-4 drop-shadow-[0_0_0.2px_currentColor]',
+	},
+	golang: { icon: SiGo },
+	webpack: { icon: SiWebpack },
+	rollup: { icon: SiRollupdotjs },
+	'browser-extension': { icon: LuPuzzle },
+	nextjs: { icon: SiNextdotjs },
+	angular: { icon: SiAngular },
+	python: { icon: SiPython },
+	markdown: { icon: SiMarkdown },
+	sql: { icon: LuDatabase },
+	'postgres-sql': { icon: SiPostgresql },
+	nosql: { icon: LuDatabase },
+	docker: { icon: SiDocker },
+	'dev-ops': { icon: LuServer },
+	json: { icon: LuBraces },
+	html: { icon: SiHtml5 },
+	css: { icon: SiCss3 },
+	yaml: { icon: LuFileText },
 }
 
 export function TechnologyIcon({
@@ -40,7 +72,9 @@ export function TechnologyIcon({
 	technology: SnippetTechnology
 	className?: string
 }) {
-	const classes = cn(iconClass, className)
-	const Icon = TECHNOLOGY_ICON_MAP[technology] ?? LuCode
+	const config = TECHNOLOGY_ICON_MAP[technology]
+	const Icon = config?.icon ?? LuCode
+	const classes = cn(iconClass, config?.className, className)
+
 	return <Icon className={classes} aria-hidden />
 }

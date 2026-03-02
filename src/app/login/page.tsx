@@ -9,6 +9,7 @@ import {
 import { PageLoader } from '@/shared/ui/PageLoader'
 import { ThemeToggle } from '@/shared/ui/ThemeToggle'
 import { Button, Card, CardBody, Input, toast } from '@/shared/ui/design-system'
+import { logger } from '@/shared/utils/logger'
 import { cn } from '@/shared/utils/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -110,7 +111,7 @@ export default function LoginPage() {
 			await refresh()
 			router.replace(redirectTo)
 		} catch (error) {
-			console.error('Login failed:', error)
+			logger.error('Login failed', error)
 			const message =
 				error instanceof Error ? error.message : 'Google sign-in failed'
 			toast.error(message)
@@ -155,7 +156,7 @@ export default function LoginPage() {
 			await refresh()
 			router.replace(redirectTo)
 		} catch (error) {
-			console.error('Email auth failed:', error)
+			logger.error('Email auth failed', error)
 			const message =
 				error instanceof Error ? error.message : 'Authentication failed'
 			toast.error(message)
@@ -182,44 +183,28 @@ export default function LoginPage() {
 			<div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_440px]">
 				<div className="hidden rounded-4xl border border-white/35 bg-white/40 p-10 shadow-xl shadow-cyan-900/10 backdrop-blur-xl lg:flex lg:flex-col lg:justify-between dark:border-white/10 dark:bg-slate-950/35">
 					<div>
-						<p className="inline-flex rounded-full border border-sky-300/45 bg-sky-50/80 px-4 py-1 text-xs font-medium text-sky-700 dark:border-sky-400/30 dark:bg-sky-950/50 dark:text-sky-200">
-							Auth workspace
-						</p>
-						<h1 className="mt-6 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-							Simple sign-in.
+						<h1 className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+							Welcome to
 							<br />
-							Fluid experience.
+							DevSnippets
 						</h1>
 						<p className="mt-5 max-w-md text-base text-slate-600 dark:text-slate-300">
-							Manage your snippets with a fast interface built for focus,
-							clarity, and minimal friction.
+							Store, organize, and share your code snippets across technologies.
+							Built for developers who value simplicity and speed.
 						</p>
 					</div>
 					<div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-						<p>• Sync snippets across sessions</p>
-						<p>• Structured editor with formatting tools</p>
-						<p>• Secure login with Google or email</p>
+						<p>✓ Organize snippets by technology and category</p>
+						<p>✓ Syntax highlighting for 20+ languages</p>
+						<p>✓ Share publicly or keep private</p>
+						<p>✓ Version history and code search</p>
 					</div>
 				</div>
 
 				<Card variant="glass" className="w-full rounded-4xl">
 					<CardBody className="p-6 sm:p-8">
 						<div className="mb-6 text-center">
-							<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 via-blue-500 to-cyan-400 shadow-lg shadow-blue-600/30">
-								<svg
-									className="h-7 w-7 text-white"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-									/>
-								</svg>
-							</div>
+							<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 via-blue-500 to-cyan-400 shadow-lg shadow-blue-600/30"></div>
 							<h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
 								Welcome to DevSnippets
 							</h2>
@@ -316,6 +301,7 @@ export default function LoginPage() {
 										variant="glass"
 										className="h-12 py-0"
 										leftIcon={<UserIcon />}
+										name="name"
 									/>
 								)}
 								<Input
@@ -329,6 +315,7 @@ export default function LoginPage() {
 									variant="glass"
 									className="h-12 py-0"
 									leftIcon={<MailIcon />}
+									name="email"
 								/>
 								<Input
 									type="password"
@@ -343,6 +330,7 @@ export default function LoginPage() {
 									variant="glass"
 									className="h-12 py-0"
 									leftIcon={<LockIcon />}
+									name="password"
 								/>
 								{mode === 'signup' && (
 									<Input
@@ -356,6 +344,7 @@ export default function LoginPage() {
 										variant="glass"
 										className="h-12 py-0"
 										leftIcon={<LockIcon />}
+										name="confirmPassword"
 									/>
 								)}
 

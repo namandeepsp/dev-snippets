@@ -2,6 +2,7 @@
 
 import { useTheme } from '@/shared/hooks/useTheme'
 import { Button, toast } from '@/shared/ui/design-system'
+import { logger } from '@/shared/utils/logger'
 import { cpp } from '@codemirror/lang-cpp'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
@@ -21,7 +22,7 @@ import { useState } from 'react'
 import { IoCheckmark } from 'react-icons/io5'
 import { MdOutlineContentCopy } from 'react-icons/md'
 import type { EditorLanguage } from './editor.config'
-import { formatCode } from './formatter/formatter.registry'
+import { formatCodeWithStatus } from './formatter/formatter.registry'
 
 interface CodeEditorProps {
 	value: string
@@ -48,10 +49,15 @@ export function CodeEditor({
 	async function handleFormat() {
 		if (!value.trim() || readOnly) return
 		try {
-			const formatted = await formatCode(value, language)
-			onChange(formatted)
+			const result = await formatCodeWithStatus(value, language)
+			if (result.error) {
+				toast.error(result.error)
+				return
+			}
+			onChange(result.formattedCode)
 		} catch (err) {
-			console.error('Format failed:', err)
+			logger.error('Editor format action failed', err)
+			toast.error('Failed to format code. Please try again.')
 		}
 	}
 

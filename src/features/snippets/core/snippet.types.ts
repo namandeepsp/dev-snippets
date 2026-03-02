@@ -39,6 +39,11 @@ export type SnippetTechnology =
 	| 'postgres-sql'
 	| 'docker'
 	| 'dev-ops'
+	| 'json'
+	| 'html'
+	| 'css'
+	| 'yaml'
+	| 'nosql'
 
 export type SnippetCategory =
 	| 'language'
@@ -62,6 +67,7 @@ export type SnippetCategory =
 	| 'queries'
 	| 'infrastructure'
 	| 'deployment'
+	| 'utilities'
 
 /* ------------------------------------------------------------------------- */
 /* VERSIONING
@@ -146,4 +152,7 @@ export type Snippet = FirestoreSnippet & {
 	id: string
 }
 
-export type EnrichedSnippet = Snippet & { author?: Author }
+export type EnrichedSnippet = Snippet & {
+	author?: Author
+	isLikedByUser?: boolean
+}

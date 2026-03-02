@@ -88,6 +88,17 @@ export interface SnippetRepository
 	incrementViews(snippetId: string): Promise<void>
 
 	/**
+	 * Toggle like on a snippet.
+	 * Returns true if liked, false if unliked.
+	 */
+	toggleLike(snippetId: string, userId: string): Promise<boolean>
+
+	/**
+	 * Check if a user has liked a snippet.
+	 */
+	checkLikeStatus(snippetId: string, userId: string): Promise<boolean>
+
+	/**
 	 * List snippets by user with optional visibility filter.
 	 *
 	 * @param userId - The user ID to filter by

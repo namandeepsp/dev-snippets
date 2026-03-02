@@ -14,6 +14,7 @@
  * The rest of the app just imports the singleton instance.
  */
 
+import { logger } from '@/shared/utils/logger'
 import { ServerActionUserClient } from './server-action.client'
 import type { UserApiClient } from './user-api.client'
 
@@ -28,12 +29,12 @@ function createUserApiClient(): UserApiClient {
 
 		case 'rest':
 			// Not implemented yet - will use fetch() to REST endpoints
-			console.warn('REST API mode not implemented, falling back to serverless')
+			logger.warn('REST API mode not implemented, falling back to serverless')
 			return new ServerActionUserClient()
 
 		case 'graphql':
 			// Not implemented yet - will use GraphQL client
-			console.warn('GraphQL mode not implemented, falling back to serverless')
+			logger.warn('GraphQL mode not implemented, falling back to serverless')
 			return new ServerActionUserClient()
 
 		default:

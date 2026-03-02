@@ -2,12 +2,16 @@ import { Skeleton } from '@/shared/ui/design-system'
 
 type Props = {
 	compact?: boolean
+	isPrivate?: boolean
 }
 
-export function SnippetCardSkeleton({ compact = false }: Props) {
+export function SnippetCardSkeleton({
+	compact = false,
+	isPrivate = false,
+}: Props) {
 	return (
 		<div
-			className={`rounded-lg border border-default bg-card ${compact ? 'p-4' : 'p-5'}`}
+			className={`rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 ${compact ? 'p-4' : 'p-5'}`}
 		>
 			<Skeleton className="mb-3 h-6 w-3/4" />
 			<Skeleton className="mb-2 h-4 w-full" />
@@ -19,10 +23,20 @@ export function SnippetCardSkeleton({ compact = false }: Props) {
 				<Skeleton className="h-5 w-12 rounded-full" />
 			</div>
 
-			<div className="flex items-center justify-between">
-				<Skeleton className="h-4 w-24" />
-				<Skeleton className="h-4 w-16" />
-			</div>
+			{isPrivate ? (
+				<div className="flex items-center justify-between gap-2">
+					<Skeleton className="h-4 w-24" />
+					<Skeleton className="h-4 w-24" />
+				</div>
+			) : (
+				<div className="flex flex-col gap-4">
+					<Skeleton className="h-4 w-full" />
+					<div className="flex items-center justify-between gap-2">
+						<Skeleton className="h-4 w-24" />
+						<Skeleton className="h-4 w-24" />
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }

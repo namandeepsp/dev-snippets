@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger'
 import { format as sqlFormatter } from 'sql-formatter'
 import type { EditorLanguage } from '../editor.config'
 import { formatterRegistry } from './formatter.registry'
@@ -44,7 +45,7 @@ const sqlFormatterClient: CodeFormatter = {
 
 			return { formattedCode }
 		} catch (error) {
-			console.error('[SQL Formatter] Formatting failed:', error)
+			logger.error('SQL formatter failed', error)
 
 			return {
 				formattedCode: request.code,

@@ -2,10 +2,11 @@
 
 import { RequireAuth } from '@/features/auth/ui/RequireAuth'
 import { SnippetForm } from '@/features/snippets/ui/SnippetForm'
+import { SnippetFormSkeleton } from '@/features/snippets/ui/SnippetFormSkeleton'
 
 export default function NewSnippetPage() {
 	return (
-		<RequireAuth>
+		<RequireAuth fallback={<SnippetFormSkeleton />}>
 			<div className="mx-auto max-w-5xl px-4 py-8">
 				<h1 className="mb-6 text-3xl font-bold">Create Snippet</h1>
 				<SnippetForm mode="create" />

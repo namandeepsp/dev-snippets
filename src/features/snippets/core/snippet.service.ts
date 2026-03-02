@@ -1,4 +1,5 @@
 import { userService } from '@/features/user/user.container'
+import { logger } from '@/shared/utils/logger'
 import type {
 	CreateSnippetInput,
 	CreateSnippetServiceInput,
@@ -366,18 +367,22 @@ export class SnippetService {
 		try {
 			await this.snippetRepository.incrementViews(snippetId)
 		} catch (error) {
-			console.error(
-				`Failed to increment views for snippet ${snippetId}:`,
-				error,
-			)
+			logger.error(`Failed to increment views for snippet ${snippetId}`, error)
 		}
 	}
 
 	/**
 	 * Toggle like on a snippet.
-	 * TODO: Implement likes feature
+	 * Returns true if liked, false if unliked.
 	 */
-	async toggleLike(_snippetId: string, _userId: string): Promise<boolean> {
-		throw new Error('Not implemented')
+	async toggleLike(snippetId: string, userId: string): Promise<boolean> {
+		return this.snippetRepository.toggleLike(snippetId, userId)
+	}
+
+	/**
+	 * Check if a user has liked a snippet.
+	 */
+	async checkLikeStatus(snippetId: string, userId: string): Promise<boolean> {
+		return this.snippetRepository.checkLikeStatus(snippetId, userId)
 	}
 }

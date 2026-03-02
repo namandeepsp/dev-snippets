@@ -1,15 +1,13 @@
 'use client'
-
-import { useAuthenticatedUser } from '@/features/auth/ui/store/auth.store'
 import { CodeEditor } from '@/features/editor/CodeEditor'
-import { formatCode } from '@/features/editor/formatter/formatter.registry'
+import { formatCodeWithStatus } from '@/features/editor/formatter/formatter.registry'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
 import { useRouter } from 'next/navigation'
-import { type SubmitEvent, useMemo, useState } from 'react'
-import { TechnologyBadge } from './TechnologyBadge'
+import { type SubmitEvent, useEffect, useMemo, useState } from 'react'
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import type { CreateSnippetServiceInput } from '../core/repositories/snippet.repository'
+import { TECHNOLOGY_COLORS } from '../core/snippet.colors'
 import type {
 	Snippet,
 	SnippetCategory,
@@ -19,24 +17,15 @@ import type {
 
 import {
 	CATEGORIES,
+	LANGUAGE_TO_PRIMARY_TECHNOLOGY,
+	TECHNOLOGY_CATEGORY_MAP,
 	TECHNOLOGY_OPTIONS,
+	TECHNOLOGY_TO_EDITOR_LANGUAGE,
 } from '@/features/technologies/technologies.config'
 import { TechnologyIcon } from '@/features/technologies/technology-icons'
 import { Button, CustomSelect, Select, toast } from '@/shared/ui/design-system'
+import { logger } from '@/shared/utils/logger'
 import { LuWandSparkles } from 'react-icons/lu'
-
-const LANGUAGES: EditorLanguage[] = [
-	'javascript',
-	'typescript',
-	'json',
-	'html',
-	'css',
-	'go',
-	'python',
-	'markdown',
-	'sql',
-	'yaml',
-]
 
 type Props = {
 	mode: 'create' | 'edit'
@@ -45,13 +34,11 @@ type Props = {
 
 export function SnippetForm({ mode, snippet }: Props) {
 	const router = useRouter()
-	const _user = useAuthenticatedUser()
-
 	// Form state
 	const [title, setTitle] = useState(snippet?.title ?? '')
 	const [description, setDescription] = useState(snippet?.description ?? '')
 	const [code, setCode] = useState(snippet?.code ?? '')
-	const [language, setLanguage] = useState<EditorLanguage>(
+	const [language, _setLanguage] = useState<EditorLanguage>(
 		(snippet?.language as EditorLanguage) ?? 'javascript',
 	)
 	const [visibility, setVisibility] = useState<SnippetVisibility>(
@@ -68,6 +55,40 @@ export function SnippetForm({ mode, snippet }: Props) {
 	// UI state
 	const [isSaving, setIsSaving] = useState(false)
 	const [isFormatting, setIsFormatting] = useState(false)
+
+	// Set default technology/categories based on language in create mode
+	useEffect(() => {
+		if (mode === 'create' && technologies.length === 0) {
+			const primaryTech = LANGUAGE_TO_PRIMARY_TECHNOLOGY[language]
+			if (primaryTech && TECHNOLOGY_CATEGORY_MAP[primaryTech]) {
+				setTechnologies([primaryTech])
+				const cats = TECHNOLOGY_CATEGORY_MAP[primaryTech]
+				if (cats) {
+					setCategories(cats)
+				}
+			}
+		}
+	}, [language, mode])
+
+	// Helper: Get primary (first) selected technology
+	const primaryTechnology = technologies[0] as SnippetTechnology | undefined
+
+	// Auto-sync categories when primary technology changes
+	useEffect(() => {
+		if (primaryTechnology && TECHNOLOGY_CATEGORY_MAP[primaryTechnology]) {
+			const mappedCats = TECHNOLOGY_CATEGORY_MAP[primaryTechnology]
+			setCategories((prev) => {
+				const newCats = mappedCats.filter((c) => !prev.includes(c))
+				return [...prev, ...newCats]
+			})
+		}
+	}, [primaryTechnology])
+
+	// Helper: Derive formatter language from selected technology
+	const formatterLanguage = primaryTechnology
+		? TECHNOLOGY_TO_EDITOR_LANGUAGE[primaryTechnology] ||
+			(primaryTechnology as EditorLanguage)
+		: language
 
 	const normalizedTitle = title.trim()
 	const normalizedDescription = description.trim()
@@ -87,7 +108,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 			normalizedTitle !== snippet.title.trim() ||
 			normalizedDescription !== (snippet.description ?? '').trim() ||
 			code !== snippet.code ||
-			language !== snippet.language ||
+			formatterLanguage !== (snippet.language as EditorLanguage) ||
 			visibility !== snippet.visibility ||
 			!sameArray(technologies, snippet.technologies ?? []) ||
 			!sameArray(categories, snippet.categories ?? [])
@@ -98,7 +119,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 		normalizedTitle,
 		normalizedDescription,
 		code,
-		language,
+		formatterLanguage,
 		visibility,
 		technologies,
 		categories,
@@ -111,10 +132,14 @@ export function SnippetForm({ mode, snippet }: Props) {
 
 		setIsFormatting(true)
 		try {
-			const formatted = await formatCode(code, language)
-			setCode(formatted)
+			const result = await formatCodeWithStatus(code, formatterLanguage)
+			if (result.error) {
+				toast.error(result.error)
+				return
+			}
+			setCode(result.formattedCode)
 		} catch (err) {
-			console.error('Formatting failed:', err)
+			logger.error('Snippet form format action failed', err)
 		} finally {
 			setIsFormatting(false)
 		}
@@ -128,13 +153,20 @@ export function SnippetForm({ mode, snippet }: Props) {
 		setIsSaving(true)
 
 		try {
-			const formattedCode = await formatCode(code, language)
+			const formatResult = await formatCodeWithStatus(code, formatterLanguage)
+			const formattedCode = formatResult.formattedCode
+
+			if (formatResult.error) {
+				toast.warning(formatResult.error, {
+					description: 'Saving original code without formatting.',
+				})
+			}
 
 			const input: CreateSnippetServiceInput = {
 				title: normalizedTitle,
 				description: normalizedDescription || undefined,
 				code: formattedCode,
-				language,
+				language: formatterLanguage,
 				technologies,
 				categories,
 				visibility,
@@ -158,12 +190,6 @@ export function SnippetForm({ mode, snippet }: Props) {
 		}
 	}
 
-	function toggleTechnology(tech: SnippetTechnology) {
-		setTechnologies((prev) =>
-			prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech],
-		)
-	}
-
 	function toggleCategory(cat: SnippetCategory) {
 		setCategories((prev) =>
 			prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
@@ -172,9 +198,25 @@ export function SnippetForm({ mode, snippet }: Props) {
 
 	function handleAddTechnology(value: string) {
 		const tech = value as SnippetTechnology
-		if (technologies.includes(tech)) return
-		setTechnologies((prev) => [...prev, tech])
+		if (technologies.includes(tech)) {
+			setTechnologies((prev) => prev.filter((item) => item !== tech))
+		} else {
+			setTechnologies((prev) => [...prev, tech])
+
+			// Auto-add categories based on technology
+			const cats = TECHNOLOGY_CATEGORY_MAP[tech]
+			if (cats) {
+				setCategories((prev) => {
+					const newCats = cats.filter((c) => !prev.includes(c))
+					return [...prev, ...newCats]
+				})
+			}
+		}
 		setTechToAdd('')
+	}
+
+	function removeTechnology(tech: SnippetTechnology) {
+		setTechnologies((prev) => prev.filter((item) => item !== tech))
 	}
 
 	return (
@@ -193,6 +235,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 						placeholder="e.g., React useState Hook Example"
 						className="w-full rounded-md border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
 						disabled={isSaving}
+						name="title"
 						required
 					/>
 				</div>
@@ -207,7 +250,8 @@ export function SnippetForm({ mode, snippet }: Props) {
 						onChange={(e) => setDescription(e.target.value)}
 						placeholder="Briefly describe what this snippet does..."
 						rows={3}
-						className="w-full rounded-md border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+						className="w-full min-h-32 rounded-md border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+						name="description"
 						disabled={isSaving}
 					/>
 				</div>
@@ -221,15 +265,22 @@ export function SnippetForm({ mode, snippet }: Props) {
 					</label>
 					<div className="flex items-center gap-4">
 						<Select
-							value={language}
-							onChange={(e) => setLanguage(e.target.value as EditorLanguage)}
+							value={primaryTechnology || 'javascript'}
+							onChange={(e) => {
+								const selectedTech = e.target.value as SnippetTechnology
+								setTechnologies((prev) => {
+									const updated = [selectedTech, ...prev.slice(1)]
+									return updated
+								})
+							}}
 							uiSize="sm"
 							variant="default"
+							name="language"
 							disabled={isSaving}
 						>
-							{LANGUAGES.map((lang) => (
-								<option key={lang} value={lang}>
-									{lang}
+							{TECHNOLOGY_OPTIONS.map((tech) => (
+								<option key={tech.value} value={tech.value}>
+									{tech.label}
 								</option>
 							))}
 						</Select>
@@ -319,45 +370,25 @@ export function SnippetForm({ mode, snippet }: Props) {
 
 			{/* Technologies */}
 			<div>
-				<label className="block mb-2 font-medium">Technologies</label>
+				<label className="block mb-2 font-medium">
+					Additional Technologies
+				</label>
 				<div className="space-y-3">
 					<CustomSelect
 						value={techToAdd}
 						onChange={handleAddTechnology}
 						placeholder="Add technology"
+						searchable
+						searchPlaceholder="Filter technologies..."
 						disabled={isSaving}
-						options={TECHNOLOGY_OPTIONS.map((tech) => ({
+						options={TECHNOLOGY_OPTIONS.filter(
+							(tech) => !technologies.includes(tech.value),
+						).map((tech) => ({
 							value: tech.value,
 							label: tech.label,
 							icon: <TechnologyIcon technology={tech.iconKey} />,
-							disabled: technologies.includes(tech.value),
 						}))}
 					/>
-					<div className="flex flex-wrap gap-2">
-						{technologies.map((tech) => {
-							const techOption = TECHNOLOGY_OPTIONS.find(
-								(option) => option.value === tech,
-							)
-							return (
-								<Button
-									key={tech}
-									type="button"
-									onClick={() => toggleTechnology(tech)}
-									disabled={isSaving}
-									size="sm"
-									className="h-auto rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-none hover:opacity-90"
-								>
-									<span className="mr-1" aria-hidden>
-										<TechnologyIcon technology={techOption?.iconKey ?? tech} />
-									</span>
-									{techOption?.label ?? tech}
-									<span className="ml-1" aria-hidden>
-										×
-									</span>
-								</Button>
-							)
-						})}
-					</div>
 				</div>
 			</div>
 
@@ -390,9 +421,36 @@ export function SnippetForm({ mode, snippet }: Props) {
 				<div className="rounded-md bg-gray-50 dark:bg-gray-900 p-4">
 					<p className="text-sm font-medium mb-2">Selected:</p>
 					<div className="flex flex-wrap gap-2">
-						{technologies.map((tech) => (
-							<TechnologyBadge key={tech} technology={tech} />
-						))}
+						{technologies.map((tech) => {
+							const techOption = TECHNOLOGY_OPTIONS.find(
+								(option) => option.value === tech,
+							)
+							return (
+								<Button
+									key={tech}
+									type="button"
+									onClick={() => removeTechnology(tech)}
+									disabled={isSaving}
+									size="sm"
+									className={`h-auto rounded-full px-3 py-1.5 text-xs font-medium shadow-none hover:opacity-90 ${
+										tech === 'nextjs'
+											? 'text-black dark:text-white'
+											: 'text-white'
+									} ${TECHNOLOGY_COLORS[tech] || 'bg-gray-500'}`}
+								>
+									<span className="mr-1" aria-hidden>
+										<TechnologyIcon
+											technology={techOption?.iconKey ?? tech}
+											className="text-black dark:text-white"
+										/>
+									</span>
+									{techOption?.label ?? tech}
+									<span className="ml-1" aria-hidden>
+										×
+									</span>
+								</Button>
+							)
+						})}
 						{categories.map((cat) => (
 							<span
 								key={cat}

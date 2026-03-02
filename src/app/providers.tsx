@@ -1,6 +1,5 @@
 'use client'
 
-import { AuthBootstrapLoader } from '@/features/auth/ui/AuthBootstrapLoader'
 import { AuthProvider } from '@/features/auth/ui/store/auth.store'
 import '@/features/editor/formatter'
 import { ThemeProvider } from 'next-themes'
@@ -13,10 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 			enableSystem
 			disableTransitionOnChange
 		>
-			<AuthProvider>
-				<AuthBootstrapLoader />
-				{children}
-			</AuthProvider>
+			<AuthProvider>{children}</AuthProvider>
 		</ThemeProvider>
 	)
 }

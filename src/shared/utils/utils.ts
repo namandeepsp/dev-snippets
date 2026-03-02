@@ -1,4 +1,5 @@
 import type { AuthProvider } from '@/features/auth/core/auth.types'
+import { logger } from '@/shared/utils/logger'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -11,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 function getAuthProvider(decodedToken: any): AuthProvider {
 	const providerId = decodedToken.firebase?.sign_in_provider
 	if (!providerId) {
-		console.warn('No sign-in provider found in token:', decodedToken)
+		logger.warn('No sign-in provider found in token', decodedToken)
 		return 'email' as AuthProvider // Default to email if not available
 	}
 	return (

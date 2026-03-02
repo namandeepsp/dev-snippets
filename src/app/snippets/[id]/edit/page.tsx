@@ -16,7 +16,6 @@ export default async function EditSnippetPage({ params }: Props) {
 	let currentUser = null
 	try {
 		currentUser = await getCurrentServerUser()
-		console.log('Current user:', currentUser)
 	} catch {
 		// Not authenticated - redirect to login
 		redirect(`/login?redirect=/snippets/${id}/edit`)

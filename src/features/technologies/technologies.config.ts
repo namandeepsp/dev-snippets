@@ -1,3 +1,4 @@
+import type { EditorLanguage } from '../editor/editor.config'
 import type {
 	SnippetCategory,
 	SnippetTechnology,
@@ -26,10 +27,70 @@ export const TECHNOLOGY_OPTIONS: TechnologyOption[] = [
 	},
 	{ value: 'nextjs', label: 'Next.js', iconKey: 'nextjs' },
 	{ value: 'angular', label: 'Angular', iconKey: 'angular' },
+	{ value: 'python', label: 'Python', iconKey: 'python' },
+	{ value: 'markdown', label: 'Markdown', iconKey: 'markdown' },
+	{ value: 'sql', label: 'SQL', iconKey: 'sql' },
+	{ value: 'postgres-sql', label: 'PostgreSQL', iconKey: 'postgres-sql' },
+	{ value: 'nosql', label: 'NoSQL', iconKey: 'nosql' },
+	{ value: 'docker', label: 'Docker', iconKey: 'docker' },
+	{ value: 'dev-ops', label: 'DevOps', iconKey: 'dev-ops' },
+	{ value: 'json', label: 'JSON', iconKey: 'json' },
+	{ value: 'html', label: 'HTML', iconKey: 'html' },
+	{ value: 'css', label: 'CSS', iconKey: 'css' },
+	{ value: 'yaml', label: 'YAML', iconKey: 'yaml' },
 ]
 
 export const TECHNOLOGIES: SnippetTechnology[] = TECHNOLOGY_OPTIONS.map(
 	(option) => option.value,
+)
+
+export const TECHNOLOGY_TO_EDITOR_LANGUAGE: Partial<
+	Record<SnippetTechnology, EditorLanguage>
+> = {
+	javascript: 'javascript',
+	typescript: 'typescript',
+	react: 'javascript',
+	redux: 'javascript',
+	node: 'javascript',
+	express: 'javascript',
+	golang: 'go',
+	webpack: 'javascript',
+	rollup: 'javascript',
+	'browser-extension': 'javascript',
+	nextjs: 'typescript',
+	angular: 'typescript',
+	python: 'python',
+	markdown: 'markdown',
+	sql: 'sql',
+	'postgres-sql': 'sql',
+	nosql: 'json',
+	docker: 'dockerfile',
+	'dev-ops': 'bash',
+	json: 'json',
+	html: 'html',
+	css: 'css',
+	yaml: 'yaml',
+}
+
+export const LANGUAGE_TO_PRIMARY_TECHNOLOGY: Partial<
+	Record<EditorLanguage, SnippetTechnology>
+> = {
+	javascript: 'javascript',
+	typescript: 'typescript',
+	go: 'golang',
+	python: 'python',
+	markdown: 'markdown',
+	sql: 'sql',
+	json: 'json',
+	html: 'html',
+	css: 'css',
+	yaml: 'yaml',
+	bash: 'dev-ops',
+	dockerfile: 'docker',
+}
+
+export const PRIMARY_LANGUAGE_TECHNOLOGIES = new Set(
+	Object.values(LANGUAGE_TO_PRIMARY_TECHNOLOGY),
 )
 
 export function getTechnologyOption(
@@ -50,4 +111,36 @@ export const CATEGORIES: SnippetCategory[] = [
 	'bundler',
 	'platform',
 	'library',
+	'database',
+	'devops',
 ]
+
+// Map technologies to their categories
+export const TECHNOLOGY_CATEGORY_MAP: Record<
+	SnippetTechnology,
+	SnippetCategory[]
+> = {
+	javascript: ['language'],
+	typescript: ['language'],
+	react: ['framework', 'frontend'],
+	redux: ['library'],
+	node: ['platform', 'backend'],
+	express: ['framework', 'backend'],
+	golang: ['language', 'backend'],
+	webpack: ['bundler'],
+	rollup: ['bundler'],
+	'browser-extension': ['platform'],
+	nextjs: ['framework', 'frontend', 'backend'],
+	angular: ['framework', 'frontend', 'backend'],
+	python: ['language', 'backend'],
+	markdown: ['language'],
+	sql: ['language', 'database', 'backend'],
+	'postgres-sql': ['language', 'database', 'backend'],
+	nosql: ['database', 'backend'],
+	docker: ['devops', 'infrastructure'],
+	'dev-ops': ['devops', 'infrastructure'],
+	json: ['language'],
+	html: ['language', 'frontend'],
+	css: ['language', 'frontend'],
+	yaml: ['language'],
+}

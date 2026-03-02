@@ -80,11 +80,6 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 			return null
 		}
 
-		// Increment views (fire-and-forget, don't await)
-		this.incrementViews(id).catch(() => {
-			// Silently fail - views aren't critical
-		})
-
 		return {
 			id: snapshot.id,
 			...data,
@@ -287,6 +282,39 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 			.catch(() => {
 				// Silently fail - views aren't critical
 			})
+	}
+
+	async toggleLike(snippetId: string, userId: string): Promise<boolean> {
+		const likeRef = adminDb
+			.collection('snippet_likes')
+			.doc(`${snippetId}_${userId}`)
+		const snippetRef = this.getCollection().doc(snippetId)
+
+		const likeDoc = await likeRef.get()
+
+		if (likeDoc.exists) {
+			// Unlike
+			await Promise.all([
+				likeRef.delete(),
+				snippetRef.update({ likesCount: FieldValue.increment(-1) }),
+			])
+			return false
+		}
+
+		// Like
+		await Promise.all([
+			likeRef.set({ snippetId, userId, createdAt: Date.now() }),
+			snippetRef.update({ likesCount: FieldValue.increment(1) }),
+		])
+		return true
+	}
+
+	async checkLikeStatus(snippetId: string, userId: string): Promise<boolean> {
+		const likeRef = adminDb
+			.collection('snippet_likes')
+			.doc(`${snippetId}_${userId}`)
+		const likeDoc = await likeRef.get()
+		return likeDoc.exists
 	}
 
 	/* ----------------------------------------------------------------------- */

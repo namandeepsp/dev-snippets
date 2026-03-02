@@ -5,6 +5,7 @@ import { cn } from '@/shared/utils/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Logo from './Logo'
 import { ThemeToggle } from './ThemeToggle'
 import { Button, Skeleton } from './design-system'
 
@@ -49,15 +50,10 @@ export function Header() {
 	}
 
 	return (
-		<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
+		<header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur-md">
 			<div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
 				{/* Logo */}
-				<Link
-					href="/"
-					className="text-xl font-bold hover:opacity-80 transition"
-				>
-					DevSnippets
-				</Link>
+				<Logo />
 
 				{/* Desktop Navigation */}
 				<nav className="flex items-center gap-6 max-[850px]:hidden">
@@ -230,7 +226,7 @@ export function Header() {
 
 function HeaderSkeleton() {
 	return (
-		<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
+		<header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur-md">
 			<div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
 				<Link href="/" className="text-xl font-bold">
 					DevSnippets

@@ -14,6 +14,7 @@ import {
 
 import type { User } from '@/features/user/core/user.types'
 import { firebaseApp } from '@/services/firebase/firebase.client'
+import { logger } from '@/shared/utils/logger'
 import {
 	AuthError,
 	type AuthErrorCode,
@@ -247,10 +248,7 @@ export class FirebaseAuthClient implements AuthPort {
 				const hydrated = await this.getSessionPayload()
 				callback(hydrated.user)
 			} catch (error) {
-				console.error(
-					'Failed to hydrate auth session from Firebase user:',
-					error,
-				)
+				logger.error('Failed to hydrate auth session from Firebase user', error)
 				callback(null)
 			}
 		})

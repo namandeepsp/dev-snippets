@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
 import { formatterRegistry } from './formatter.registry'
 import type {
@@ -35,7 +36,7 @@ const gofmtFormatter: CodeFormatter = {
 		// 2. Call server-side API endpoint
 		// 3. Use a pure JavaScript Go formatter
 
-		console.warn('[gofmt] Formatting not implemented, returning original code')
+		logger.warn('gofmt formatting not implemented, returning original code')
 
 		return {
 			formattedCode: request.code,

@@ -1,6 +1,4 @@
 'use client'
-
-import { PageLoader } from '@/shared/ui/PageLoader'
 import { useRouter } from 'next/navigation'
 import { type ReactNode, useEffect } from 'react'
 import { useAuth } from '../auth.client.container'
@@ -20,7 +18,7 @@ type Props = {
  *
  * @example
  * ```tsx
- * <RequireAuth redirectTo="/login">
+ * <RequireAuth redirectTo="/login" fallback={<LoadingSkeleton />}>
  *   <SettingsPage />
  * </RequireAuth>
  * ```
@@ -28,7 +26,7 @@ type Props = {
 export function RequireAuth({
 	children,
 	redirectTo = '/login',
-	fallback = <PageLoader fullScreen />,
+	fallback = null,
 }: Props) {
 	const { user, loading } = useAuth()
 	const router = useRouter()

@@ -1,6 +1,7 @@
 import type { User } from '@/features/user/core/user.types'
 import { userService } from '@/features/user/user.container'
 import { adminAuth } from '@/services/firebase/firebase.server'
+import { logger } from '@/shared/utils/logger'
 import { getAuthProvider } from '@/shared/utils/utils'
 import {
 	AuthError,
@@ -98,7 +99,7 @@ export class FirebaseAdminAuthClient implements AuthPort {
 				// Expected when called from scripts/tests without Next request context.
 				return
 			}
-			console.error('Failed to sign out:', error)
+			logger.error('Failed to sign out', error)
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 import { userService } from '@/features/user/user.container'
 import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
+import { logger } from '@/shared/utils/logger'
 import { cookies } from 'next/headers'
 import { snippetService } from './snippet.server.container'
 
@@ -35,7 +36,7 @@ async function requireAuth() {
 
 		return user
 	} catch (error) {
-		console.error('Auth failed:', error)
+		logger.error('Auth failed', error)
 		throw new Error('Invalid or expired session')
 	}
 }
@@ -61,7 +62,7 @@ export async function createSnippetAction(
 			data: snippet,
 		}
 	} catch (error) {
-		console.error('Failed to create snippet:', error)
+		logger.error('Failed to create snippet', error)
 
 		return {
 			success: false,
@@ -85,7 +86,7 @@ export async function updateSnippetAction(
 
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to update snippet:', error)
+		logger.error('Failed to update snippet', error)
 
 		if (error instanceof Error) {
 			if (error.message === 'Unauthorized') {
@@ -120,7 +121,7 @@ export async function deleteSnippetAction(
 
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to delete snippet:', error)
+		logger.error('Failed to delete snippet', error)
 
 		if (error instanceof Error) {
 			if (error.message === 'Unauthorized') {
@@ -157,10 +158,30 @@ export async function incrementViewsAction(
 		await snippetService.incrementViews(snippetId)
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to increment views:', error)
+		logger.error('Failed to increment views', error)
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Failed to record view',
+		}
+	}
+}
+
+/* ----------------------------------------------------------------------- */
+/* LIKE
+/* ----------------------------------------------------------------------- */
+
+export async function toggleLikeAction(
+	snippetId: string,
+): Promise<ApiResponse<{ liked: boolean }>> {
+	try {
+		const user = await requireAuth()
+		const liked = await snippetService.toggleLike(snippetId, user.id)
+		return { success: true, data: { liked } }
+	} catch (error) {
+		logger.error('Failed to toggle like', error)
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Failed to toggle like',
 		}
 	}
 }
@@ -179,7 +200,7 @@ export async function restoreSnippetVersionAction(
 
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to restore snippet version:', error)
+		logger.error('Failed to restore snippet version', error)
 
 		return {
 			success: false,
@@ -203,7 +224,7 @@ export async function shareSnippetAction(
 
 		return { success: true }
 	} catch (error) {
-		console.error('Failed to share snippet:', error)
+		logger.error('Failed to share snippet', error)
 
 		return {
 			success: false,

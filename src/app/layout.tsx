@@ -21,7 +21,7 @@ export default function RootLayout({
 			<body className="min-h-screen bg-background text-foreground">
 				<Providers>
 					<Header />
-					{children}
+					<main className="pt-18.25">{children}</main>
 					<Toaster />
 					<TooltipProvider />
 				</Providers>

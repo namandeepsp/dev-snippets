@@ -49,9 +49,9 @@ export function SnippetCard({
 		<Link
 			href={`/snippets/${snippet.id}`}
 			className={`
-        group block rounded-lg border border-default bg-card
-        hover:border-foreground/20 hover:shadow-md
-        transition-all focus:outline-none focus:ring-2 focus:ring-foreground/20
+        group block rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50
+        hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md
+        transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20
         ${compact ? 'p-4' : 'p-5'}
       `}
 			aria-label={`View snippet: ${snippet.title}`}
@@ -105,7 +105,7 @@ export function SnippetCard({
 			)}
 
 			{/* Footer */}
-			<div className="flex items-center justify-between text-xs text-gray-500">
+			<div className="flex flex-col gap-2 text-xs text-gray-500">
 				{/* Author */}
 				{showAuthor && (
 					<div className="flex items-center gap-1.5">
@@ -129,7 +129,7 @@ export function SnippetCard({
 				)}
 
 				{/* Metadata */}
-				<div className="flex items-center gap-3">
+				<div className="flex items-center justify-between gap-3">
 					{/* Date - only on non-compact */}
 					{!compact && (
 						<time
@@ -141,18 +141,20 @@ export function SnippetCard({
 					)}
 
 					{/* Stats */}
-					<span
-						className="flex items-center gap-1"
-						aria-label={`${snippet.viewsCount} views`}
-					>
-						👁 {snippet.viewsCount}
-					</span>
-					<span
-						className="flex items-center gap-1"
-						aria-label={`${snippet.likesCount} likes`}
-					>
-						❤️ {snippet.likesCount}
-					</span>
+					<div className="flex items-center gap-2">
+						<span
+							className="flex items-center gap-1"
+							aria-label={`${snippet.viewsCount} views`}
+						>
+							👁 {snippet.viewsCount}
+						</span>
+						<span
+							className="flex items-center gap-1"
+							aria-label={`${snippet.likesCount} likes`}
+						>
+							❤️ {snippet.likesCount}
+						</span>
+					</div>
 				</div>
 			</div>
 		</Link>

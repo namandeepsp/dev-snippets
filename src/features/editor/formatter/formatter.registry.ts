@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
 import type { CodeFormatter, FormatRequest } from './formatter.types'
 
@@ -75,20 +76,44 @@ class FormatterRegistry {
 	 * Never throws - always returns a string.
 	 */
 	async format(code: string, language: EditorLanguage): Promise<string> {
+		const outcome = await this.formatWithStatus(code, language)
+		return outcome.formattedCode
+	}
+
+	/**
+	 * Format code and return status information for UI messaging.
+	 */
+	async formatWithStatus(
+		code: string,
+		language: EditorLanguage,
+	): Promise<{ formattedCode: string; error?: string }> {
 		try {
 			const formatter = this.getFormatter(language)
 
 			if (!formatter) {
-				return code
+				return { formattedCode: code }
 			}
 
 			const request: FormatRequest = { code, language }
 			const result = await formatter.format(request)
 
-			return result.error ? code : result.formattedCode
+			if (result.error) {
+				return {
+					formattedCode: code,
+					error: this.getFriendlyError(language, result.error),
+				}
+			}
+
+			return { formattedCode: result.formattedCode }
 		} catch (error) {
-			console.error(`[Formatter] Failed to format ${language}:`, error)
-			return code
+			logger.error(`Failed to format ${language}`, error)
+			return {
+				formattedCode: code,
+				error: this.getFriendlyError(
+					language,
+					error instanceof Error ? error.message : 'Unknown formatter error',
+				),
+			}
 		}
 	}
 
@@ -181,6 +206,36 @@ class FormatterRegistry {
 
 		return languages
 	}
+
+	private getFriendlyError(
+		language: EditorLanguage,
+		_rawError: string,
+	): string {
+		switch (language) {
+			case 'javascript':
+				return 'Invalid JavaScript code. Please fix syntax and try again.'
+			case 'typescript':
+				return 'Invalid TypeScript code. Please fix syntax and try again.'
+			case 'json':
+				return 'Invalid JSON format. Please fix syntax and try again.'
+			case 'html':
+				return 'Invalid HTML structure. Please fix syntax and try again.'
+			case 'css':
+				return 'Invalid CSS code. Please fix syntax and try again.'
+			case 'python':
+				return 'Invalid Python code. Please fix syntax and try again.'
+			case 'sql':
+				return 'Invalid SQL query. Please fix syntax and try again.'
+			case 'markdown':
+				return 'Invalid Markdown content. Please fix syntax and try again.'
+			case 'go':
+				return 'Go formatting is unavailable for this input.'
+			case 'yaml':
+				return 'Invalid YAML content. Please fix syntax and try again.'
+			default:
+				return 'Invalid code. Please fix syntax and try again.'
+		}
+	}
 }
 
 // Singleton instance
@@ -202,4 +257,11 @@ export async function formatCode(
 	language: EditorLanguage,
 ): Promise<string> {
 	return formatterRegistry.format(code, language)
+}
+
+export async function formatCodeWithStatus(
+	code: string,
+	language: EditorLanguage,
+): Promise<{ formattedCode: string; error?: string }> {
+	return formatterRegistry.formatWithStatus(code, language)
 }

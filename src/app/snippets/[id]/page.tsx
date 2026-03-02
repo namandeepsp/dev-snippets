@@ -3,6 +3,7 @@ import type { EnrichedSnippet } from '@/features/snippets/core/snippet.types'
 import { snippetService } from '@/features/snippets/snippet.server.container'
 import { SnippetViewer } from '@/features/snippets/ui/SnippetViewer'
 import { userService } from '@/features/user/user.container'
+import { logger } from '@/shared/utils/logger'
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import { cache } from 'react'
@@ -102,19 +103,25 @@ export default async function SnippetPage({ params }: Props) {
 	const isAuthorized = await checkAuthorization(snippet, currentUser?.id)
 
 	if (!isAuthorized) {
-		// Redirect to login with return URL
-		const loginUrl = new URL('/login', process.env.NEXT_PUBLIC_APP_URL)
-		loginUrl.searchParams.set('redirect', `/snippets/${id}`)
-		redirect(loginUrl.toString())
+		if (!currentUser) {
+			// Not logged in - redirect to login
+			redirect(`/login?redirect=/snippets/${id}`)
+		}
+		// Logged in but not authorized - show not found
+		notFound()
 	}
 
 	// 4. Increment view count (fire-and-forget, don't await)
-	snippetService.incrementViews(id).catch(console.error)
+	snippetService
+		.incrementViews(id)
+		.catch((err) => logger.error('Failed to increment views', err))
 
-	// 5. Fetch author profile
-	const [author] = await Promise.all([
+	// 5. Fetch author profile and like status
+	const [author, isLikedByUser] = await Promise.all([
 		userService.getPublicProfile(snippet.ownerId),
-		// Add more parallel fetches here (likes, comments, etc.)
+		currentUser?.id
+			? snippetService.checkLikeStatus(id, currentUser.id)
+			: Promise.resolve(false),
 	])
 
 	// 6. Enrich snippet with author data
@@ -126,6 +133,7 @@ export default async function SnippetPage({ params }: Props) {
 			name: snippet.ownerName,
 			avatarUrl: null,
 		},
+		isLikedByUser,
 	}
 
 	return (

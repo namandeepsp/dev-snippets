@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
 import { formatterRegistry } from './formatter.registry'
 import type {
@@ -46,7 +47,7 @@ const blackFormatter: CodeFormatter = {
 
 			return { formattedCode }
 		} catch (error) {
-			console.error('[Black] Formatting failed:', error)
+			logger.error('Black formatting failed', error)
 
 			// Fallback: Return original code
 			return {

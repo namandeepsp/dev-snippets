@@ -5,6 +5,7 @@ import postcssPlugin from 'prettier/plugins/postcss'
 import tsPlugin from 'prettier/plugins/typescript'
 import prettier from 'prettier/standalone'
 
+import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
 import { formatterRegistry } from './formatter.registry'
 import type {
@@ -72,7 +73,7 @@ const prettierFormatter: PrettierFormatter = {
 				formattedCode: formattedCode.trimEnd() + '\n',
 			}
 		} catch (error) {
-			console.error('[Prettier] Formatting failed:', error)
+			logger.error('Prettier formatting failed', error)
 			return {
 				formattedCode: request.code,
 				error: error instanceof Error ? error.message : 'Formatting failed',

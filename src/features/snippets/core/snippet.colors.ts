@@ -17,8 +17,8 @@ export const TECHNOLOGY_COLORS: Record<SnippetTechnology, string> = {
 	// Frontend frameworks
 	react: 'bg-sky-500',
 	redux: 'bg-purple-500',
-	nextjs: 'bg-black dark:bg-white dark:text-black',
-	angular: 'bg-red-600',
+	nextjs: 'bg-zinc-300 dark:bg-black',
+	angular: 'bg-emerald-600 dark:bg-emerald-500',
 
 	// Backend
 	node: 'bg-green-600',
@@ -30,7 +30,7 @@ export const TECHNOLOGY_COLORS: Record<SnippetTechnology, string> = {
 
 	// Build tools
 	webpack: 'bg-blue-600',
-	rollup: 'bg-red-500',
+	rollup: 'bg-red-500 dark:bg-red-600',
 
 	// Platforms
 	'browser-extension': 'bg-orange-500',
@@ -39,6 +39,11 @@ export const TECHNOLOGY_COLORS: Record<SnippetTechnology, string> = {
 	markdown: 'bg-slate-500',
 	sql: 'bg-indigo-500',
 	'postgres-sql': 'bg-indigo-700',
+	nosql: 'bg-green-700',
+	json: 'bg-gray-700',
+	html: 'bg-orange-600',
+	css: 'bg-blue-600',
+	yaml: 'bg-red-600',
 
 	// DevOps
 	docker: 'bg-sky-600',

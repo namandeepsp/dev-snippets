@@ -1,6 +1,9 @@
+'use client'
+
 import type { PublicUser } from '@/features/user/core/user.types'
 import { formatDate } from '@/shared/utils/date'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Snippet } from '../core/snippet.types'
 import { TechnologyBadge } from './TechnologyBadge'
 
@@ -44,6 +47,7 @@ export function SnippetCard({
 	const isUpdated = snippet.updatedAt > snippet.createdAt
 	const date = isUpdated ? snippet.updatedAt : snippet.createdAt
 	const dateLabel = isUpdated ? 'Updated' : 'Published'
+	const router = useRouter()
 
 	return (
 		<Link
@@ -105,7 +109,14 @@ export function SnippetCard({
 			)}
 
 			{/* Footer */}
-			<div className="flex flex-col gap-2 text-xs text-gray-500">
+			<div
+				className="flex flex-col gap-2 text-xs text-gray-500"
+				onClick={(e) => {
+					e.stopPropagation()
+					e.preventDefault()
+					router.push(`/profile/${author.username}`)
+				}}
+			>
 				{/* Author */}
 				{showAuthor && (
 					<div className="flex items-center gap-1.5">
@@ -122,9 +133,12 @@ export function SnippetCard({
 								</span>
 							</div>
 						)}
-						<span className="hover:text-foreground transition">
+						<button
+							type="button"
+							className="hover:text-foreground transition cursor-pointer"
+						>
 							@{author.username}
-						</span>
+						</button>
 					</div>
 				)}
 

@@ -22,8 +22,7 @@ export default function ProfileLoading() {
 
 			{/* Section Header Skeleton */}
 			<div className="mb-6 flex items-center justify-between">
-				<Skeleton className="h-8 w-36" />
-				<Skeleton className="h-4 w-24" />
+				<Skeleton className="h-8 w-28" />
 			</div>
 
 			{/* Snippet Cards Skeleton */}

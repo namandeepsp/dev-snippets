@@ -1,9 +1,20 @@
-const LogoIcon = () => {
+import { cn } from '@/shared/utils/utils'
+
+interface LogoIconProps {
+	className?: string
+}
+
+const LogoIcon = ({ className }: LogoIconProps) => {
 	return (
-		<div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 via-blue-500 to-cyan-400 shadow-lg shadow-blue-500/40">
-			<div className="absolute inset-0 rounded-xl bg-linear-to-t from-black/10 to-transparent" />
+		<div
+			className={cn(
+				'relative flex h-9 w-9 items-center justify-center rounded-[22%] bg-linear-to-br from-blue-600 via-blue-500 to-cyan-400 shadow-lg shadow-blue-500/40',
+				className,
+			)}
+		>
+			<div className="absolute inset-0 rounded-[inherit] bg-linear-to-t from-black/10 to-transparent" />
 			<svg
-				className="relative h-5 w-5 text-white drop-shadow-sm"
+				className="relative h-[60%] w-[60%] text-white drop-shadow-sm"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"

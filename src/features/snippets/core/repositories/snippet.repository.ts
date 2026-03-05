@@ -99,6 +99,11 @@ export interface SnippetRepository
 	checkLikeStatus(snippetId: string, userId: string): Promise<boolean>
 
 	/**
+	 * Get all snippet IDs that a user has liked.
+	 */
+	getLikedSnippetIds(userId: string): Promise<string[]>
+
+	/**
 	 * List snippets by user with optional visibility filter.
 	 *
 	 * @param userId - The user ID to filter by

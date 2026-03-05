@@ -29,6 +29,7 @@
     "test:all": "vitest run all",
     "_comment6": "─── Tools ───",
     "tools:seed:users": "set -a; . ./.env.local; set +a; tsx scripts/features/seed-users.script.ts",
+    "tools:seed:users:prod": "set -a; . ./.env.prod; set +a; ALLOW_NON_DEV_SCRIPTS=true tsx scripts/features/seed-users.script.ts",
     "tools:seed": "set -a; . ./.env.local; set +a; tsx scripts/features/seed.script.ts",
     "tools:seed:prod": "set -a; . ./.env.prod; set +a; ALLOW_NON_DEV_SCRIPTS=true tsx scripts/features/seed.script.ts",
     "tools:clear": "set -a; . ./.env.local; set +a; tsx scripts/features/clear.script.ts",

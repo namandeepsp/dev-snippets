@@ -18,9 +18,9 @@ import { keymap } from '@codemirror/view'
 import { sublime } from '@uiw/codemirror-theme-sublime'
 import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import CodeMirror from '@uiw/react-codemirror'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IoCheckmark } from 'react-icons/io5'
-import { MdOutlineContentCopy } from 'react-icons/md'
+import { MdOutlineContentCopy, MdOutlineContentPaste } from 'react-icons/md'
 import type { EditorLanguage } from './editor.config'
 import { formatCodeWithStatus } from './formatter/formatter.registry'
 
@@ -45,6 +45,30 @@ export function CodeEditor({
 }: CodeEditorProps) {
 	const { resolvedTheme } = useTheme()
 	const [copied, setCopied] = useState(false)
+	const editorRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		const editorElement = editorRef.current
+		if (!editorElement || readOnly) return
+
+		const handlePasteEvent = async (e: ClipboardEvent) => {
+			const text = e.clipboardData?.getData('text')
+			if (!text) return
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			const result = await formatCodeWithStatus(text, language)
+			const formattedText = result.error ? text : result.formattedCode
+			onChange(formattedText)
+		}
+
+		editorElement.addEventListener('paste', handlePasteEvent, { capture: true })
+		return () =>
+			editorElement.removeEventListener('paste', handlePasteEvent, {
+				capture: true,
+			})
+	}, [language, onChange, readOnly])
 
 	async function handleFormat() {
 		if (!value.trim() || readOnly) return
@@ -95,20 +119,53 @@ export function CodeEditor({
 		}
 	}
 
+	async function handlePaste() {
+		if (readOnly) return
+		try {
+			const text = await navigator.clipboard.readText()
+			if (typeof text === 'string') {
+				const result = await formatCodeWithStatus(text, language)
+				const formattedText = result.error ? text : result.formattedCode
+				onChange(formattedText)
+				toast.success('Pasted from clipboard')
+			}
+		} catch (_err) {
+			toast.error('Failed to paste from clipboard')
+		}
+	}
+
 	return (
-		<div className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-[#303841] dark:border-gray-700 dark:bg-[#1E1E1E]">
-			<Button
-				type="button"
-				variant="ghost"
-				size="sm"
-				onClick={handleCopy}
-				data-tooltip-id="app-tooltip"
-				data-tooltip-content={copied ? 'Copied!' : 'Copy code'}
-				className="absolute top-2 right-2 z-10 pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800!"
-				aria-label={copied ? 'Copied!' : 'Copy code to clipboard'}
-			>
-				{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}
-			</Button>
+		<div
+			ref={editorRef}
+			className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-[#303841] dark:border-gray-700 dark:bg-[#1E1E1E]"
+		>
+			<div className="absolute top-2 right-2 z-10 flex gap-2">
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					onClick={handlePaste}
+					disabled={readOnly}
+					data-tooltip-id="app-tooltip"
+					data-tooltip-content="Paste from clipboard"
+					className="hidden max-[850px]:flex pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800! disabled:opacity-50"
+					aria-label="Paste from clipboard"
+				>
+					<MdOutlineContentPaste />
+				</Button>
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					onClick={handleCopy}
+					data-tooltip-id="app-tooltip"
+					data-tooltip-content={copied ? 'Copied!' : 'Copy code'}
+					className="pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800!"
+					aria-label={copied ? 'Copied!' : 'Copy code to clipboard'}
+				>
+					{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}
+				</Button>
+			</div>
 			<div className="overflow-auto" style={{ maxHeight }}>
 				<CodeMirror
 					value={value}

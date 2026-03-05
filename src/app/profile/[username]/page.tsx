@@ -1,5 +1,6 @@
 import { getCurrentServerUser } from '@/features/auth/auth.server.container'
 import { snippetService } from '@/features/snippets/snippet.server.container'
+import { EmptySnippetsState } from '@/features/snippets/ui/EmptySnippetsState'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { userService } from '@/features/user/user.container'
 import type { Metadata } from 'next'
@@ -55,6 +56,7 @@ export default async function ProfilePage({ params }: Props) {
 		currentUser = await getCurrentServerUser()
 	} catch {
 		// Continue as guest when session is invalid/missing
+		console.warn('No valid session found, rendering profile as guest')
 	}
 
 	// Fetch user and their snippets in parallel
@@ -130,19 +132,14 @@ export default async function ProfilePage({ params }: Props) {
 			<div>
 				<div className="mb-6 flex items-center justify-between">
 					<h2 className="text-2xl font-bold tracking-tight">Snippets</h2>
-					<span className="text-sm text-gray-600 dark:text-gray-400">
-						{snippetCount} {snippetCount === 1 ? 'snippet' : 'snippets'}
-					</span>
 				</div>
 
 				{snippetCount === 0 ? (
-					<div className="rounded-lg border border-dashed border-default p-12 text-center">
-						<p className="text-gray-600 dark:text-gray-400">
-							{currentUser?.id === user.id
-								? 'No snippets yet.'
-								: 'No public snippets yet.'}
-						</p>
-					</div>
+					currentUser?.id === user.id ? (
+						<EmptySnippetsState variant="own-profile" />
+					) : (
+						<EmptySnippetsState variant="other-profile" />
+					)
 				) : (
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 						{snippets.map((snippet) => (

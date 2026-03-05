@@ -17,6 +17,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	leftIcon?: ReactNode
 	rightIcon?: ReactNode
 	children: ReactNode
+	ref?: React.Ref<HTMLButtonElement>
 }
 
 export function Button({
@@ -28,6 +29,7 @@ export function Button({
 	className,
 	disabled,
 	children,
+	ref,
 	...props
 }: ButtonProps) {
 	const baseStyles =
@@ -56,6 +58,7 @@ export function Button({
 
 	return (
 		<button
+			ref={ref}
 			className={cn(baseStyles, variants[variant], sizes[size], className)}
 			disabled={disabled || isLoading}
 			{...props}

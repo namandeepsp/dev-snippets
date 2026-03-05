@@ -118,7 +118,7 @@ export default async function SnippetPage({ params }: Props) {
 
 	// 5. Fetch author profile and like status
 	const [author, isLikedByUser] = await Promise.all([
-		userService.getPublicProfile(snippet.ownerId),
+		userService.getUserById(snippet.ownerId),
 		currentUser?.id
 			? snippetService.checkLikeStatus(id, currentUser.id)
 			: Promise.resolve(false),
@@ -129,7 +129,7 @@ export default async function SnippetPage({ params }: Props) {
 		...snippet,
 		author: author || {
 			id: snippet.ownerId,
-			username: snippet.ownerId,
+			username: 'unknown',
 			name: snippet.ownerName,
 			avatarUrl: null,
 		},

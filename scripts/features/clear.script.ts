@@ -1,20 +1,28 @@
-import { adminDb } from '../../src/services/firebase/firebase.server';
+import { adminDb, getServerFirebaseAuth } from '../../src/services/firebase/firebase.server';
 import { BaseScript } from '../core/base.script';
 import { fileURLToPath } from 'node:url';
 
 export class ClearScript extends BaseScript {
   name = 'Clear Data';
-  private collections = ['snippets', 'users'];
+  private collections = ['users', 'snippets', 'snippet_likes'];
+  private clearAuthorizedUsers = true; // Set to true to also clear Firebase Auth users
 
   async run(): Promise<void> {
     await this.ensureReady();
-    this.log('Clearing DEV database...');
+    this.log('Clearing DEV database (preserving users)...');
 
     let totalDeleted = 0;
 
+    // Clear Firestore collections
     for (const collection of this.collections) {
       const deleted = await this.clearCollection(collection);
       totalDeleted += deleted;
+    }
+
+    // Optionally clear Firebase Auth users
+    if (this.clearAuthorizedUsers) {
+      const authDeleted = await this.clearAuthUsers();
+      this.log(`Deleted ${authDeleted} Firebase Auth users`);
     }
 
     this.logSuccess(`Cleared ${totalDeleted} documents`);
@@ -34,6 +42,19 @@ export class ClearScript extends BaseScript {
 
     this.log(`Deleted ${snapshot.size} documents from ${collectionName}`);
     return snapshot.size;
+  }
+
+  private async clearAuthUsers(): Promise<number> {
+    const auth = getServerFirebaseAuth();
+    const listResult = await auth.listUsers();
+
+    let deleted = 0;
+    for (const user of listResult.users) {
+      await auth.deleteUser(user.uid);
+      deleted++;
+    }
+
+    return deleted;
   }
 }
 

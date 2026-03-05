@@ -385,4 +385,11 @@ export class SnippetService {
 	async checkLikeStatus(snippetId: string, userId: string): Promise<boolean> {
 		return this.snippetRepository.checkLikeStatus(snippetId, userId)
 	}
+
+	/**
+	 * Get all snippet IDs that a user has liked.
+	 */
+	async getLikedSnippetIds(userId: string): Promise<string[]> {
+		return this.snippetRepository.getLikedSnippetIds(userId)
+	}
 }

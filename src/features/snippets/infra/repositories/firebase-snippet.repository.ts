@@ -317,6 +317,18 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 		return likeDoc.exists
 	}
 
+	/**
+	 * Get all snippet IDs that a user has liked.
+	 */
+	async getLikedSnippetIds(userId: string): Promise<string[]> {
+		const snapshot = await adminDb
+			.collection('snippet_likes')
+			.where('userId', '==', userId)
+			.get()
+
+		return snapshot.docs.map((doc) => doc.data().snippetId)
+	}
+
 	/* ----------------------------------------------------------------------- */
 	/* HARD DELETE (Admin only)
 	/* ----------------------------------------------------------------------- */

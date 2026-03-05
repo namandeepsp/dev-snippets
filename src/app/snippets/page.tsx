@@ -1,15 +1,27 @@
 'use client'
 
+import { useAuth } from '@/features/auth/ui/store/auth.store'
 import type { SnippetSortBy } from '@/features/snippets/core/repositories/snippet.repository'
+import { EmptySnippetsState } from '@/features/snippets/ui/EmptySnippetsState'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { SnippetCardSkeleton } from '@/features/snippets/ui/SnippetCardSkeleton'
 import { Select } from '@/shared/ui/design-system'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai'
+import { Tooltip } from 'react-tooltip'
 import { getPublicSnippetsPage } from './actions'
 
 const PAGE_SIZE = 5
 
-export default function SnippetsPage() {
+function SnippetsPageContent() {
+	const { user } = useAuth()
+	const router = useRouter()
+	const searchParams = useSearchParams()
+
+	const sortBy = (searchParams.get('sort') as SnippetSortBy) || 'latest'
+	const showLikedOnly = searchParams.get('liked') === 'true'
+
 	const [snippets, setSnippets] = useState<
 		Awaited<ReturnType<typeof getPublicSnippetsPage>>['items']
 	>([])
@@ -20,10 +32,24 @@ export default function SnippetsPage() {
 		useState<Awaited<ReturnType<typeof getPublicSnippetsPage>>['nextCursor']>(
 			null,
 		)
-	const [sortBy, setSortBy] = useState<SnippetSortBy>('latest')
 	const sentinelRef = useRef<HTMLDivElement | null>(null)
 	const isFetchingRef = useRef(false)
 	const requestedCursorRef = useRef<Set<string>>(new Set())
+
+	const updateURL = useCallback(
+		(newSort?: SnippetSortBy, newLiked?: boolean) => {
+			const params = new URLSearchParams()
+			const sort = newSort ?? sortBy
+			const liked = newLiked ?? showLikedOnly
+
+			if (sort !== 'latest') params.set('sort', sort)
+			if (liked) params.set('liked', 'true')
+
+			const query = params.toString()
+			router.push(`/snippets${query ? `?${query}` : ''}`, { scroll: false })
+		},
+		[router, sortBy, showLikedOnly],
+	)
 
 	const loadFirstPage = useCallback(async () => {
 		setInitialLoading(true)
@@ -38,6 +64,7 @@ export default function SnippetsPage() {
 				sortBy,
 				limit: PAGE_SIZE,
 				cursor: null,
+				likedOnly: showLikedOnly,
 			})
 
 			setSnippets(page.items)
@@ -47,7 +74,7 @@ export default function SnippetsPage() {
 			isFetchingRef.current = false
 			setInitialLoading(false)
 		}
-	}, [sortBy])
+	}, [sortBy, showLikedOnly])
 
 	const loadMore = useCallback(async () => {
 		if (!hasMore || !cursor || isFetchingRef.current) {
@@ -68,6 +95,7 @@ export default function SnippetsPage() {
 				sortBy,
 				limit: PAGE_SIZE,
 				cursor,
+				likedOnly: showLikedOnly,
 			})
 
 			setSnippets((prev) => {
@@ -83,7 +111,7 @@ export default function SnippetsPage() {
 			isFetchingRef.current = false
 			setLoadingMore(false)
 		}
-	}, [cursor, hasMore, sortBy])
+	}, [cursor, hasMore, sortBy, showLikedOnly])
 
 	useEffect(() => {
 		loadFirstPage()
@@ -112,27 +140,53 @@ export default function SnippetsPage() {
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-8">
-			<div className="mb-8 flex items-center justify-between">
+			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight mb-2">
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 sm:mb-2">
 						Community Snippets
 					</h1>
-					<p className="text-gray-600 dark:text-gray-400">
+					<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
 						Discover reusable code snippets shared by the community
 					</p>
 				</div>
 
-				<Select
-					uiSize="sm"
-					className="min-w-40"
-					value={sortBy}
-					onChange={(e) => setSortBy(e.target.value as SnippetSortBy)}
-				>
-					<option value="latest">Latest</option>
-					<option value="oldest">Oldest</option>
-					<option value="views">Most Viewed</option>
-					<option value="title">Title (A-Z)</option>
-				</Select>
+				<div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+					{user && (
+						<>
+							<span
+								className="cursor-pointer"
+								data-tooltip-id="liked-filter"
+								data-tooltip-content={
+									showLikedOnly
+										? 'Show all snippets'
+										: 'Show liked snippets only'
+								}
+								onClick={() => updateURL(undefined, !showLikedOnly)}
+							>
+								{showLikedOnly ? (
+									<AiFillHeart className="w-6 h-6 text-red-500" />
+								) : (
+									<AiOutlineHeart className="w-6 h-6" />
+								)}
+							</span>
+							<Tooltip id="liked-filter" place="bottom" />
+						</>
+					)}
+
+					<Select
+						uiSize="sm"
+						className="min-w-40 w-full"
+						value={sortBy}
+						onChange={(e) =>
+							updateURL(e.target.value as SnippetSortBy, undefined)
+						}
+					>
+						<option value="latest">Latest</option>
+						<option value="oldest">Oldest</option>
+						<option value="views">Most Viewed</option>
+						<option value="title">Title (A-Z)</option>
+					</Select>
+				</div>
 			</div>
 
 			{initialLoading ? (
@@ -142,12 +196,18 @@ export default function SnippetsPage() {
 					))}
 				</div>
 			) : snippets.length === 0 ? (
-				<div className="rounded-lg border border-dashed border-default p-16 text-center">
-					<h3 className="text-lg font-medium mb-2">No snippets yet</h3>
-					<p className="text-gray-600 dark:text-gray-400">
-						Be the first to share a code snippet with the community!
-					</p>
-				</div>
+				showLikedOnly ? (
+					<div className="flex flex-col items-center justify-center py-16 text-center">
+						<p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
+							You haven't liked any snippets yet
+						</p>
+						<p className="text-sm text-gray-500 dark:text-gray-500">
+							Explore community snippets and like the ones you find useful
+						</p>
+					</div>
+				) : (
+					<EmptySnippetsState variant="community" />
+				)
 			) : (
 				<>
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -156,10 +216,10 @@ export default function SnippetsPage() {
 						))}
 					</div>
 
-					{hasMore && <div ref={sentinelRef} className="h-10 w-full" />}
+					{hasMore && <div ref={sentinelRef} className="h-6 w-full" />}
 
 					{loadingMore && (
-						<div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 							{[...Array(PAGE_SIZE)].map((_, i) => (
 								<SnippetCardSkeleton key={`loading-${i}`} />
 							))}
@@ -174,5 +234,31 @@ export default function SnippetsPage() {
 				</>
 			)}
 		</div>
+	)
+}
+
+export default function SnippetsPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="mx-auto max-w-6xl px-4 py-8">
+					<div className="mb-8">
+						<h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 sm:mb-2">
+							Community Snippets
+						</h1>
+						<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+							Discover reusable code snippets shared by the community
+						</p>
+					</div>
+					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						{[...Array(6)].map((_, i) => (
+							<SnippetCardSkeleton key={i} />
+						))}
+					</div>
+				</div>
+			}
+		>
+			<SnippetsPageContent />
+		</Suspense>
 	)
 }

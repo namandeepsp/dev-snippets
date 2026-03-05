@@ -6,7 +6,7 @@ import {
 	signUpWithEmailAndPassword,
 	useAuth,
 } from '@/features/auth/auth.client.container'
-import { PageLoader } from '@/shared/ui/PageLoader'
+import LogoIcon from '@/shared/ui/LogoIcon'
 import { ThemeToggle } from '@/shared/ui/ThemeToggle'
 import { Button, Card, CardBody, Input, toast } from '@/shared/ui/design-system'
 import { logger } from '@/shared/utils/logger'
@@ -89,7 +89,7 @@ export default function LoginPage() {
 			</div>
 			<div className="pointer-events-none absolute -left-24 top-16 h-64 w-64 rounded-full bg-cyan-300/35 blur-3xl dark:bg-cyan-800/30" />
 			<div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-900/30" />
-			<Suspense fallback={<PageLoader fullScreen />}>
+			<Suspense fallback={null}>
 				<LoginContent />
 			</Suspense>
 		</div>
@@ -180,11 +180,7 @@ function LoginContent() {
 		}
 	}
 
-	if (loading) {
-		return <PageLoader fullScreen />
-	}
-
-	if (user) {
+	if (loading || user) {
 		return null
 	}
 
@@ -213,7 +209,9 @@ function LoginContent() {
 			<Card variant="glass" className="w-full rounded-4xl">
 				<CardBody className="p-6 sm:p-8">
 					<div className="mb-6 text-center">
-						<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 via-blue-500 to-cyan-400 shadow-lg shadow-blue-600/30"></div>
+						<div className="mx-auto mb-4 flex justify-center">
+							<LogoIcon className="h-14 w-14" />
+						</div>
 						<h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
 							Welcome to DevSnippets
 						</h2>

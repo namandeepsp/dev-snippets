@@ -140,7 +140,7 @@ function SnippetsPageContent() {
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-8">
-			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<div className="mb-8 flex flex-row gap-4 items-center justify-between">
 				<div>
 					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 sm:mb-2">
 						Community Snippets
@@ -150,25 +150,24 @@ function SnippetsPageContent() {
 					</p>
 				</div>
 
-				<div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+				<div className="flex flex-row items-center gap-3">
 					{user && (
 						<>
-							<span
-								className="cursor-pointer"
-								data-tooltip-id="liked-filter"
-								data-tooltip-content={
-									showLikedOnly
-										? 'Show all snippets'
-										: 'Show liked snippets only'
-								}
-								onClick={() => updateURL(undefined, !showLikedOnly)}
-							>
-								{showLikedOnly ? (
-									<AiFillHeart className="w-6 h-6 text-red-500" />
-								) : (
-									<AiOutlineHeart className="w-6 h-6" />
-								)}
-							</span>
+							{showLikedOnly ? (
+								<AiFillHeart
+									className="w-6 h-6 cursor-pointer text-red-500 transition-colors"
+									data-tooltip-id="liked-filter"
+									data-tooltip-content="Show all snippets"
+									onClick={() => updateURL(undefined, !showLikedOnly)}
+								/>
+							) : (
+								<AiOutlineHeart
+									className="w-6 h-6 cursor-pointer text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-500 transition-colors"
+									data-tooltip-id="liked-filter"
+									data-tooltip-content="Show liked snippets only"
+									onClick={() => updateURL(undefined, !showLikedOnly)}
+								/>
+							)}
 							<Tooltip id="liked-filter" place="bottom" />
 						</>
 					)}

@@ -28,7 +28,7 @@ export function EmptySnippetsState(props: EmptySnippetsStateProps) {
 					<Button
 						onClick={() =>
 							requireAuth(() => {
-								window.location.href = '/snippets/new'
+								globalThis.location.href = '/snippets/new'
 							})
 						}
 						size="md"

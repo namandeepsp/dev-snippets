@@ -34,7 +34,7 @@ export function RequireAuth({
 	useEffect(() => {
 		if (!loading && !user) {
 			const redirectUrl = `${redirectTo}?redirect=${encodeURIComponent(
-				window.location.pathname,
+				globalThis.location.pathname,
 			)}`
 
 			router.replace(redirectUrl)

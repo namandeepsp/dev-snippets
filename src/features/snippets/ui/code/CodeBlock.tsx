@@ -68,7 +68,7 @@ export function CodeBlock({
 	async function handleShare() {
 		if (!snippetId) return
 
-		const url = `${window.location.origin}/snippets/${snippetId}`
+		const url = `${globalThis.location.origin}/snippets/${snippetId}`
 
 		if (visibility === 'private') {
 			toast.warning('Cannot share private snippet', {

@@ -53,7 +53,7 @@ export function SnippetCard({
 		<Link
 			href={`/snippets/${snippet.id}`}
 			className={`
-        group block rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50
+        group flex h-full flex-col rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50
         hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md
         transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20
         ${compact ? 'p-4' : 'p-5'}
@@ -109,17 +109,17 @@ export function SnippetCard({
 			)}
 
 			{/* Footer */}
-			<div
-				className="flex flex-col gap-2 text-xs text-gray-500"
-				onClick={(e) => {
-					e.stopPropagation()
-					e.preventDefault()
-					router.push(`/profile/${author.username}`)
-				}}
-			>
+			<div className="mt-auto flex flex-col gap-2 text-xs text-gray-500">
 				{/* Author */}
 				{showAuthor && (
-					<div className="flex items-center gap-1.5">
+					<div
+						className="flex items-center gap-1.5"
+						onClick={(e) => {
+							e.stopPropagation()
+							e.preventDefault()
+							router.push(`/profile/${author.username}`)
+						}}
+					>
 						{author.avatarUrl ? (
 							<img
 								src={author.avatarUrl}
@@ -146,10 +146,7 @@ export function SnippetCard({
 				<div className="flex items-center justify-between gap-3">
 					{/* Date - only on non-compact */}
 					{!compact && (
-						<time
-							dateTime={new Date(date).toISOString()}
-							className="hidden sm:block"
-						>
+						<time dateTime={new Date(date).toISOString()} className="truncate">
 							{dateLabel} {formatDate(date)}
 						</time>
 					)}

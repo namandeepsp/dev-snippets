@@ -111,8 +111,23 @@ export const CATEGORIES: SnippetCategory[] = [
 	'bundler',
 	'platform',
 	'library',
+	'frontend',
+	'hooks',
+	'backend',
+	'middleware',
 	'database',
 	'devops',
+	'testing',
+	'security',
+	'performance',
+	'design',
+	'algorithms',
+	'data-structures',
+	'miscellaneous',
+	'queries',
+	'infrastructure',
+	'deployment',
+	'utilities',
 ]
 
 // Map technologies to their categories

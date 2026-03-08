@@ -17,6 +17,7 @@ import type {
 	SnippetVersion,
 	SnippetVisibility,
 } from './snippet.types'
+import { SNIPPET_TITLE_MAX_LENGTH } from './snippet.types'
 
 /**
  * ============================================================================
@@ -40,6 +41,38 @@ export class SnippetService {
 		private readonly snippetRepository: SnippetRepository,
 	) {}
 
+	private validateCreateInput(input: CreateSnippetServiceInput) {
+		if (!input.title.trim()) {
+			throw new Error('Title is required')
+		}
+
+		if (input.title.trim().length > SNIPPET_TITLE_MAX_LENGTH) {
+			throw new Error(
+				`Title must be ${SNIPPET_TITLE_MAX_LENGTH} characters or fewer`,
+			)
+		}
+
+		if (!input.code.trim()) {
+			throw new Error('Code is required')
+		}
+	}
+
+	private validateUpdateInput(input: UpdateSnippetServiceInput) {
+		if (input.title === undefined) {
+			return
+		}
+
+		if (!input.title.trim()) {
+			throw new Error('Title is required')
+		}
+
+		if (input.title.trim().length > SNIPPET_TITLE_MAX_LENGTH) {
+			throw new Error(
+				`Title must be ${SNIPPET_TITLE_MAX_LENGTH} characters or fewer`,
+			)
+		}
+	}
+
 	/* ----------------------------------------------------------------------- */
 	/* CREATE
 	/* ----------------------------------------------------------------------- */
@@ -57,6 +90,7 @@ export class SnippetService {
 		userId: string,
 		userName: string,
 	): Promise<Snippet> {
+		this.validateCreateInput(input)
 		const now = Date.now()
 
 		const createInput: CreateSnippetInput = {
@@ -122,6 +156,23 @@ export class SnippetService {
 	}
 
 	/**
+	 * List snippets by user with optional visibility filter and cursor pagination.
+	 */
+	async listByUserPaginated(
+		userId: string,
+		visibility?: SnippetVisibility,
+		limit?: number,
+		cursor?: SnippetListCursor | null,
+	): Promise<PaginatedSnippets> {
+		return this.snippetRepository.listByUserPaginated(
+			userId,
+			visibility,
+			limit,
+			cursor,
+		)
+	}
+
+	/**
 	 * List public snippets by username.
 	 * Used for profile pages.
 	 */
@@ -156,6 +207,39 @@ export class SnippetService {
 	}
 
 	/**
+	 * Paginated profile snippets with viewer-aware visibility:
+	 * - Owner viewing own profile: all snippets
+	 * - Other users/guests: public snippets only
+	 */
+	async listProfileByUsernamePaginated(
+		username: string,
+		viewerUserId?: string,
+		limit?: number,
+		cursor?: SnippetListCursor | null,
+	): Promise<PaginatedSnippets> {
+		if (!username) return { items: [], nextCursor: null }
+
+		const user = await userService.getPublicProfile(username)
+		if (!user) return { items: [], nextCursor: null }
+
+		if (viewerUserId && viewerUserId === user.id) {
+			return this.snippetRepository.listByUserPaginated(
+				user.id,
+				undefined,
+				limit,
+				cursor,
+			)
+		}
+
+		return this.snippetRepository.listByUserPaginated(
+			user.id,
+			'public',
+			limit,
+			cursor,
+		)
+	}
+
+	/**
 	 * List snippets by visibility.
 	 */
 	async listByVisibility(
@@ -181,6 +265,7 @@ export class SnippetService {
 		input: UpdateSnippetServiceInput,
 		userId: string,
 	): Promise<void> {
+		this.validateUpdateInput(input)
 		const snippet = await this.snippetRepository.getById(snippetId)
 
 		if (!snippet) {
@@ -227,6 +312,14 @@ export class SnippetService {
 		}
 
 		await this.snippetRepository.delete(snippetId)
+	}
+
+	/**
+	 * Permanently clean up all snippet-related data for a user.
+	 * Used during account deletion.
+	 */
+	async cleanupUserData(userId: string): Promise<void> {
+		await this.snippetRepository.cleanupUserData(userId)
 	}
 
 	/* ----------------------------------------------------------------------- */

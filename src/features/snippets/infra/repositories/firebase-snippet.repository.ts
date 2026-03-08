@@ -36,8 +36,47 @@ const DEFAULT_PAGE_SIZE = 5
  */
 
 export class FirebaseSnippetRepository implements SnippetRepository {
+	private static readonly MAX_BATCH_OPERATIONS = 450
+
 	private getCollection() {
 		return adminDb.collection(COLLECTION_NAME)
+	}
+
+	private async deleteDocsInBatches(
+		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[],
+	): Promise<void> {
+		for (
+			let index = 0;
+			index < docs.length;
+			index += FirebaseSnippetRepository.MAX_BATCH_OPERATIONS
+		) {
+			const chunk = docs.slice(
+				index,
+				index + FirebaseSnippetRepository.MAX_BATCH_OPERATIONS,
+			)
+			const batch = adminDb.batch()
+			chunk.forEach((doc) => batch.delete(doc.ref))
+			await batch.commit()
+		}
+	}
+
+	private async updateDocsInBatches(
+		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[],
+		updateFactory: () => FirebaseFirestore.UpdateData<FirebaseFirestore.DocumentData>,
+	): Promise<void> {
+		for (
+			let index = 0;
+			index < docs.length;
+			index += FirebaseSnippetRepository.MAX_BATCH_OPERATIONS
+		) {
+			const chunk = docs.slice(
+				index,
+				index + FirebaseSnippetRepository.MAX_BATCH_OPERATIONS,
+			)
+			const batch = adminDb.batch()
+			chunk.forEach((doc) => batch.update(doc.ref, updateFactory()))
+			await batch.commit()
+		}
 	}
 
 	/* ----------------------------------------------------------------------- */
@@ -178,6 +217,48 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 				versions: data.versions || [],
 			}
 		})
+	}
+
+	async listByUserPaginated(
+		userId: string,
+		visibility?: SnippetVisibility,
+		limit = DEFAULT_PAGE_SIZE,
+		cursor: SnippetListCursor | null = null,
+	): Promise<PaginatedSnippets> {
+		const pageSize = Math.max(1, Math.min(limit, 25))
+
+		let query = this.getCollection()
+			.where('ownerId', '==', userId)
+			.where('isDeleted', '==', false)
+
+		if (visibility) {
+			query = query.where('visibility', '==', visibility)
+		}
+
+		query = query
+			.orderBy('updatedAt', 'desc')
+			.orderBy(FieldPath.documentId(), 'desc')
+			.limit(pageSize)
+
+		if (cursor) {
+			query = query.startAfter(cursor.sortValue, cursor.id)
+		}
+
+		const snapshot = await query.get()
+		const items = snapshot.docs.map((doc) => this.mapDocToSnippet(doc))
+
+		if (snapshot.docs.length < pageSize) {
+			return { items, nextCursor: null }
+		}
+
+		const lastDoc = snapshot.docs[snapshot.docs.length - 1]
+		const lastData = lastDoc.data() as FirestoreSnippet
+		const nextCursor: SnippetListCursor = {
+			id: lastDoc.id,
+			sortValue: lastData.updatedAt,
+		}
+
+		return { items, nextCursor }
 	}
 
 	async listByVisibility(
@@ -327,6 +408,40 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 			.get()
 
 		return snapshot.docs.map((doc) => doc.data().snippetId)
+	}
+
+	async cleanupUserData(userId: string): Promise<void> {
+		// 1) Permanently delete all snippets owned by the user.
+		const ownedSnippetsSnapshot = await this.getCollection()
+			.where('ownerId', '==', userId)
+			.get()
+		const ownedSnippetIds = ownedSnippetsSnapshot.docs.map((doc) => doc.id)
+		await this.deleteDocsInBatches(ownedSnippetsSnapshot.docs)
+
+		// 2) Remove likes created by this user.
+		const likesByUserSnapshot = await adminDb
+			.collection('snippet_likes')
+			.where('userId', '==', userId)
+			.get()
+		await this.deleteDocsInBatches(likesByUserSnapshot.docs)
+
+		// 3) Remove likes on snippets owned by this user.
+		for (const snippetId of ownedSnippetIds) {
+			const likesForSnippetSnapshot = await adminDb
+				.collection('snippet_likes')
+				.where('snippetId', '==', snippetId)
+				.get()
+			await this.deleteDocsInBatches(likesForSnippetSnapshot.docs)
+		}
+
+		// 4) Remove user from any sharedWith arrays.
+		const sharedWithSnapshot = await this.getCollection()
+			.where('sharedWith', 'array-contains', userId)
+			.get()
+		await this.updateDocsInBatches(sharedWithSnapshot.docs, () => ({
+			sharedWith: FieldValue.arrayRemove(userId),
+			updatedAt: Date.now(),
+		}))
 	}
 
 	/* ----------------------------------------------------------------------- */

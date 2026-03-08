@@ -6,12 +6,25 @@ import { logger } from '@/shared/utils/logger'
 import { cookies } from 'next/headers'
 import { snippetService } from './snippet.server.container'
 
+import { getCurrentServerUser } from '@/features/auth/auth.server.container'
+import { EDITOR_LANGUAGES } from '@/features/editor/editor.config'
 import type { ApiResponse } from '@/features/user/infra/client/user-api.client'
 import type {
 	CreateSnippetServiceInput,
+	SnippetSortBy,
 	UpdateSnippetServiceInput,
 } from './core/repositories/snippet.repository'
-import type { Snippet } from './core/snippet.types'
+import type { Snippet, SnippetTechnology } from './core/snippet.types'
+
+type SnippetSearchScope = 'public' | 'mine' | 'all-visible'
+
+type SearchSnippetsInput = {
+	query?: string
+	technology?: SnippetTechnology | 'all'
+	sortBy?: SnippetSortBy
+	scope?: SnippetSearchScope
+	limit?: number
+}
 
 /* ----------------------------------------------------------------------- */
 /* AUTHENTICATION HELPER
@@ -229,6 +242,178 @@ export async function shareSnippetAction(
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Failed to share snippet',
+		}
+	}
+}
+
+/* ----------------------------------------------------------------------- */
+/* SEARCH
+/* ----------------------------------------------------------------------- */
+
+function sortSnippets(snippets: Snippet[], sortBy: SnippetSortBy): Snippet[] {
+	const copy = [...snippets]
+
+	switch (sortBy) {
+		case 'latest':
+			return copy.sort((a, b) => b.createdAt - a.createdAt)
+		case 'oldest':
+			return copy.sort((a, b) => a.createdAt - b.createdAt)
+		case 'views':
+			return copy.sort((a, b) => b.viewsCount - a.viewsCount)
+		case 'title':
+			return copy.sort((a, b) => a.title.localeCompare(b.title))
+		default:
+			return copy
+	}
+}
+
+function getLanguageSearchTerms(language: string): string[] {
+	const normalizedLanguage = language.toLowerCase()
+	const config = (
+		EDITOR_LANGUAGES as Record<string, { label: string; extensions: string[] }>
+	)[normalizedLanguage]
+
+	if (!config) return [normalizedLanguage]
+
+	const extensionTerms = config.extensions.flatMap((ext) => {
+		const normalized = ext.toLowerCase()
+		return normalized.startsWith('.')
+			? [normalized, normalized.slice(1)]
+			: [normalized]
+	})
+
+	const labelTerms = config.label
+		.toLowerCase()
+		.split(/[\s.+#-]+/)
+		.filter(Boolean)
+
+	const manualAliases =
+		normalizedLanguage === 'javascript'
+			? ['js']
+			: normalizedLanguage === 'typescript'
+				? ['ts']
+				: normalizedLanguage === 'python'
+					? ['py']
+					: normalizedLanguage === 'markdown'
+						? ['md']
+						: normalizedLanguage === 'yaml'
+							? ['yml']
+							: normalizedLanguage === 'dockerfile'
+								? ['docker']
+								: []
+
+	return [
+		...new Set([
+			normalizedLanguage,
+			...labelTerms,
+			...extensionTerms,
+			...manualAliases,
+		]),
+	]
+}
+
+export async function searchSnippetsAction({
+	query = '',
+	technology = 'all',
+	sortBy = 'latest',
+	scope = 'public',
+	limit = 8,
+}: SearchSnippetsInput = {}): Promise<
+	ApiResponse<
+		Array<
+			Snippet & {
+				author: {
+					id: string
+					username: string
+					name: string
+					avatarUrl: string | null
+				}
+			}
+		>
+	>
+> {
+	try {
+		const normalizedQuery = query.trim().toLowerCase()
+		const maxResults = Math.max(1, Math.min(limit, 20))
+
+		let currentUserId: string | null = null
+		try {
+			const user = await getCurrentServerUser()
+			currentUserId = user?.id || null
+		} catch {
+			currentUserId = null
+		}
+
+		let source: Snippet[] = []
+		if (scope === 'mine') {
+			if (!currentUserId) {
+				return { success: true, data: [] }
+			}
+			source = await snippetService.listByUser(currentUserId)
+		} else if (scope === 'all-visible' && currentUserId) {
+			const [publicSnippets, ownSnippets] = await Promise.all([
+				snippetService.listPublic(sortBy),
+				snippetService.listByUser(currentUserId),
+			])
+			const byId = new Map<string, Snippet>()
+			for (const snippet of [...publicSnippets, ...ownSnippets]) {
+				byId.set(snippet.id, snippet)
+			}
+			source = [...byId.values()]
+		} else {
+			source = await snippetService.listPublic(sortBy)
+		}
+
+		let filtered = source
+
+		if (technology !== 'all') {
+			filtered = filtered.filter((snippet) =>
+				snippet.technologies.includes(technology),
+			)
+		}
+
+		if (normalizedQuery) {
+			filtered = filtered.filter((snippet) => {
+				const languageTerms = getLanguageSearchTerms(snippet.language)
+
+				const searchable = [
+					snippet.title,
+					snippet.description || '',
+					snippet.ownerName,
+					snippet.language,
+					...languageTerms,
+					...snippet.technologies,
+					...snippet.categories,
+				]
+					.join(' ')
+					.toLowerCase()
+
+				return searchable.includes(normalizedQuery)
+			})
+		}
+
+		const sorted = sortSnippets(filtered, sortBy).slice(0, maxResults)
+		const authorIds = [...new Set(sorted.map((snippet) => snippet.ownerId))]
+		const authors = await userService.getUsersByIds(authorIds)
+
+		return {
+			success: true,
+			data: sorted.map((snippet) => ({
+				...snippet,
+				author: authors[snippet.ownerId] || {
+					id: snippet.ownerId,
+					username: 'unknown',
+					name: snippet.ownerName,
+					avatarUrl: null,
+				},
+			})),
+		}
+	} catch (error) {
+		logger.error('Failed to search snippets', error)
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : 'Failed to search snippets',
 		}
 	}
 }

@@ -8,12 +8,13 @@ import { formatDate } from '@/shared/utils/date'
 import { logger } from '@/shared/utils/logger'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LuHeart } from 'react-icons/lu'
 import type { EnrichedSnippet } from '../core/snippet.types'
 import { toggleLikeAction } from '../snippet.actions'
 import { TechnologyBadge } from './TechnologyBadge'
 import { CodeBlock } from './code/CodeBlock'
+import { saveRecentSnippet } from './recent-snippets'
 
 type Props = {
 	/** The snippet to display */
@@ -60,6 +61,15 @@ export function SnippetViewer({ snippet }: Props) {
 
 	const isOwner = user?.id === snippet.ownerId
 	const isUpdated = snippet.updatedAt > snippet.createdAt
+
+	useEffect(() => {
+		saveRecentSnippet({
+			id: snippet.id,
+			title: snippet.title,
+			language: snippet.language,
+			ownerName: snippet.ownerName,
+		})
+	}, [snippet.id, snippet.title, snippet.language, snippet.ownerName])
 
 	async function handleDelete() {
 		if (!isOwner) return
@@ -116,12 +126,12 @@ export function SnippetViewer({ snippet }: Props) {
 			</div>
 
 			{/* Author & Metadata Bar */}
-			<div className="flex flex-wrap items-center justify-between gap-4 border-y border-default py-4">
-				<div className="flex items-center gap-4">
+			<div className="space-y-3 border-y border-default py-4">
+				<div className="flex items-start justify-between gap-3">
 					{/* Author */}
 					<Link
 						href={`/profile/${author.username}`}
-						className="flex items-center gap-3 hover:opacity-80 transition"
+						className="flex min-w-0 items-center gap-3 transition hover:opacity-80"
 					>
 						{author.avatarUrl ? (
 							<img
@@ -136,48 +146,53 @@ export function SnippetViewer({ snippet }: Props) {
 								</span>
 							</div>
 						)}
-						<div>
-							<p className="font-medium">{author.name}</p>
-							<p className="text-sm text-gray-500">@{author.username}</p>
+						<div className="min-w-0">
+							<p className="truncate font-medium leading-tight">
+								{author.name}
+							</p>
+							<p className="truncate text-xs text-gray-500">
+								@{author.username}
+							</p>
 						</div>
 					</Link>
 
-					<div className="h-8 w-px bg-default" aria-hidden="true" />
-
-					{/* Dates */}
-					<div className="text-sm text-gray-500">
-						<time dateTime={new Date(snippet.createdAt).toISOString()}>
-							Published {formatDate(snippet.createdAt)}
-						</time>
-						{isUpdated && (
-							<>
-								<span className="mx-1">·</span>
-								<time dateTime={new Date(snippet.updatedAt).toISOString()}>
-									Updated {formatDate(snippet.updatedAt)}
-								</time>
-							</>
-						)}
+					{/* Stats */}
+					<div className="flex shrink-0 items-center gap-4 text-sm text-gray-500">
+						<span
+							className="flex items-center gap-1"
+							aria-label={`${snippet.viewsCount + 1} views`}
+						>
+							👁 {snippet.viewsCount + 1}
+						</span>
+						<button
+							onClick={handleLike}
+							className="flex items-center gap-1 transition-colors hover:text-red-500"
+							aria-label={`${likesCount} likes`}
+						>
+							<LuHeart
+								className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`}
+							/>
+							{likesCount}
+						</button>
 					</div>
 				</div>
 
-				{/* Stats */}
-				<div className="flex items-center gap-4 text-sm">
-					<span
-						className="flex items-center gap-1"
-						aria-label={`${snippet.viewsCount + 1} views`}
+				{/* Dates */}
+				<div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 sm:justify-end">
+					<time
+						dateTime={new Date(snippet.createdAt).toISOString()}
+						className="rounded-full bg-slate-200 px-2 py-1 text-slate-700 dark:bg-slate-800/70 dark:text-slate-400"
 					>
-						👁 {snippet.viewsCount + 1}
-					</span>
-					<button
-						onClick={handleLike}
-						className="flex items-center gap-1 transition-colors hover:text-red-500"
-						aria-label={`${likesCount} likes`}
-					>
-						<LuHeart
-							className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`}
-						/>
-						{likesCount}
-					</button>
+						Published {formatDate(snippet.createdAt)}
+					</time>
+					{isUpdated && (
+						<time
+							dateTime={new Date(snippet.updatedAt).toISOString()}
+							className="rounded-full bg-slate-200 px-2 py-1 text-slate-700 dark:bg-slate-800/70 dark:text-slate-400"
+						>
+							Updated {formatDate(snippet.updatedAt)}
+						</time>
+					)}
 				</div>
 			</div>
 

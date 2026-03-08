@@ -8,6 +8,7 @@ import { type SubmitEvent, useEffect, useMemo, useState } from 'react'
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import type { CreateSnippetServiceInput } from '../core/repositories/snippet.repository'
 import { TECHNOLOGY_COLORS } from '../core/snippet.colors'
+import { SNIPPET_TITLE_MAX_LENGTH } from '../core/snippet.types'
 import type {
 	Snippet,
 	SnippetCategory,
@@ -42,7 +43,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 		(snippet?.language as EditorLanguage) ?? 'javascript',
 	)
 	const [visibility, setVisibility] = useState<SnippetVisibility>(
-		snippet?.visibility ?? 'private',
+		snippet?.visibility ?? 'public',
 	)
 	const [technologies, setTechnologies] = useState<SnippetTechnology[]>(
 		snippet?.technologies ?? [],
@@ -92,6 +93,8 @@ export function SnippetForm({ mode, snippet }: Props) {
 
 	const normalizedTitle = title.trim()
 	const normalizedDescription = description.trim()
+	const titleLength = title.length
+	const isTitleWithinLimit = titleLength <= SNIPPET_TITLE_MAX_LENGTH
 	const hasRequiredFields = Boolean(normalizedTitle && code.trim())
 
 	const hasEditChanges = useMemo(() => {
@@ -125,7 +128,8 @@ export function SnippetForm({ mode, snippet }: Props) {
 		categories,
 	])
 
-	const canSubmit = hasRequiredFields && !isSaving && hasEditChanges
+	const canSubmit =
+		hasRequiredFields && isTitleWithinLimit && !isSaving && hasEditChanges
 
 	async function handleFormatCode() {
 		if (!code.trim()) return
@@ -233,11 +237,15 @@ export function SnippetForm({ mode, snippet }: Props) {
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						placeholder="e.g., React useState Hook Example"
-						className="w-full rounded-md border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+						className="w-full rounded-lg border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
 						disabled={isSaving}
 						name="title"
+						maxLength={SNIPPET_TITLE_MAX_LENGTH}
 						required
 					/>
+					<p className="mt-1 text-right text-xs text-gray-500">
+						{titleLength}/{SNIPPET_TITLE_MAX_LENGTH}
+					</p>
 				</div>
 
 				<div>
@@ -250,7 +258,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 						onChange={(e) => setDescription(e.target.value)}
 						placeholder="Briefly describe what this snippet does..."
 						rows={3}
-						className="w-full min-h-32 rounded-md border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+						className="w-full min-h-32 field-sizing-content rounded-lg border border-default bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-foreground/20"
 						name="description"
 						disabled={isSaving}
 					/>

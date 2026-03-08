@@ -115,13 +115,8 @@ export async function deleteUserAccount(): Promise<ApiResponse> {
 		const userId = decodedUser.uid
 		const auth = getServerFirebaseAuth()
 
-		// Delete all snippets owned by the user first.
-		const snippets = await snippetService.listByUser(userId)
-		await Promise.all(
-			snippets.map((snippet) =>
-				snippetService.deleteSnippet(snippet.id, userId),
-			),
-		)
+		// Remove all snippet-related data tied to this user.
+		await snippetService.cleanupUserData(userId)
 
 		// Delete profile and auth account.
 		await userService.deleteUser(userId, userId)

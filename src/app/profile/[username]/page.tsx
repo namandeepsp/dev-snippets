@@ -1,16 +1,17 @@
 import { getCurrentServerUser } from '@/features/auth/auth.server.container'
 import { snippetService } from '@/features/snippets/snippet.server.container'
-import { EmptySnippetsState } from '@/features/snippets/ui/EmptySnippetsState'
-import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { userService } from '@/features/user/user.container'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { ProfileSnippetsSection } from './ProfileSnippetsSection'
 
 type Props = {
 	params: Promise<{
 		username: string
 	}>
 }
+
+const PROFILE_PAGE_SIZE = 6
 
 /**
  * ============================================================================
@@ -59,17 +60,18 @@ export default async function ProfilePage({ params }: Props) {
 		console.warn('No valid session found, rendering profile as guest')
 	}
 
-	// Fetch user and their snippets in parallel
-	const [user, snippets] = await Promise.all([
-		userService.getPublicProfile(username),
-		snippetService.listProfileByUsername(username, currentUser?.id),
-	])
-
+	const user = await userService.getPublicProfile(username)
 	if (!user) {
 		notFound()
 	}
 
-	const snippetCount = snippets.length
+	const isOwnProfile = currentUser?.id === user.id
+	const initialPage = await snippetService.listByUserPaginated(
+		user.id,
+		isOwnProfile ? undefined : 'public',
+		PROFILE_PAGE_SIZE,
+		null,
+	)
 	const joinDate = new Date(user.createdAt).toLocaleDateString(undefined, {
 		year: 'numeric',
 		month: 'long',
@@ -118,12 +120,6 @@ export default async function ProfilePage({ params }: Props) {
 							</span>
 							<span className="text-sm">{joinDate}</span>
 						</div>
-						<div className="flex items-center gap-2">
-							<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-								Snippets
-							</span>
-							<span className="text-sm">{snippetCount}</span>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -134,19 +130,13 @@ export default async function ProfilePage({ params }: Props) {
 					<h2 className="text-2xl font-bold tracking-tight">Snippets</h2>
 				</div>
 
-				{snippetCount === 0 ? (
-					currentUser?.id === user.id ? (
-						<EmptySnippetsState variant="own-profile" />
-					) : (
-						<EmptySnippetsState variant="other-profile" />
-					)
-				) : (
-					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						{snippets.map((snippet) => (
-							<SnippetCard key={snippet.id} snippet={snippet} />
-						))}
-					</div>
-				)}
+				<ProfileSnippetsSection
+					username={username}
+					isOwnProfile={isOwnProfile}
+					initialSnippets={initialPage.items}
+					initialCursor={initialPage.nextCursor}
+					pageSize={PROFILE_PAGE_SIZE}
+				/>
 			</div>
 		</div>
 	)

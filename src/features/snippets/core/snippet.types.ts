@@ -14,6 +14,8 @@
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import type { Author } from '@/features/user/core/user.types'
 
+export const SNIPPET_TITLE_MAX_LENGTH = 100
+
 /* ------------------------------------------------------------------------- */
 /* ENUMS / UNIONS
 /* ------------------------------------------------------------------------- */

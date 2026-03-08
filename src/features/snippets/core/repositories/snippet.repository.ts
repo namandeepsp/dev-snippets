@@ -74,6 +74,12 @@ export interface SnippetRepository
 		limit?: number,
 		cursor?: SnippetListCursor | null,
 	): Promise<PaginatedSnippets>
+	listByUserPaginated(
+		userId: string,
+		visibility?: SnippetVisibility,
+		limit?: number,
+		cursor?: SnippetListCursor | null,
+	): Promise<PaginatedSnippets>
 	listByVisibility(
 		visibility: SnippetVisibility,
 		userId?: string,
@@ -102,6 +108,12 @@ export interface SnippetRepository
 	 * Get all snippet IDs that a user has liked.
 	 */
 	getLikedSnippetIds(userId: string): Promise<string[]>
+
+	/**
+	 * Permanently remove all data tied to a user.
+	 * Used during account deletion.
+	 */
+	cleanupUserData(userId: string): Promise<void>
 
 	/**
 	 * List snippets by user with optional visibility filter.

@@ -1,5 +1,10 @@
 import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
+import {
+	type FormatProxyRequest,
+	type ProxyFormatResponse,
+	normalizeGoLanguage,
+} from './formatter.api.types'
 import { formatterRegistry } from './formatter.registry'
 import type {
 	CodeFormatter,
@@ -12,14 +17,7 @@ import type {
  * GOFMT FORMATTER
  * ============================================================================
  *
- * Go formatter implementation.
- *
- * Note: This is a placeholder. Actual gofmt requires:
- * 1. WASM build of gofmt
- * 2. Server-side formatting endpoint
- * 3. Or a WebAssembly implementation
- *
- * For now, it returns the code as-is.
+ * Go formatter implementation via server-side formatting endpoint.
  */
 
 const gofmtFormatter: CodeFormatter = {
@@ -30,16 +28,43 @@ const gofmtFormatter: CodeFormatter = {
 	},
 
 	async format(request: FormatRequest): Promise<FormatResult> {
-		// TODO: Implement actual gofmt formatting
-		// Options:
-		// 1. Use WebAssembly build of gofmt
-		// 2. Call server-side API endpoint
-		// 3. Use a pure JavaScript Go formatter
+		try {
+			const payload: FormatProxyRequest = {
+				code: request.code,
+				language: normalizeGoLanguage(request.language),
+			}
 
-		logger.warn('gofmt formatting not implemented, returning original code')
+			const response = await fetch('/api/format/go', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			})
+			const data = (await response
+				.json()
+				.catch(() => ({}))) as Partial<ProxyFormatResponse>
+			const formattedCode =
+				typeof data.formattedCode === 'string'
+					? data.formattedCode
+					: request.code
 
-		return {
-			formattedCode: request.code,
+			if (!response.ok || data.success === false || data.error) {
+				return {
+					formattedCode,
+					error:
+						typeof data.error === 'string'
+							? data.error
+							: 'Failed to format Go code',
+				}
+			}
+
+			return { formattedCode }
+		} catch (error) {
+			logger.error('gofmt formatting failed', error)
+			return {
+				formattedCode: request.code,
+				error:
+					error instanceof Error ? error.message : 'Failed to format Go code',
+			}
 		}
 	},
 }

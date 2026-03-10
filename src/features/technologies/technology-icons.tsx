@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/shared/utils/utils'
 import type { IconType } from 'react-icons'
 import {

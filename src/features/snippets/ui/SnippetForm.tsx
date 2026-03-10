@@ -57,6 +57,17 @@ export function SnippetForm({ mode, snippet }: Props) {
 	const [isSaving, setIsSaving] = useState(false)
 	const [isFormatting, setIsFormatting] = useState(false)
 
+	const handleDetectedLanguage = (detected: EditorLanguage) => {
+		const primaryTech = LANGUAGE_TO_PRIMARY_TECHNOLOGY[detected]
+		if (!primaryTech) return
+
+		setTechnologies((prev) => {
+			if (prev[0] === primaryTech) return prev
+			const filtered = prev.filter((tech) => tech !== primaryTech)
+			return [primaryTech, ...filtered]
+		})
+	}
+
 	// Set default technology/categories based on language in create mode
 	useEffect(() => {
 		if (mode === 'create' && technologies.length === 0) {
@@ -340,7 +351,8 @@ export function SnippetForm({ mode, snippet }: Props) {
 				<CodeEditor
 					value={code}
 					onChange={setCode}
-					language={language}
+					language={formatterLanguage}
+					onLanguageDetected={handleDetectedLanguage}
 					placeholder="Paste your code here..."
 					readOnly={isSaving}
 					minHeight="300px"

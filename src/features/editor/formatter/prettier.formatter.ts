@@ -3,6 +3,7 @@ import estreePlugin from 'prettier/plugins/estree'
 import htmlPlugin from 'prettier/plugins/html'
 import postcssPlugin from 'prettier/plugins/postcss'
 import tsPlugin from 'prettier/plugins/typescript'
+import yamlPlugin from 'prettier/plugins/yaml'
 import prettier from 'prettier/standalone'
 
 import { logger } from '@/shared/utils/logger'
@@ -19,7 +20,7 @@ import type {
  * PRETTIER FORMATTER
  * ============================================================================
  *
- * Prettier implementation for JavaScript/TypeScript/JSON/HTML/CSS.
+ * Prettier implementation for JavaScript/TypeScript/JSON/HTML/CSS/YAML.
  *
  * Features:
  * - Runs entirely in the browser (no server roundtrip)
@@ -34,7 +35,41 @@ const SUPPORTED_LANGUAGES: EditorLanguage[] = [
 	'json',
 	'html',
 	'css',
+	'yaml',
 ]
+
+function looksLikeYaml(code: string): boolean {
+	const lines = code
+		.split('\n')
+		.map((line) => line.trim())
+		.filter(Boolean)
+
+	if (lines.length < 2) return false
+
+	// Simple heuristic: enough key/value or list items, with no strong JS/TS signals.
+	const yamlLikeCount = lines.filter(
+		(line) =>
+			/^[A-Za-z0-9_-]+:\s*(.*)$/.test(line) ||
+			/^-\s+/.test(line) ||
+			/^(---|\.\.\.)$/.test(line),
+	).length
+	const jsLikeCount = lines.filter(
+		(line) =>
+			line.endsWith(';') ||
+			/(^|\s)(const|let|var|function|class|import|export)\b/.test(line),
+	).length
+
+	return yamlLikeCount >= 2 && jsLikeCount === 0
+}
+
+function isPrettierParseError(error: unknown): boolean {
+	if (!(error instanceof Error)) return false
+	return (
+		error.name === 'SyntaxError' ||
+		error.message.includes('Unexpected token') ||
+		error.message.includes('SyntaxError')
+	)
+}
 
 const prettierFormatter: PrettierFormatter = {
 	name: 'prettier',
@@ -47,33 +82,51 @@ const prettierFormatter: PrettierFormatter = {
 		try {
 			// Map our language to Prettier parser
 			const parser = this.getParser(request.language)
-
-			const formattedCode = await prettier.format(request.code, {
-				parser,
+			const options = {
 				plugins: [
 					babelPlugin,
 					estreePlugin,
 					tsPlugin,
 					htmlPlugin,
 					postcssPlugin,
+					yamlPlugin,
 				],
 				// Default options
 				semi: true,
 				singleQuote: true,
-				trailingComma: 'es5',
+				trailingComma: 'es5' as const,
 				printWidth: 80,
 				tabWidth: 2,
 				useTabs: false,
 				bracketSpacing: true,
-				arrowParens: 'always',
-				endOfLine: 'lf',
-			})
+				arrowParens: 'always' as const,
+				endOfLine: 'lf' as const,
+			}
+			let formattedCode: string
+			try {
+				formattedCode = await prettier.format(request.code, {
+					...options,
+					parser,
+				})
+			} catch (primaryError) {
+				if (parser !== 'yaml' && looksLikeYaml(request.code)) {
+					formattedCode = await prettier.format(request.code, {
+						...options,
+						parser: 'yaml',
+					})
+				} else {
+					throw primaryError
+				}
+			}
 
 			return {
 				formattedCode: formattedCode.trimEnd() + '\n',
 			}
 		} catch (error) {
-			logger.error('Prettier formatting failed', error)
+			// Parse failures are common during paste/typing; avoid noisy console logs.
+			if (!isPrettierParseError(error)) {
+				logger.error('Prettier formatting failed', error)
+			}
 			return {
 				formattedCode: request.code,
 				error: error instanceof Error ? error.message : 'Formatting failed',
@@ -88,6 +141,7 @@ const prettierFormatter: PrettierFormatter = {
 			json: 'json',
 			html: 'html',
 			css: 'css',
+			yaml: 'yaml',
 		}
 		return parserMap[language] || 'babel'
 	},

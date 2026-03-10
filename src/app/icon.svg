@@ -11,8 +11,8 @@
     </linearGradient>
   </defs>
 
-  <rect x="2" y="2" width="20" height="20" rx="4.4" fill="url(#bg)"/>
-  <rect x="2" y="2" width="20" height="20" rx="4.4" fill="url(#shade)"/>
+  <rect x="1" y="1" width="22" height="22" rx="4.8" fill="url(#bg)"/>
+  <rect x="1" y="1" width="22" height="22" rx="4.8" fill="url(#shade)"/>
 
   <g transform="translate(12.35 12) scale(0.66) translate(-12 -12)">
     <path

@@ -1,5 +1,10 @@
 import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
+import {
+	type FormatProxyRequest,
+	type ProxyFormatResponse,
+	normalizePythonLanguage,
+} from './formatter.api.types'
 import { formatterRegistry } from './formatter.registry'
 import type {
 	CodeFormatter,
@@ -29,21 +34,34 @@ const blackFormatter: CodeFormatter = {
 
 	async format(request: FormatRequest): Promise<FormatResult> {
 		try {
+			const payload: FormatProxyRequest = {
+				code: request.code,
+				language: normalizePythonLanguage(request.language),
+			}
+
 			// Client-side: Call server endpoint
 			const response = await fetch('/api/format/python', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					code: request.code,
-					formatter: 'black',
-				}),
+				body: JSON.stringify(payload),
 			})
+			const data = (await response
+				.json()
+				.catch(() => ({}))) as Partial<ProxyFormatResponse>
+			const formattedCode =
+				typeof data.formattedCode === 'string'
+					? data.formattedCode
+					: request.code
 
-			if (!response.ok) {
-				throw new Error('Formatting failed')
+			if (!response.ok || data.success === false || data.error) {
+				return {
+					formattedCode,
+					error:
+						typeof data.error === 'string'
+							? data.error
+							: 'Failed to format Python code',
+				}
 			}
-
-			const { formattedCode } = await response.json()
 
 			return { formattedCode }
 		} catch (error) {

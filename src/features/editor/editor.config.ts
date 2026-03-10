@@ -126,7 +126,7 @@ export const EDITOR_LANGUAGES: Record<EditorLanguage, EditorConfig> = {
 	yaml: {
 		label: 'YAML',
 		icon: '📄',
-		formatter: 'none',
+		formatter: 'prettier',
 		monacoLanguage: 'yaml',
 		color: '#cb171e',
 		extensions: ['.yml', '.yaml'],

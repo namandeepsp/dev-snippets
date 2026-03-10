@@ -229,7 +229,7 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 									value={query}
 									onFocus={loadRecent}
 									onChange={(e) => setQuery(e.target.value)}
-									placeholder="Search by title, description, tech..."
+									placeholder="Search by title, description, technology..."
 									className="h-11 w-full rounded-xl border border-default bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
 								/>
 							</div>
@@ -243,7 +243,7 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 									onClick={() => setShowFilters((prev) => !prev)}
 								>
 									<LuFilter className="h-4 w-4" />
-									Filters
+									<span className="max-sm:hidden">Filters</span>
 									{activeFilterCount > 0 && (
 										<span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-semibold text-white dark:bg-blue-500">
 											{activeFilterCount}

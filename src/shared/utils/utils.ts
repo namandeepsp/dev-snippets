@@ -12,7 +12,9 @@ export function cn(...inputs: ClassValue[]) {
 function getAuthProvider(decodedToken: any): AuthProvider {
 	const providerId = decodedToken.firebase?.sign_in_provider
 	if (!providerId) {
-		logger.warn('No sign-in provider found in token', decodedToken)
+		logger.warn('No sign-in provider found in token', {
+			provider: decodedToken?.firebase?.sign_in_provider,
+		})
 		return 'email' as AuthProvider // Default to email if not available
 	}
 	return (

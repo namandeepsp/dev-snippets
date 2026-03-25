@@ -112,9 +112,11 @@ export default async function SnippetPage({ params }: Props) {
 	}
 
 	// 4. Increment view count (fire-and-forget, don't await)
-	snippetService
-		.incrementViews(id)
-		.catch((err) => logger.error('Failed to increment views', err))
+	snippetService.incrementViews(id).catch((err) =>
+		logger.error('Failed to increment views', {
+			error: err instanceof Error ? err.message : 'Unknown error',
+		}),
+	)
 
 	// 5. Fetch author profile and like status
 	const [author, isLikedByUser] = await Promise.all([

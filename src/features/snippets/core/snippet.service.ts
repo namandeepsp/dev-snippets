@@ -135,14 +135,20 @@ export class SnippetService {
 	}
 
 	/**
-	 * List public snippets with cursor pagination.
+	 * List public snippets with cursor pagination and optional technology filter.
 	 */
 	async listPublicPaginated(
 		sortBy?: SnippetSortBy,
 		limit?: number,
 		cursor?: SnippetListCursor | null,
+		technologies?: string[],
 	): Promise<PaginatedSnippets> {
-		return this.snippetRepository.listPublicPaginated(sortBy, limit, cursor)
+		return this.snippetRepository.listPublicPaginated(
+			sortBy,
+			limit,
+			cursor,
+			technologies as any,
+		)
 	}
 
 	/**
@@ -460,7 +466,9 @@ export class SnippetService {
 		try {
 			await this.snippetRepository.incrementViews(snippetId)
 		} catch (error) {
-			logger.error(`Failed to increment views for snippet ${snippetId}`, error)
+			logger.error(`Failed to increment views for snippet ${snippetId}`, {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			})
 		}
 	}
 

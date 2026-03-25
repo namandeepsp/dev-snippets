@@ -102,3 +102,11 @@ export function normalizeGoLanguage(
 export function isGoFamilyLanguage(language: unknown): boolean {
 	return typeof language === 'string' && GO_ALIASES.has(language.toLowerCase())
 }
+
+export function normalizeJavaLanguage(_language: unknown): EditorLanguage {
+	return 'java'
+}
+
+export function isJavaLanguage(language: unknown): boolean {
+	return language === 'java'
+}

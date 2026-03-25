@@ -22,9 +22,53 @@ export class FormatterService {
 		}
 	}
 
+	private validateUrl(url: string): void {
+		try {
+			const parsed = new URL(url)
+			const hostname = parsed.hostname
+
+			// Allow localhost only in development
+			const isDevelopment = process.env.NODE_ENV === 'development'
+			if (isDevelopment && hostname === 'localhost') {
+				return
+			}
+
+			// Block private IP ranges and localhost in production
+			const blockedPatterns = [
+				/^localhost$/i,
+				/^127\./,
+				/^192\.168\./,
+				/^10\./,
+				/^172\.(1[6-9]|2[0-9]|3[01])\./,
+				/^169\.254\./,
+				/^::1$/,
+				/^fc00:/i,
+				/^fe80:/i,
+			]
+			for (const pattern of blockedPatterns) {
+				if (pattern.test(hostname)) {
+					throw new Error(
+						`Access to private IP range is not allowed: ${hostname}`,
+					)
+				}
+			}
+			// Only allow http and https protocols
+			if (!['http:', 'https:'].includes(parsed.protocol)) {
+				throw new Error(`Invalid protocol: ${parsed.protocol}`)
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				throw error
+			}
+			throw new Error('Invalid URL format')
+		}
+	}
+
 	getUrl(path: string): string {
 		const config = this.getConfig()
-		return new URL(path, config.baseUrl).toString()
+		const url = new URL(path, config.baseUrl).toString()
+		this.validateUrl(url)
+		return url
 	}
 
 	private async request(
@@ -34,6 +78,7 @@ export class FormatterService {
 		const config = this.getConfig()
 		const { path, body, headers } = request
 		const url = new URL(path, config.baseUrl).toString()
+		this.validateUrl(url)
 		const baseHeaders: Record<string, string> = {
 			...(body ? { 'Content-Type': 'application/json' } : {}),
 			...(config.apiKey ? { 'X-API-Key': config.apiKey } : {}),

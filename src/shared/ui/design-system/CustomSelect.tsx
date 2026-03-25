@@ -34,6 +34,7 @@ export function CustomSelect({
 }: CustomSelectProps) {
 	const [open, setOpen] = useState(false)
 	const [query, setQuery] = useState('')
+	const [highlightedIndex, setHighlightedIndex] = useState(0)
 	const wrapperRef = useRef<HTMLDivElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
 
@@ -41,6 +42,7 @@ export function CustomSelect({
 		() => options.find((option) => option.value === value),
 		[options, value],
 	)
+
 	const filteredOptions = useMemo(() => {
 		const q = query.trim().toLowerCase()
 		if (!q) return options
@@ -67,17 +69,79 @@ export function CustomSelect({
 	useEffect(() => {
 		if (!open) {
 			setQuery('')
+			setHighlightedIndex(0)
 		}
 	}, [open])
 
 	useEffect(() => {
 		if (open && searchable) {
 			inputRef.current?.focus()
+			// Select all text on focus
+			setTimeout(() => {
+				inputRef.current?.select()
+			}, 0)
 		}
 	}, [open, searchable])
 
+	const handleKeyDown = (
+		e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
+	) => {
+		switch (e.key) {
+			case 'ArrowDown':
+				e.preventDefault()
+				if (!open) {
+					setOpen(true)
+					setHighlightedIndex(0)
+				} else {
+					setHighlightedIndex((prev) =>
+						prev === filteredOptions.length - 1 ? 0 : prev + 1,
+					)
+				}
+				break
+			case 'ArrowUp':
+				e.preventDefault()
+				if (!open) {
+					setOpen(true)
+					setHighlightedIndex(Math.max(0, filteredOptions.length - 1))
+				} else {
+					setHighlightedIndex((prev) =>
+						prev === 0 ? filteredOptions.length - 1 : prev - 1,
+					)
+				}
+				break
+			case 'Enter':
+				e.preventDefault()
+				if (open && filteredOptions.length > 0) {
+					const highlightedOption = filteredOptions[highlightedIndex]
+					if (highlightedOption && !highlightedOption.disabled) {
+						onChange(highlightedOption.value)
+						setOpen(false)
+					}
+				} else if (!open) {
+					setOpen(true)
+				}
+				break
+			case 'Escape':
+				e.preventDefault()
+				setOpen(false)
+				break
+		}
+	}
+
+	const handleWrapperKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		// Only handle in non-searchable mode
+		if (searchable) return
+		handleKeyDown(
+			e as React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
+		)
+	}
+
 	return (
-		<div ref={wrapperRef} className={cn('relative w-full', className)}>
+		<div
+			ref={wrapperRef}
+			className={cn('relative w-full', className)}
+			onKeyDown={!searchable ? handleWrapperKeyDown : undefined}
+		>
 			{searchable ? (
 				<div
 					className={cn(
@@ -90,9 +154,13 @@ export function CustomSelect({
 					<input
 						ref={inputRef}
 						type="text"
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
+						value={query || (open ? '' : (selected?.label ?? ''))}
+						onChange={(e) => {
+							setQuery(e.target.value)
+							setHighlightedIndex(0)
+						}}
 						onFocus={() => setOpen(true)}
+						onKeyDown={handleKeyDown}
 						placeholder={searchPlaceholder}
 						disabled={disabled}
 						className="w-full bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-500"
@@ -119,6 +187,7 @@ export function CustomSelect({
 					type="button"
 					disabled={disabled}
 					onClick={() => setOpen((prev) => !prev)}
+					onKeyDown={handleKeyDown}
 					className={cn(
 						'flex h-11 w-full cursor-pointer items-center justify-between rounded-xl border border-gray-200 bg-white px-3 text-left text-sm transition-all',
 						'focus:outline-none focus:ring-4 focus:ring-blue-500/20',
@@ -151,7 +220,7 @@ export function CustomSelect({
 
 			{open && (
 				<div className="absolute z-50 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-gray-200 bg-white/95 p-1 shadow-xl backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95">
-					{filteredOptions.map((option) => (
+					{filteredOptions.map((option, index) => (
 						<button
 							key={option.value}
 							type="button"
@@ -165,6 +234,7 @@ export function CustomSelect({
 								'text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800',
 								option.value === value &&
 									'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+								highlightedIndex === index && 'bg-gray-100 dark:bg-gray-800',
 								option.disabled && 'cursor-not-allowed opacity-50',
 							)}
 						>

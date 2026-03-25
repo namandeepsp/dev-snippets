@@ -1,7 +1,6 @@
 'use client'
 
 import { AuthProvider } from '@/features/auth/ui/store/auth.store'
-import '@/features/editor/formatter'
 import { ThemeProvider } from 'next-themes'
 
 export function Providers({ children }: { children: React.ReactNode }) {

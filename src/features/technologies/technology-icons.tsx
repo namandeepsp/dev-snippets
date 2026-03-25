@@ -2,6 +2,7 @@
 
 import { cn } from '@/shared/utils/utils'
 import type { IconType } from 'react-icons'
+import { FaJava } from 'react-icons/fa'
 import {
 	LuBraces,
 	LuCode,
@@ -49,6 +50,11 @@ const TECHNOLOGY_ICON_MAP: Partial<Record<SnippetTechnology, IconConfig>> = {
 		className: 'h-4 w-4 drop-shadow-[0_0_0.2px_currentColor]',
 	},
 	golang: { icon: SiGo },
+	java: {
+		icon: FaJava,
+		className:
+			'h-4 w-4 scale-110 text-slate-900 dark:text-white drop-shadow-[0_0_0.8px_currentColor]',
+	},
 	webpack: { icon: SiWebpack },
 	rollup: { icon: SiRollupdotjs },
 	'browser-extension': { icon: LuPuzzle },

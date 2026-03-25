@@ -3,9 +3,20 @@ import { BaseScript } from '../core/base.script';
 import type { FirestoreSnippet } from '../../src/features/snippets/core/snippet.types';
 import { fileURLToPath } from 'node:url';
 import { SNIPPET_TEMPLATES_PART1 } from '../data/snippet.templates';
+import { JS_SNIPPET_TEMPLATES } from '../data/jsSnippets.templates';
+import { TS_SNIPPET_TEMPLATES } from '../data/tsSnippets.templates';
+import { GO_SNIPPET_TEMPLATES } from '../data/goSnippets.templates';
+import { PYTHON_SNIPPET_TEMPLATES } from '../data/pythonSnippets.templates';
+import { JAVA_SNIPPET_TEMPLATES } from '../data/javaSnippets.templates';
+import { HTML_SNIPPET_TEMPLATES } from '../data/htmlSnippets.templates';
+import { CSS_SNIPPET_TEMPLATES } from '../data/cssSnippets.templates';
+import { SQL_SNIPPET_TEMPLATES } from '../data/sqlSnippets.templates';
+import { BROWSER_EXTENSION_SNIPPET_TEMPLATES } from '../data/browserExtensionSnippets.templates';
+import { expressSnippets } from '../data/expressSnippets.templates';
+import { REACT_SNIPPET_TEMPLATES } from '../data/reactSnippets.templates';
 import { USER_TEMPLATES } from '../data/user.templates';
 
-const DEFAULT_SEED_SNIPPET_COUNT = 100;
+const DEFAULT_SEED_SNIPPET_COUNT = -1; // -1 means use all available templates
 
 type SeedOwner = {
   id: string;
@@ -17,9 +28,21 @@ type SnippetTemplate = Pick<
   'title' | 'description' | 'code' | 'language' | 'technologies' | 'categories'
 >;
 
-const SEED_OWNERS: SeedOwner[] = [];
+const ALL_SNIPPET_TEMPLATES: SnippetTemplate[] = [
+  ...JS_SNIPPET_TEMPLATES,
+  ...TS_SNIPPET_TEMPLATES,
+  ...GO_SNIPPET_TEMPLATES,
+  ...PYTHON_SNIPPET_TEMPLATES,
+  ...JAVA_SNIPPET_TEMPLATES,
+  ...HTML_SNIPPET_TEMPLATES,
+  ...CSS_SNIPPET_TEMPLATES,
+  ...SQL_SNIPPET_TEMPLATES,
+  ...BROWSER_EXTENSION_SNIPPET_TEMPLATES,
+  ...expressSnippets,
+  ...REACT_SNIPPET_TEMPLATES,
+];
 
-const USEFUL_SNIPPET_TEMPLATES: SnippetTemplate[] = SNIPPET_TEMPLATES_PART1;
+const USEFUL_SNIPPET_TEMPLATES: SnippetTemplate[] = ALL_SNIPPET_TEMPLATES;
 
 export class SeedScript extends BaseScript {
   name = 'Seed Data';
@@ -47,12 +70,15 @@ export class SeedScript extends BaseScript {
     this.log(`Found ${owners.length} users: ${owners.map(o => o.name).join(', ')}`);
 
     const snippets = this.getSampleSnippets(this.getSeedCount(), owners);
+    
+    // Randomly shuffle snippets before inserting
+    const shuffledSnippets = this.shuffleArray(snippets);
 
-    for (const snippet of snippets) {
+    for (const snippet of shuffledSnippets) {
       await adminDb.collection('snippets').add(snippet);
     }
 
-    this.logSuccess(`Seeded ${snippets.length} snippets across ${owners.length} users`);
+    this.logSuccess(`Seeded ${shuffledSnippets.length} snippets across ${owners.length} users`);
   }
 
   private getSeedCount(): number {
@@ -60,20 +86,39 @@ export class SeedScript extends BaseScript {
     if (Number.isInteger(parsed) && parsed > 0) {
       return parsed;
     }
+    // Return -1 to use all available templates
     return DEFAULT_SEED_SNIPPET_COUNT;
+  }
+
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   private getSampleSnippets(count: number, owners: SeedOwner[]): Omit<FirestoreSnippet, 'id'>[] {
     const now = Date.now();
     const totalTemplates = USEFUL_SNIPPET_TEMPLATES.length;
+    const snippets: Omit<FirestoreSnippet, 'id'>[] = [];
 
-    return Array.from({ length: Math.min(count, totalTemplates) }, (_, index) => {
+    // If count is -1, use all templates; otherwise use the specified count
+    const actualCount = count === -1 ? totalTemplates : Math.min(count, totalTemplates);
+    
+    for (let index = 0; index < actualCount; index++) {
       const template = USEFUL_SNIPPET_TEMPLATES[index];
-      const owner = owners[index % owners.length]; // Randomly cycle through owners
+      const owner = owners[index % owners.length];
       const createdAt = now - index * 60_000;
-      const visibility = index % 2 === 0 ? 'public' : 'private';
 
-      return {
+      // Random private count between 2-5 per 20 snippets
+      const cyclePosition = index % 20;
+      const privateCount = Math.floor(Math.random() * 4) + 2; // 2-5
+      const isPrivate = cyclePosition >= (20 - privateCount);
+      const visibility = isPrivate ? 'private' : 'public';
+
+      snippets.push({
         title: template.title,
         description: template.description,
         code: template.code,
@@ -96,8 +141,10 @@ export class SeedScript extends BaseScript {
         ],
         createdAt,
         updatedAt: createdAt,
-      };
-    });
+      });
+    }
+
+    return snippets;
   }
 }
 

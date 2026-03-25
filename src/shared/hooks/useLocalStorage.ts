@@ -13,7 +13,9 @@ export function useLocalStorage<T>(
 			const item = globalThis.localStorage.getItem(key)
 			return item ? JSON.parse(item) : initialValue
 		} catch (error) {
-			logger.error(`Error reading localStorage key "${key}"`, error)
+			logger.error(`Error reading localStorage key "${key}"`, {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			})
 			return initialValue
 		}
 	})
@@ -27,7 +29,9 @@ export function useLocalStorage<T>(
 				globalThis.localStorage.setItem(key, JSON.stringify(valueToStore))
 			}
 		} catch (error) {
-			logger.error(`Error setting localStorage key "${key}"`, error)
+			logger.error(`Error setting localStorage key "${key}"`, {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			})
 		}
 	}
 

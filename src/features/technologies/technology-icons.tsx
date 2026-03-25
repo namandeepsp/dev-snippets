@@ -13,7 +13,7 @@ import {
 } from 'react-icons/lu'
 import {
 	SiAngular,
-	SiCss3,
+	SiCss,
 	SiDocker,
 	SiExpress,
 	SiGo,
@@ -69,7 +69,7 @@ const TECHNOLOGY_ICON_MAP: Partial<Record<SnippetTechnology, IconConfig>> = {
 	'dev-ops': { icon: LuServer },
 	json: { icon: LuBraces },
 	html: { icon: SiHtml5 },
-	css: { icon: SiCss3 },
+	css: { icon: SiCss },
 	yaml: { icon: LuFileText },
 }
 

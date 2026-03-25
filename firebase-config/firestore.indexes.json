@@ -143,6 +143,72 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "snippets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "technologies",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "visibility",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isDeleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "snippets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "technologies",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "visibility",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isDeleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "viewsCount",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "snippets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "technologies",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "visibility",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isDeleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "title",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

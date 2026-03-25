@@ -79,7 +79,9 @@ export function SnippetViewer({ snippet }: Props) {
 			await snippetApiClient.delete(snippet.id)
 			router.replace('/snippets')
 		} catch (error) {
-			logger.error('Failed to delete snippet', error)
+			logger.error('Failed to delete snippet', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			})
 			globalThis.alert('Failed to delete snippet. Please try again.')
 		} finally {
 			setIsDeleting(false)
@@ -91,7 +93,9 @@ export function SnippetViewer({ snippet }: Props) {
 		requireAuth(() => {
 			setIsLiked(!isLiked)
 			toggleLikeAction(snippet.id).catch((error) => {
-				logger.error('Failed to toggle like', error)
+				logger.error('Failed to toggle like', {
+					error: error instanceof Error ? error.message : 'Unknown error',
+				})
 			})
 		})
 	}
@@ -202,7 +206,7 @@ export function SnippetViewer({ snippet }: Props) {
 					<h2 className="text-sm font-medium text-gray-500">Technologies</h2>
 					<div className="flex flex-wrap gap-2">
 						{snippet.technologies.map((tech) => (
-							<TechnologyBadge key={tech} technology={tech} size="lg" />
+							<TechnologyBadge key={tech} technology={tech} size="md" />
 						))}
 					</div>
 				</div>

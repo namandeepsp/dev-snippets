@@ -36,6 +36,7 @@ export type SnippetTechnology =
 	| 'nextjs'
 	| 'angular'
 	| 'python'
+	| 'java'
 	| 'markdown'
 	| 'sql'
 	| 'postgres-sql'
@@ -46,6 +47,11 @@ export type SnippetTechnology =
 	| 'css'
 	| 'yaml'
 	| 'nosql'
+	| 'rust'
+	| 'ruby'
+	| 'php'
+	| 'csharp'
+	| 'cpp'
 
 export type SnippetCategory =
 	| 'language'
@@ -70,6 +76,16 @@ export type SnippetCategory =
 	| 'infrastructure'
 	| 'deployment'
 	| 'utilities'
+	| 'network'
+	| 'data'
+	| 'architecture'
+	| 'types'
+	| 'state'
+	| 'events'
+	| 'storage'
+	| 'validation'
+	| 'api'
+	| 'microservices'
 
 /* ------------------------------------------------------------------------- */
 /* VERSIONING

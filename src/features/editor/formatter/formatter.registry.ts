@@ -193,6 +193,7 @@ class FormatterRegistry {
 			'css',
 			'go',
 			'python',
+			'java',
 			'markdown',
 			'sql',
 			'yaml',
@@ -241,6 +242,15 @@ class FormatterRegistry {
 // Singleton instance
 export const formatterRegistry = new FormatterRegistry()
 
+let formattersLoaded: Promise<void> | null = null
+
+async function ensureFormattersLoaded(): Promise<void> {
+	if (!formattersLoaded) {
+		formattersLoaded = import('./formatter.bootstrap').then(() => {})
+	}
+	return formattersLoaded
+}
+
 /**
  * Convenience function for formatting code.
  * Use this in components instead of accessing the registry directly.
@@ -256,6 +266,7 @@ export async function formatCode(
 	code: string,
 	language: EditorLanguage,
 ): Promise<string> {
+	await ensureFormattersLoaded()
 	return formatterRegistry.format(code, language)
 }
 
@@ -263,5 +274,6 @@ export async function formatCodeWithStatus(
 	code: string,
 	language: EditorLanguage,
 ): Promise<{ formattedCode: string; error?: string }> {
+	await ensureFormattersLoaded()
 	return formatterRegistry.formatWithStatus(code, language)
 }

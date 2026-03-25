@@ -11,6 +11,7 @@ import type {
 import type {
 	FirestoreSnippet,
 	Snippet,
+	SnippetTechnology,
 	SnippetVersion,
 	SnippetVisibility,
 } from '../../core/snippet.types'
@@ -163,33 +164,98 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 		sortBy: SnippetSortBy = 'latest',
 		limit = DEFAULT_PAGE_SIZE,
 		cursor: SnippetListCursor | null = null,
+		technologies?: SnippetTechnology[],
 	): Promise<PaginatedSnippets> {
 		const pageSize = Math.max(1, Math.min(limit, 25))
 		const { field, direction } = this.getSortConfig(sortBy)
 
-		let query = this.getCollection()
-			.where('visibility', '==', 'public')
-			.where('isDeleted', '==', false)
-			.orderBy(field, direction)
-			.orderBy(FieldPath.documentId(), direction)
-			.limit(pageSize)
+		// If no technologies filter, use simple pagination
+		if (!technologies || technologies.length === 0) {
+			let query = this.getCollection()
+				.where('visibility', '==', 'public')
+				.where('isDeleted', '==', false)
+				.orderBy(field, direction)
+				.orderBy(FieldPath.documentId(), direction)
+				.limit(pageSize + 1) // Fetch one extra to check if there are more
 
-		if (cursor) {
-			query = query.startAfter(cursor.sortValue, cursor.id)
+			if (cursor) {
+				query = query.startAfter(cursor.sortValue, cursor.id)
+			}
+
+			const snapshot = await query.get()
+			const hasMore = snapshot.docs.length > pageSize
+			const docs = snapshot.docs.slice(0, pageSize)
+
+			const items = docs.map((doc) => this.mapDocToSnippet(doc))
+
+			let nextCursor: SnippetListCursor | null = null
+			if (hasMore && docs.length > 0) {
+				const lastDoc = docs[docs.length - 1]
+				const lastData = lastDoc.data() as FirestoreSnippet
+				nextCursor = {
+					id: lastDoc.id,
+					sortValue: this.getSortValue(lastData, sortBy),
+				}
+			}
+
+			return { items, nextCursor }
 		}
 
-		const snapshot = await query.get()
-		const items = snapshot.docs.map((doc) => this.mapDocToSnippet(doc))
+		// With technology filter: query each technology separately and merge results
+		const allResults: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[] =
+			[]
+		const seenIds = new Set<string>()
 
-		if (snapshot.docs.length < pageSize) {
-			return { items, nextCursor: null }
+		// Fetch all results from all technologies (no limit per tech)
+		for (const tech of technologies) {
+			let query = this.getCollection()
+				.where('visibility', '==', 'public')
+				.where('isDeleted', '==', false)
+				.where('technologies', 'array-contains', tech)
+				.orderBy(field, direction)
+				.orderBy(FieldPath.documentId(), direction)
+
+			if (cursor) {
+				query = query.startAfter(cursor.sortValue, cursor.id)
+			}
+
+			const snapshot = await query.get()
+
+			for (const doc of snapshot.docs) {
+				if (!seenIds.has(doc.id)) {
+					allResults.push(doc)
+					seenIds.add(doc.id)
+				}
+			}
 		}
 
-		const lastDoc = snapshot.docs[snapshot.docs.length - 1]
-		const lastData = lastDoc.data() as FirestoreSnippet
-		const nextCursor: SnippetListCursor = {
-			id: lastDoc.id,
-			sortValue: this.getSortValue(lastData, sortBy),
+		// Sort merged results by the sort field
+		allResults.sort((a, b) => {
+			const aData = a.data() as FirestoreSnippet
+			const bData = b.data() as FirestoreSnippet
+			const aVal = this.getSortValue(aData, sortBy)
+			const bVal = this.getSortValue(bData, sortBy)
+
+			if (direction === 'desc') {
+				return bVal > aVal ? 1 : bVal < aVal ? -1 : 0
+			} else {
+				return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+			}
+		})
+
+		const hasMore = allResults.length > pageSize
+		const docs = allResults.slice(0, pageSize)
+
+		const items = docs.map((doc) => this.mapDocToSnippet(doc))
+
+		let nextCursor: SnippetListCursor | null = null
+		if (hasMore && docs.length > 0) {
+			const lastDoc = docs[docs.length - 1]
+			const lastData = lastDoc.data() as FirestoreSnippet
+			nextCursor = {
+				id: lastDoc.id,
+				sortValue: this.getSortValue(lastData, sortBy),
+			}
 		}
 
 		return { items, nextCursor }
@@ -238,24 +304,26 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 		query = query
 			.orderBy('updatedAt', 'desc')
 			.orderBy(FieldPath.documentId(), 'desc')
-			.limit(pageSize)
+			.limit(pageSize + 1)
 
 		if (cursor) {
 			query = query.startAfter(cursor.sortValue, cursor.id)
 		}
 
 		const snapshot = await query.get()
-		const items = snapshot.docs.map((doc) => this.mapDocToSnippet(doc))
+		const hasMore = snapshot.docs.length > pageSize
+		const docs = snapshot.docs.slice(0, pageSize)
 
-		if (snapshot.docs.length < pageSize) {
-			return { items, nextCursor: null }
-		}
+		const items = docs.map((doc) => this.mapDocToSnippet(doc))
 
-		const lastDoc = snapshot.docs[snapshot.docs.length - 1]
-		const lastData = lastDoc.data() as FirestoreSnippet
-		const nextCursor: SnippetListCursor = {
-			id: lastDoc.id,
-			sortValue: lastData.updatedAt,
+		let nextCursor: SnippetListCursor | null = null
+		if (hasMore && docs.length > 0) {
+			const lastDoc = docs[docs.length - 1]
+			const lastData = lastDoc.data() as FirestoreSnippet
+			nextCursor = {
+				id: lastDoc.id,
+				sortValue: lastData.updatedAt,
+			}
 		}
 
 		return { items, nextCursor }
@@ -490,7 +558,7 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 	}
 
 	private getSortValue(
-		snippet: FirestoreSnippet,
+		snippet: FirestoreSnippet | Snippet,
 		sortBy: SnippetSortBy,
 	): number | string {
 		switch (sortBy) {

@@ -27,6 +27,12 @@ export const TECHNOLOGY_COLORS: Record<SnippetTechnology, string> = {
 	// Languages
 	golang: 'bg-cyan-500',
 	python: 'bg-emerald-500',
+	java: 'bg-red-600',
+	rust: 'bg-orange-700',
+	ruby: 'bg-red-500',
+	php: 'bg-purple-600',
+	csharp: 'bg-green-600',
+	cpp: 'bg-blue-700',
 
 	// Build tools
 	webpack: 'bg-blue-600',

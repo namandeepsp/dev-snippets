@@ -41,6 +41,7 @@ export type EditorConfig = {
 		| 'black'
 		| 'sql-formatter'
 		| 'markdown'
+		| 'google-java-format'
 		| 'none'
 	/** Monaco editor language ID */
 	monacoLanguage: string
@@ -158,7 +159,7 @@ export const EDITOR_LANGUAGES: Record<EditorLanguage, EditorConfig> = {
 	java: {
 		label: 'Java',
 		icon: '☕',
-		formatter: 'none',
+		formatter: 'google-java-format',
 		monacoLanguage: 'java',
 		color: '#b07219',
 		extensions: ['.java'],

@@ -3,6 +3,7 @@ import type {
 	FirestoreSnippet,
 	Snippet,
 	SnippetContent,
+	SnippetTechnology,
 	SnippetVisibility,
 } from '../snippet.types'
 
@@ -73,6 +74,7 @@ export interface SnippetRepository
 		sortBy?: SnippetSortBy,
 		limit?: number,
 		cursor?: SnippetListCursor | null,
+		technologies?: SnippetTechnology[],
 	): Promise<PaginatedSnippets>
 	listByUserPaginated(
 		userId: string,

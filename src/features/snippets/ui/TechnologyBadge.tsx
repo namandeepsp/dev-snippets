@@ -12,12 +12,14 @@ type Props = {
 	href?: string
 	/** Optional click handler */
 	onClick?: () => void
+	/** Whether this badge is selected (used in filters) */
+	selected?: boolean
 }
 
 const sizeClasses = {
-	sm: 'px-2 py-0.5 text-xs',
-	md: 'px-2.5 py-0.5 text-xs',
-	lg: 'px-3 py-1 text-sm',
+	sm: 'px-3 py-1 text-xs',
+	md: 'px-3.5 py-1 text-xs',
+	lg: 'px-4 py-1.5 text-sm',
 }
 
 /**
@@ -34,17 +36,24 @@ export function TechnologyBadge({
 	size = 'md',
 	href,
 	onClick,
+	selected = false,
 }: Props) {
-	const baseColor = TECHNOLOGY_COLORS[technology] || 'bg-gray-500'
-	const colorClass = `${baseColor} text-white`
 	const option = getTechnologyOption(technology)
+
+	// When selected, use technology color. When not selected and clickable, use gray background
+	const baseColor =
+		onClick && !selected
+			? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+			: (TECHNOLOGY_COLORS[technology] || 'bg-gray-500') + ' text-white'
+	const colorClass = baseColor
 
 	const content = (
 		<span
 			className={`
         inline-flex items-center rounded-full font-medium
         ${sizeClasses[size]}
-        ${href || onClick ? 'cursor-pointer hover:opacity-80 transition' : ''}
+        ${href || onClick ? 'cursor-pointer transition' : ''}
+        ${onClick && !selected ? 'hover:bg-gray-300 dark:hover:bg-gray-600' : href || onClick ? 'hover:opacity-80' : ''}
         ${colorClass}
       `}
 			onClick={onClick}
@@ -64,7 +73,7 @@ export function TechnologyBadge({
 			<span className="mr-1" aria-hidden>
 				<TechnologyIcon
 					technology={option.iconKey}
-					className="h-3 w-3 text-white dark:text-white"
+					className={`h-3 w-3 ${selected || !onClick ? 'text-white dark:text-white' : 'text-gray-800 dark:text-gray-100'}`}
 				/>
 			</span>
 			{option.label}

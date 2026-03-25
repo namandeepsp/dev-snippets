@@ -5,6 +5,7 @@ import type {
 	SnippetListCursor,
 	SnippetSortBy,
 } from '@/features/snippets/core/repositories/snippet.repository'
+import type { SnippetTechnology } from '@/features/snippets/core/snippet.types'
 import { snippetService } from '@/features/snippets/snippet.server.container'
 import { userService } from '@/features/user/user.container'
 
@@ -15,6 +16,7 @@ type GetPublicSnippetsPageInput = {
 	limit?: number
 	cursor?: SnippetListCursor | null
 	likedOnly?: boolean
+	technologies?: SnippetTechnology[]
 }
 
 export async function getPublicSnippets(sortBy: SnippetSortBy = 'latest') {
@@ -38,6 +40,7 @@ export async function getPublicSnippetsPage({
 	limit = DEFAULT_PAGE_SIZE,
 	cursor = null,
 	likedOnly = false,
+	technologies,
 }: GetPublicSnippetsPageInput = {}) {
 	const currentUser = await getCurrentServerUser()
 
@@ -78,38 +81,24 @@ export async function getPublicSnippetsPage({
 		}
 	}
 
-	// Normal flow: fetch public snippets
+	// Normal flow: fetch public snippets with pagination
 	const { items, nextCursor } = await snippetService.listPublicPaginated(
 		sortBy,
 		limit,
 		cursor,
+		technologies,
 	)
-
-	// If user is logged in, add their private snippets
-	let allItems = items
-	if (currentUser) {
-		const userPrivateSnippets = await snippetService.listByUser(
-			currentUser.id,
-			'private',
-		)
-		// Merge and deduplicate
-		const existingIds = new Set(items.map((s) => s.id))
-		const newPrivateSnippets = userPrivateSnippets.filter(
-			(s) => !existingIds.has(s.id),
-		)
-		allItems = [...items, ...newPrivateSnippets]
-	}
 
 	// Get liked snippet IDs for current user
 	const likedSnippetIds = currentUser
 		? new Set(await snippetService.getLikedSnippetIds(currentUser.id))
 		: new Set<string>()
 
-	const authorIds = [...new Set(allItems.map((s) => s.ownerId))]
+	const authorIds = [...new Set(items.map((s) => s.ownerId))]
 	const authors = await userService.getUsersByIds(authorIds)
 
 	return {
-		items: allItems.map((snippet) => ({
+		items: items.map((snippet) => ({
 			...snippet,
 			isLiked: likedSnippetIds.has(snippet.id),
 			author: authors[snippet.ownerId] || {

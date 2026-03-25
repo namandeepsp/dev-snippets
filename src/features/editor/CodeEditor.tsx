@@ -1,33 +1,24 @@
 'use client'
 
 import { useTheme } from '@/shared/hooks/useTheme'
-import { Button, toast } from '@/shared/ui/design-system'
+import { toast } from '@/shared/ui/design-system'
 import { logger } from '@/shared/utils/logger'
-import { cpp } from '@codemirror/lang-cpp'
-import { css } from '@codemirror/lang-css'
-import { html } from '@codemirror/lang-html'
-import { java } from '@codemirror/lang-java'
-import { javascript } from '@codemirror/lang-javascript'
-import { json } from '@codemirror/lang-json'
-import { markdown } from '@codemirror/lang-markdown'
-import { php } from '@codemirror/lang-php'
-import { python } from '@codemirror/lang-python'
-import { rust } from '@codemirror/lang-rust'
-import { sql } from '@codemirror/lang-sql'
 import { keymap } from '@codemirror/view'
-import { sublime } from '@uiw/codemirror-theme-sublime'
-import { vscodeDark } from '@uiw/codemirror-theme-vscode'
-import CodeMirror from '@uiw/react-codemirror'
+import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
-import { IoCheckmark } from 'react-icons/io5'
-import { MdOutlineContentCopy, MdOutlineContentPaste } from 'react-icons/md'
-import {
-	type EditorLanguage,
-	SUPPORTED_LANGUAGES,
-	getLanguageConfig,
-} from './editor.config'
+import { CodeEditorToolbar } from './code-editor/CodeEditorToolbar'
+import { resolvePasteLanguage } from './code-editor/languageDetection'
+import { useCodeMirrorExtensions } from './code-editor/useCodeMirrorExtensions'
+import { type EditorLanguage, getLanguageConfig } from './editor.config'
 import { formatCodeWithStatus } from './formatter/formatter.registry'
+
+const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), {
+	ssr: false,
+	loading: () => (
+		<div className="min-h-50 rounded-xl border-2 border-gray-200 bg-[#303841] dark:border-gray-700 dark:bg-[#1E1E1E]" />
+	),
+})
 
 interface CodeEditorProps {
 	value: string
@@ -55,10 +46,18 @@ export function CodeEditor({
 	const [pendingApiFormatOps, setPendingApiFormatOps] = useState(0)
 	const editorRef = useRef<HTMLDivElement>(null)
 	const isApiFormatting = pendingApiFormatOps > 0
+	const { languageExtension, themeExtension } = useCodeMirrorExtensions(
+		language,
+		resolvedTheme,
+	)
 
 	const isApiBackedFormatter = (lang: EditorLanguage): boolean => {
 		const formatter = getLanguageConfig(lang).formatter
-		return formatter === 'black' || formatter === 'gofmt'
+		return (
+			formatter === 'black' ||
+			formatter === 'gofmt' ||
+			formatter === 'google-java-format'
+		)
 	}
 
 	const formatWithStatusForEditor = async (
@@ -79,47 +78,6 @@ export function CodeEditor({
 		}
 	}
 
-	const detectLanguageFromApi = async (
-		code: string,
-	): Promise<EditorLanguage | null> => {
-		try {
-			const response = await fetch('/api/format/detect', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ code }),
-			})
-
-			if (!response.ok) return null
-
-			const data = (await response.json()) as {
-				language?: string | null
-			}
-
-			const detected =
-				typeof data?.language === 'string' ? data.language.toLowerCase() : null
-
-			if (!detected) return null
-
-			return SUPPORTED_LANGUAGES.includes(detected as EditorLanguage)
-				? (detected as EditorLanguage)
-				: null
-		} catch (_err) {
-			return null
-		}
-	}
-
-	const resolvePasteLanguage = async (
-		code: string,
-		currentLanguage: EditorLanguage,
-	): Promise<EditorLanguage> => {
-		const detected = await detectLanguageFromApi(code)
-		if (detected && detected !== currentLanguage) {
-			onLanguageDetected?.(detected)
-			return detected
-		}
-		return currentLanguage
-	}
-
 	useEffect(() => {
 		const editorElement = editorRef.current
 		if (!editorElement || readOnly) return
@@ -131,7 +89,11 @@ export function CodeEditor({
 			e.preventDefault()
 			e.stopPropagation()
 
-			const resolvedLanguage = await resolvePasteLanguage(text, language)
+			const resolvedLanguage = await resolvePasteLanguage(
+				text,
+				language,
+				onLanguageDetected,
+			)
 			const result = await formatWithStatusForEditor(text, resolvedLanguage)
 			const formattedText = result.error ? text : result.formattedCode
 			onChange(formattedText)
@@ -159,30 +121,6 @@ export function CodeEditor({
 		}
 	}
 
-	const getLanguageExtension = (lang: EditorLanguage) => {
-		const extensions: Record<EditorLanguage, any> = {
-			javascript: javascript({ jsx: true }),
-			typescript: javascript({ typescript: true, jsx: true }),
-			json: json(),
-			html: html(),
-			css: css(),
-			python: python(),
-			java: java(),
-			cpp: cpp(),
-			rust: rust(),
-			php: php(),
-			sql: sql(),
-			markdown: markdown(),
-			go: javascript(), // Fallback
-			yaml: javascript(), // Fallback
-			ruby: javascript(), // Fallback
-			csharp: javascript(), // Fallback
-			bash: javascript(), // Fallback
-			dockerfile: javascript(), // Fallback
-		}
-		return extensions[lang] || javascript()
-	}
-
 	async function handleCopy() {
 		try {
 			await navigator.clipboard.writeText(value)
@@ -198,7 +136,11 @@ export function CodeEditor({
 		try {
 			const text = await navigator.clipboard.readText()
 			if (typeof text === 'string') {
-				const resolvedLanguage = await resolvePasteLanguage(text, language)
+				const resolvedLanguage = await resolvePasteLanguage(
+					text,
+					language,
+					onLanguageDetected,
+				)
 				const result = await formatWithStatusForEditor(text, resolvedLanguage)
 				const formattedText = result.error ? text : result.formattedCode
 				onChange(formattedText)
@@ -225,48 +167,20 @@ export function CodeEditor({
 					</div>
 				</div>
 			) : null}
-			<div className="absolute top-2 right-2 z-10 flex gap-2">
-				{isApiFormatting ? (
-					<div
-						className="pointer-events-none inline-flex items-center justify-center rounded-lg bg-gray-200 px-3 py-2 text-slate-700 dark:bg-slate-800/90 dark:text-slate-200"
-						aria-label="Formatting in progress"
-					>
-						<AiOutlineLoading3Quarters className="animate-spin text-base" />
-					</div>
-				) : null}
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					onClick={handlePaste}
-					disabled={readOnly}
-					data-tooltip-id="app-tooltip"
-					data-tooltip-content="Paste from clipboard"
-					className="hidden max-[850px]:flex pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800! disabled:opacity-50"
-					aria-label="Paste from clipboard"
-				>
-					<MdOutlineContentPaste />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					onClick={handleCopy}
-					data-tooltip-id="app-tooltip"
-					data-tooltip-content={copied ? 'Copied!' : 'Copy code'}
-					className="pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800!"
-					aria-label={copied ? 'Copied!' : 'Copy code to clipboard'}
-				>
-					{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}
-				</Button>
-			</div>
+			<CodeEditorToolbar
+				copied={copied}
+				isApiFormatting={isApiFormatting}
+				readOnly={readOnly}
+				onCopy={handleCopy}
+				onPaste={handlePaste}
+			/>
 			<div className="overflow-auto" style={{ maxHeight }}>
 				<CodeMirror
 					value={value}
 					onChange={onChange}
-					theme={resolvedTheme === 'dark' ? vscodeDark : sublime}
+					theme={themeExtension ?? undefined}
 					extensions={[
-						getLanguageExtension(language),
+						...(languageExtension ? [languageExtension] : []),
 						keymap.of([
 							{
 								key: 'Shift-Alt-f',

@@ -231,10 +231,10 @@ export function CustomSelect({
 							}}
 							className={cn(
 								'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition',
-								'text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800',
+								'text-gray-800 hover:bg-gray-200 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800',
 								option.value === value &&
-									'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-								highlightedIndex === index && 'bg-gray-100 dark:bg-gray-800',
+									'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/40',
+								highlightedIndex === index && 'bg-gray-200 dark:bg-gray-800',
 								option.disabled && 'cursor-not-allowed opacity-50',
 							)}
 						>

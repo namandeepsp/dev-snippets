@@ -1,13 +1,9 @@
 'use server'
 
 import { userService } from '@/features/user/user.container'
-import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
 import { logger } from '@/shared/utils/logger'
-import { cookies } from 'next/headers'
 import { snippetService } from './snippet.server.container'
-
 import { getCurrentServerUser } from '@/features/auth/auth.server.container'
-import { EDITOR_LANGUAGES } from '@/features/editor/editor.config'
 import type { ApiResponse } from '@/features/user/infra/client/user-api.client'
 import type {
 	CreateSnippetServiceInput,
@@ -15,6 +11,12 @@ import type {
 	UpdateSnippetServiceInput,
 } from './core/repositories/snippet.repository'
 import type { Snippet, SnippetTechnology } from './core/snippet.types'
+import { requireAuth } from './snippet.auth-helpers'
+import {
+	sortSnippets,
+	filterByTechnology,
+	filterByQuery,
+} from './snippet.search-utils'
 
 type SnippetSearchScope = 'public' | 'mine' | 'all-visible'
 
@@ -24,34 +26,6 @@ type SearchSnippetsInput = {
 	sortBy?: SnippetSortBy
 	scope?: SnippetSearchScope
 	limit?: number
-}
-
-/* ----------------------------------------------------------------------- */
-/* AUTHENTICATION HELPER
-/* ----------------------------------------------------------------------- */
-
-async function requireAuth() {
-	const auth = getServerFirebaseAuth()
-	const cookieStore = await cookies()
-	const sessionCookie = cookieStore.get('__session')?.value
-
-	if (!sessionCookie) {
-		throw new Error('No session cookie found')
-	}
-
-	try {
-		const decodedUser = await auth.verifySessionCookie(sessionCookie, true)
-		const user = await userService.getUserById(decodedUser.uid)
-
-		if (!user) {
-			throw new Error('User profile not found')
-		}
-
-		return user
-	} catch (error) {
-		logger.error('Auth failed', error)
-		throw new Error('Invalid or expired session')
-	}
 }
 
 /* ----------------------------------------------------------------------- */
@@ -157,13 +131,9 @@ export async function deleteSnippetAction(
 }
 
 /* ----------------------------------------------------------------------- */
-/* VIEW COUNT - NEW ACTION
+/* VIEW COUNT
 /* ----------------------------------------------------------------------- */
 
-/**
- * Increment view count for a snippet.
- * This action does NOT require authentication - public views count too.
- */
 export async function incrementViewsAction(
 	snippetId: string,
 ): Promise<ApiResponse> {
@@ -250,68 +220,6 @@ export async function shareSnippetAction(
 /* SEARCH
 /* ----------------------------------------------------------------------- */
 
-function sortSnippets(snippets: Snippet[], sortBy: SnippetSortBy): Snippet[] {
-	const copy = [...snippets]
-
-	switch (sortBy) {
-		case 'latest':
-			return copy.sort((a, b) => b.createdAt - a.createdAt)
-		case 'oldest':
-			return copy.sort((a, b) => a.createdAt - b.createdAt)
-		case 'views':
-			return copy.sort((a, b) => b.viewsCount - a.viewsCount)
-		case 'title':
-			return copy.sort((a, b) => a.title.localeCompare(b.title))
-		default:
-			return copy
-	}
-}
-
-function getLanguageSearchTerms(language: string): string[] {
-	const normalizedLanguage = language.toLowerCase()
-	const config = (
-		EDITOR_LANGUAGES as Record<string, { label: string; extensions: string[] }>
-	)[normalizedLanguage]
-
-	if (!config) return [normalizedLanguage]
-
-	const extensionTerms = config.extensions.flatMap((ext) => {
-		const normalized = ext.toLowerCase()
-		return normalized.startsWith('.')
-			? [normalized, normalized.slice(1)]
-			: [normalized]
-	})
-
-	const labelTerms = config.label
-		.toLowerCase()
-		.split(/[\s.+#-]+/)
-		.filter(Boolean)
-
-	const manualAliases =
-		normalizedLanguage === 'javascript'
-			? ['js']
-			: normalizedLanguage === 'typescript'
-				? ['ts']
-				: normalizedLanguage === 'python'
-					? ['py']
-					: normalizedLanguage === 'markdown'
-						? ['md']
-						: normalizedLanguage === 'yaml'
-							? ['yml']
-							: normalizedLanguage === 'dockerfile'
-								? ['docker']
-								: []
-
-	return [
-		...new Set([
-			normalizedLanguage,
-			...labelTerms,
-			...extensionTerms,
-			...manualAliases,
-		]),
-	]
-}
-
 export async function searchSnippetsAction({
 	query = '',
 	technology = 'all',
@@ -333,7 +241,6 @@ export async function searchSnippetsAction({
 	>
 > {
 	try {
-		const normalizedQuery = query.trim().toLowerCase()
 		const maxResults = Math.max(1, Math.min(limit, 20))
 
 		let currentUserId: string | null = null
@@ -364,33 +271,8 @@ export async function searchSnippetsAction({
 			source = await snippetService.listPublic(sortBy)
 		}
 
-		let filtered = source
-
-		if (technology !== 'all') {
-			filtered = filtered.filter((snippet) =>
-				snippet.technologies.includes(technology),
-			)
-		}
-
-		if (normalizedQuery) {
-			filtered = filtered.filter((snippet) => {
-				const languageTerms = getLanguageSearchTerms(snippet.language)
-
-				const searchable = [
-					snippet.title,
-					snippet.description || '',
-					snippet.ownerName,
-					snippet.language,
-					...languageTerms,
-					...snippet.technologies,
-					...snippet.categories,
-				]
-					.join(' ')
-					.toLowerCase()
-
-				return searchable.includes(normalizedQuery)
-			})
-		}
+		let filtered = filterByTechnology(source, technology)
+		filtered = filterByQuery(filtered, query)
 
 		const sorted = sortSnippets(filtered, sortBy).slice(0, maxResults)
 		const authorIds = [...new Set(sorted.map((snippet) => snippet.ownerId))]

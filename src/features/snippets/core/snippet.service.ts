@@ -1,23 +1,15 @@
-import { userService } from '@/features/user/user.container'
 import { logger } from '@/shared/utils/logger'
 import type {
 	CreateSnippetInput,
 	CreateSnippetServiceInput,
-	PaginatedSnippets,
-	SnippetListCursor,
 	SnippetRepository,
-	SnippetSortBy,
-	UpdateSnippetInput,
-	UpdateSnippetServiceInput,
 } from './repositories/snippet.repository'
-import { createNextVersion } from './snippet.model'
 import type { SnippetPort } from './snippet.port'
-import type {
-	Snippet,
-	SnippetVersion,
-	SnippetVisibility,
-} from './snippet.types'
-import { SNIPPET_TITLE_MAX_LENGTH } from './snippet.types'
+import type { Snippet } from './snippet.types'
+import { SnippetValidator } from './snippet.validator'
+import { SnippetReadService } from './snippet.read-service'
+import { SnippetVersionService } from './snippet.version-service'
+import { SnippetSharingService } from './snippet.sharing-service'
 
 /**
  * ============================================================================
@@ -36,41 +28,17 @@ import { SNIPPET_TITLE_MAX_LENGTH } from './snippet.types'
  */
 
 export class SnippetService {
+	private readService: SnippetReadService
+	private versionService: SnippetVersionService
+	private sharingService: SnippetSharingService
+
 	constructor(
 		private readonly snippetPort: SnippetPort,
 		private readonly snippetRepository: SnippetRepository,
-	) {}
-
-	private validateCreateInput(input: CreateSnippetServiceInput) {
-		if (!input.title.trim()) {
-			throw new Error('Title is required')
-		}
-
-		if (input.title.trim().length > SNIPPET_TITLE_MAX_LENGTH) {
-			throw new Error(
-				`Title must be ${SNIPPET_TITLE_MAX_LENGTH} characters or fewer`,
-			)
-		}
-
-		if (!input.code.trim()) {
-			throw new Error('Code is required')
-		}
-	}
-
-	private validateUpdateInput(input: UpdateSnippetServiceInput) {
-		if (input.title === undefined) {
-			return
-		}
-
-		if (!input.title.trim()) {
-			throw new Error('Title is required')
-		}
-
-		if (input.title.trim().length > SNIPPET_TITLE_MAX_LENGTH) {
-			throw new Error(
-				`Title must be ${SNIPPET_TITLE_MAX_LENGTH} characters or fewer`,
-			)
-		}
+	) {
+		this.readService = new SnippetReadService(snippetRepository)
+		this.versionService = new SnippetVersionService(snippetRepository)
+		this.sharingService = new SnippetSharingService(snippetRepository)
 	}
 
 	/* ----------------------------------------------------------------------- */
@@ -90,7 +58,7 @@ export class SnippetService {
 		userId: string,
 		userName: string,
 	): Promise<Snippet> {
-		this.validateCreateInput(input)
+		SnippetValidator.validateCreateInput(input)
 		const now = Date.now()
 
 		const createInput: CreateSnippetInput = {
@@ -116,143 +84,43 @@ export class SnippetService {
 	}
 
 	/* ----------------------------------------------------------------------- */
-	/* READ
+	/* READ - Delegated to SnippetReadService
 	/* ----------------------------------------------------------------------- */
 
-	/**
-	 * Get a snippet by ID.
-	 * Returns null if not found or deleted.
-	 */
-	async getById(id: string): Promise<Snippet | null> {
-		return this.snippetRepository.getById(id)
+	getById(id: string) {
+		return this.readService.getById(id)
 	}
 
-	/**
-	 * List all public snippets.
-	 */
-	async listPublic(sortBy?: SnippetSortBy): Promise<Snippet[]> {
-		return this.snippetRepository.listPublic(sortBy)
+	listPublic(sortBy?: any) {
+		return this.readService.listPublic(sortBy)
 	}
 
-	/**
-	 * List public snippets with cursor pagination and optional technology filter.
-	 */
-	async listPublicPaginated(
-		sortBy?: SnippetSortBy,
-		limit?: number,
-		cursor?: SnippetListCursor | null,
-		technologies?: string[],
-	): Promise<PaginatedSnippets> {
-		return this.snippetRepository.listPublicPaginated(
-			sortBy,
-			limit,
-			cursor,
-			technologies as any,
-		)
+	listPublicPaginated(sortBy?: any, limit?: number, cursor?: any, technologies?: string[]) {
+		return this.readService.listPublicPaginated(sortBy, limit, cursor, technologies)
 	}
 
-	/**
-	 * List snippets by user with optional visibility filter.
-	 */
-	async listByUser(
-		userId: string,
-		visibility?: SnippetVisibility,
-	): Promise<Snippet[]> {
-		return this.snippetRepository.listByUser(userId, visibility)
+	listByUser(userId: string, visibility?: any) {
+		return this.readService.listByUser(userId, visibility)
 	}
 
-	/**
-	 * List snippets by user with optional visibility filter and cursor pagination.
-	 */
-	async listByUserPaginated(
-		userId: string,
-		visibility?: SnippetVisibility,
-		limit?: number,
-		cursor?: SnippetListCursor | null,
-	): Promise<PaginatedSnippets> {
-		return this.snippetRepository.listByUserPaginated(
-			userId,
-			visibility,
-			limit,
-			cursor,
-		)
+	listByUserPaginated(userId: string, visibility?: any, limit?: number, cursor?: any) {
+		return this.readService.listByUserPaginated(userId, visibility, limit, cursor)
 	}
 
-	/**
-	 * List public snippets by username.
-	 * Used for profile pages.
-	 */
-	async listByUsername(username: string): Promise<Snippet[]> {
-		if (!username) return []
-
-		const user = await userService.getPublicProfile(username)
-		if (!user) return []
-
-		return this.snippetRepository.listByUser(user.id, 'public')
+	listByUsername(username: string) {
+		return this.readService.listByUsername(username)
 	}
 
-	/**
-	 * List snippets for a profile page with viewer-aware visibility:
-	 * - Owner viewing own profile: all snippets
-	 * - Other users/guests: public snippets only
-	 */
-	async listProfileByUsername(
-		username: string,
-		viewerUserId?: string,
-	): Promise<Snippet[]> {
-		if (!username) return []
-
-		const user = await userService.getPublicProfile(username)
-		if (!user) return []
-
-		if (viewerUserId && viewerUserId === user.id) {
-			return this.snippetRepository.listByUser(user.id)
-		}
-
-		return this.snippetRepository.listByUser(user.id, 'public')
+	listProfileByUsername(username: string, viewerUserId?: string) {
+		return this.readService.listProfileByUsername(username, viewerUserId)
 	}
 
-	/**
-	 * Paginated profile snippets with viewer-aware visibility:
-	 * - Owner viewing own profile: all snippets
-	 * - Other users/guests: public snippets only
-	 */
-	async listProfileByUsernamePaginated(
-		username: string,
-		viewerUserId?: string,
-		limit?: number,
-		cursor?: SnippetListCursor | null,
-	): Promise<PaginatedSnippets> {
-		if (!username) return { items: [], nextCursor: null }
-
-		const user = await userService.getPublicProfile(username)
-		if (!user) return { items: [], nextCursor: null }
-
-		if (viewerUserId && viewerUserId === user.id) {
-			return this.snippetRepository.listByUserPaginated(
-				user.id,
-				undefined,
-				limit,
-				cursor,
-			)
-		}
-
-		return this.snippetRepository.listByUserPaginated(
-			user.id,
-			'public',
-			limit,
-			cursor,
-		)
+	listProfileByUsernamePaginated(username: string, viewerUserId?: string, limit?: number, cursor?: any) {
+		return this.readService.listProfileByUsernamePaginated(username, viewerUserId, limit, cursor)
 	}
 
-	/**
-	 * List snippets by visibility.
-	 */
-	async listByVisibility(
-		visibility: SnippetVisibility,
-		userId?: string,
-	): Promise<Snippet[]> {
-		return this.snippetRepository.listByVisibility(visibility, userId)
+	listByVisibility(visibility: any, userId?: string) {
+		return this.readService.listByVisibility(visibility, userId)
 	}
 
 	/* ----------------------------------------------------------------------- */
@@ -268,10 +136,10 @@ export class SnippetService {
 	 */
 	async updateSnippet(
 		snippetId: string,
-		input: UpdateSnippetServiceInput,
+		input: any,
 		userId: string,
 	): Promise<void> {
-		this.validateUpdateInput(input)
+		SnippetValidator.validateUpdateInput(input)
 		const snippet = await this.snippetRepository.getById(snippetId)
 
 		if (!snippet) {
@@ -282,13 +150,14 @@ export class SnippetService {
 			throw new Error('Unauthorized')
 		}
 
-		const updateInput: UpdateSnippetInput = {
+		const updateInput: any = {
 			...input,
 			updatedAt: Date.now(),
 		}
 
 		// If code is being updated, create a new version
 		if (input.code && input.code !== snippet.code) {
+			const { createNextVersion } = await import('./snippet.model')
 			const newVersion = createNextVersion(snippet, input.code, userId)
 			updateInput.versions = [...snippet.versions, newVersion]
 		}
@@ -329,129 +198,27 @@ export class SnippetService {
 	}
 
 	/* ----------------------------------------------------------------------- */
-	/* VERSION CONTROL
+	/* VERSION CONTROL - Delegated to SnippetVersionService
 	/* ----------------------------------------------------------------------- */
 
-	/**
-	 * Restore a previous version of a snippet.
-	 *
-	 * Business rules:
-	 * 1. User must be the owner
-	 * 2. Creates a new version with the restored code
-	 */
-	async restoreVersion(
-		snippetId: string,
-		versionNumber: number,
-		userId: string,
-	): Promise<void> {
-		const snippet = await this.snippetRepository.getById(snippetId)
-
-		if (!snippet) {
-			throw new Error('Snippet not found')
-		}
-
-		if (snippet.ownerId !== userId) {
-			throw new Error('Unauthorized')
-		}
-
-		const version = snippet.versions.find((v) => v.version === versionNumber)
-
-		if (!version) {
-			throw new Error('Version not found')
-		}
-
-		// Create new version with current code before restoring
-		const newVersion = createNextVersion(snippet, snippet.code, userId)
-
-		await this.snippetRepository.update(snippetId, {
-			code: version.code,
-			versions: [...snippet.versions, newVersion],
-			updatedAt: Date.now(),
-		})
+	restoreVersion(snippetId: string, versionNumber: number, userId: string) {
+		return this.versionService.restoreVersion(snippetId, versionNumber, userId)
 	}
 
-	/**
-	 * Get version history for a snippet.
-	 */
-	async getVersionHistory(
-		snippetId: string,
-		userId?: string,
-	): Promise<SnippetVersion[]> {
-		const snippet = await this.snippetRepository.getById(snippetId)
-
-		if (!snippet) {
-			throw new Error('Snippet not found')
-		}
-
-		// Private snippets: only owner can view history
-		if (snippet.visibility === 'private' && snippet.ownerId !== userId) {
-			throw new Error('Unauthorized')
-		}
-
-		return snippet.versions
+	getVersionHistory(snippetId: string, userId?: string) {
+		return this.versionService.getVersionHistory(snippetId, userId)
 	}
 
 	/* ----------------------------------------------------------------------- */
-	/* SHARING
+	/* SHARING - Delegated to SnippetSharingService
 	/* ----------------------------------------------------------------------- */
 
-	/**
-	 * Share a snippet with specific users.
-	 *
-	 * Business rules:
-	 * 1. User must be the owner
-	 * 2. Snippet visibility must be 'shared'
-	 */
-	async shareWithUsers(
-		snippetId: string,
-		userIds: string[],
-		requestingUserId: string,
-	): Promise<void> {
-		const snippet = await this.snippetRepository.getById(snippetId)
-
-		if (!snippet) {
-			throw new Error('Snippet not found')
-		}
-
-		if (snippet.ownerId !== requestingUserId) {
-			throw new Error('Unauthorized')
-		}
-
-		const sharedWith = [...new Set([...(snippet.sharedWith || []), ...userIds])]
-
-		await this.snippetRepository.update(snippetId, {
-			visibility: 'shared',
-			sharedWith,
-			updatedAt: Date.now(),
-		})
+	shareWithUsers(snippetId: string, userIds: string[], requestingUserId: string) {
+		return this.sharingService.shareWithUsers(snippetId, userIds, requestingUserId)
 	}
 
-	/**
-	 * Remove sharing from specific users.
-	 */
-	async unshareWithUsers(
-		snippetId: string,
-		userIds: string[],
-		requestingUserId: string,
-	): Promise<void> {
-		const snippet = await this.snippetRepository.getById(snippetId)
-
-		if (!snippet) {
-			throw new Error('Snippet not found')
-		}
-
-		if (snippet.ownerId !== requestingUserId) {
-			throw new Error('Unauthorized')
-		}
-
-		const sharedWith = (snippet.sharedWith || []).filter(
-			(id) => !userIds.includes(id),
-		)
-
-		await this.snippetRepository.update(snippetId, {
-			sharedWith,
-			updatedAt: Date.now(),
-		})
+	unshareWithUsers(snippetId: string, userIds: string[], requestingUserId: string) {
+		return this.sharingService.unshareWithUsers(snippetId, userIds, requestingUserId)
 	}
 
 	/* ----------------------------------------------------------------------- */

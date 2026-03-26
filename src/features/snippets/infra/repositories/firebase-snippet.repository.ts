@@ -1,5 +1,4 @@
 import { adminDb } from '@/services/firebase/firebase.server'
-import { FieldPath, FieldValue } from 'firebase-admin/firestore'
 import type {
 	CreateSnippetInput,
 	PaginatedSnippets,
@@ -9,579 +8,145 @@ import type {
 	UpdateSnippetInput,
 } from '../../core/repositories/snippet.repository'
 import type {
-	FirestoreSnippet,
 	Snippet,
 	SnippetTechnology,
-	SnippetVersion,
 	SnippetVisibility,
 } from '../../core/snippet.types'
+import {
+	deleteDocsInBatches,
+	updateDocsInBatches,
+} from './firebase-snippet.batch'
+import {
+	checkLikeStatus,
+	cleanupUserData,
+	getLikedSnippetIds,
+	incrementViews,
+	permanentlyDelete,
+	permanentlyDeleteAll,
+	toggleLike,
+} from './firebase-snippet.repository.meta'
+import {
+	getSnippetById,
+	listByUser,
+	listByVisibility,
+	listPublicSnippets,
+} from './firebase-snippet.repository.read'
+import {
+	listPublicSnippetsPaginated,
+	listByUserPaginated,
+} from './firebase-snippet.repository.read-paginated'
+import {
+	createSnippet,
+	softDeleteSnippet,
+	updateSnippet,
+} from './firebase-snippet.repository.write'
 
 const COLLECTION_NAME = 'snippets'
-const DEFAULT_PAGE_SIZE = 5
 
 /**
- * ============================================================================
- * FIREBASE SNIPPET REPOSITORY
- * ============================================================================
- *
  * Firebase/Firestore implementation of the SnippetRepository port.
- *
- * Key responsibilities:
- * 1. Map Firestore document data to domain Snippet type
- * 2. Handle Firestore-specific operations (atomic increments, batches)
- * 3. Implement soft delete pattern
- * 4. No business logic - just persistence
- *
- * This is the ONLY place where Firestore-specific code should exist
- * for snippet operations.
  */
-
 export class FirebaseSnippetRepository implements SnippetRepository {
-	private static readonly MAX_BATCH_OPERATIONS = 450
-
-	private getCollection() {
+	getCollection() {
 		return adminDb.collection(COLLECTION_NAME)
 	}
 
-	private async deleteDocsInBatches(
+	private deleteDocsInBatches(
 		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[],
 	): Promise<void> {
-		for (
-			let index = 0;
-			index < docs.length;
-			index += FirebaseSnippetRepository.MAX_BATCH_OPERATIONS
-		) {
-			const chunk = docs.slice(
-				index,
-				index + FirebaseSnippetRepository.MAX_BATCH_OPERATIONS,
-			)
-			const batch = adminDb.batch()
-			chunk.forEach((doc) => batch.delete(doc.ref))
-			await batch.commit()
-		}
+		return deleteDocsInBatches(docs)
 	}
 
-	private async updateDocsInBatches(
+	private updateDocsInBatches(
 		docs: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[],
 		updateFactory: () => FirebaseFirestore.UpdateData<FirebaseFirestore.DocumentData>,
 	): Promise<void> {
-		for (
-			let index = 0;
-			index < docs.length;
-			index += FirebaseSnippetRepository.MAX_BATCH_OPERATIONS
-		) {
-			const chunk = docs.slice(
-				index,
-				index + FirebaseSnippetRepository.MAX_BATCH_OPERATIONS,
-			)
-			const batch = adminDb.batch()
-			chunk.forEach((doc) => batch.update(doc.ref, updateFactory()))
-			await batch.commit()
-		}
+		return updateDocsInBatches(docs, updateFactory)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* CREATE
-	/* ----------------------------------------------------------------------- */
 
 	async create(input: CreateSnippetInput): Promise<Snippet> {
-		// Input is already in FirestoreSnippet shape (minus sharedWith)
-		const payload: Omit<FirestoreSnippet, 'sharedWith'> = {
-			...input,
-		}
-
-		const docRef = await this.getCollection().add(payload)
-		const doc = await docRef.get()
-		const data = doc.data() as FirestoreSnippet
-
-		return {
-			id: docRef.id,
-			...data,
-			versions: data.versions || [],
-		}
+		return createSnippet(this, input)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* READ
-	/* ----------------------------------------------------------------------- */
-
 	async getById(id: string): Promise<Snippet | null> {
-		const docRef = this.getCollection().doc(id)
-		const snapshot = await docRef.get()
-
-		if (!snapshot.exists) {
-			return null
-		}
-
-		const data = snapshot.data() as FirestoreSnippet
-
-		// Soft delete check
-		if (data.isDeleted) {
-			return null
-		}
-
-		return {
-			id: snapshot.id,
-			...data,
-			versions: data.versions || [],
-		}
+		return getSnippetById(this, id)
 	}
 
 	async listPublic(sortBy: SnippetSortBy = 'latest'): Promise<Snippet[]> {
-		let query = this.getCollection()
-			.where('visibility', '==', 'public')
-			.where('isDeleted', '==', false)
-
-		// Apply sorting
-		switch (sortBy) {
-			case 'latest':
-				query = query.orderBy('createdAt', 'desc')
-				break
-			case 'oldest':
-				query = query.orderBy('createdAt', 'asc')
-				break
-			case 'views':
-				query = query.orderBy('viewsCount', 'desc')
-				break
-			case 'title':
-				query = query.orderBy('title', 'asc')
-				break
-		}
-
-		const snapshot = await query.get()
-
-		return snapshot.docs.map((doc) => {
-			const data = doc.data() as FirestoreSnippet
-			return {
-				id: doc.id,
-				...data,
-				versions: data.versions || [],
-			}
-		})
+		return listPublicSnippets(this, sortBy)
 	}
 
 	async listPublicPaginated(
 		sortBy: SnippetSortBy = 'latest',
-		limit = DEFAULT_PAGE_SIZE,
+		limit = 5,
 		cursor: SnippetListCursor | null = null,
 		technologies?: SnippetTechnology[],
 	): Promise<PaginatedSnippets> {
-		const pageSize = Math.max(1, Math.min(limit, 25))
-		const { field, direction } = this.getSortConfig(sortBy)
-
-		// If no technologies filter, use simple pagination
-		if (!technologies || technologies.length === 0) {
-			let query = this.getCollection()
-				.where('visibility', '==', 'public')
-				.where('isDeleted', '==', false)
-				.orderBy(field, direction)
-				.orderBy(FieldPath.documentId(), direction)
-				.limit(pageSize + 1) // Fetch one extra to check if there are more
-
-			if (cursor) {
-				query = query.startAfter(cursor.sortValue, cursor.id)
-			}
-
-			const snapshot = await query.get()
-			const hasMore = snapshot.docs.length > pageSize
-			const docs = snapshot.docs.slice(0, pageSize)
-
-			const items = docs.map((doc) => this.mapDocToSnippet(doc))
-
-			let nextCursor: SnippetListCursor | null = null
-			if (hasMore && docs.length > 0) {
-				const lastDoc = docs[docs.length - 1]
-				const lastData = lastDoc.data() as FirestoreSnippet
-				nextCursor = {
-					id: lastDoc.id,
-					sortValue: this.getSortValue(lastData, sortBy),
-				}
-			}
-
-			return { items, nextCursor }
-		}
-
-		// With technology filter: query each technology separately and merge results
-		const allResults: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[] =
-			[]
-		const seenIds = new Set<string>()
-
-		// Fetch all results from all technologies (no limit per tech)
-		for (const tech of technologies) {
-			let query = this.getCollection()
-				.where('visibility', '==', 'public')
-				.where('isDeleted', '==', false)
-				.where('technologies', 'array-contains', tech)
-				.orderBy(field, direction)
-				.orderBy(FieldPath.documentId(), direction)
-
-			if (cursor) {
-				query = query.startAfter(cursor.sortValue, cursor.id)
-			}
-
-			const snapshot = await query.get()
-
-			for (const doc of snapshot.docs) {
-				if (!seenIds.has(doc.id)) {
-					allResults.push(doc)
-					seenIds.add(doc.id)
-				}
-			}
-		}
-
-		// Sort merged results by the sort field
-		allResults.sort((a, b) => {
-			const aData = a.data() as FirestoreSnippet
-			const bData = b.data() as FirestoreSnippet
-			const aVal = this.getSortValue(aData, sortBy)
-			const bVal = this.getSortValue(bData, sortBy)
-
-			if (direction === 'desc') {
-				return bVal > aVal ? 1 : bVal < aVal ? -1 : 0
-			} else {
-				return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
-			}
-		})
-
-		const hasMore = allResults.length > pageSize
-		const docs = allResults.slice(0, pageSize)
-
-		const items = docs.map((doc) => this.mapDocToSnippet(doc))
-
-		let nextCursor: SnippetListCursor | null = null
-		if (hasMore && docs.length > 0) {
-			const lastDoc = docs[docs.length - 1]
-			const lastData = lastDoc.data() as FirestoreSnippet
-			nextCursor = {
-				id: lastDoc.id,
-				sortValue: this.getSortValue(lastData, sortBy),
-			}
-		}
-
-		return { items, nextCursor }
+		return listPublicSnippetsPaginated(
+			this,
+			sortBy,
+			limit,
+			cursor,
+			technologies,
+		)
 	}
 
 	async listByUser(
 		userId: string,
 		visibility?: SnippetVisibility,
 	): Promise<Snippet[]> {
-		let query = this.getCollection()
-			.where('ownerId', '==', userId)
-			.where('isDeleted', '==', false)
-
-		if (visibility) {
-			query = query.where('visibility', '==', visibility)
-		}
-
-		const snapshot = await query.orderBy('updatedAt', 'desc').get()
-
-		return snapshot.docs.map((doc) => {
-			const data = doc.data() as FirestoreSnippet
-			return {
-				id: doc.id,
-				...data,
-				versions: data.versions || [],
-			}
-		})
+		return listByUser(this, userId, visibility)
 	}
 
 	async listByUserPaginated(
 		userId: string,
 		visibility?: SnippetVisibility,
-		limit = DEFAULT_PAGE_SIZE,
+		limit = 5,
 		cursor: SnippetListCursor | null = null,
 	): Promise<PaginatedSnippets> {
-		const pageSize = Math.max(1, Math.min(limit, 25))
-
-		let query = this.getCollection()
-			.where('ownerId', '==', userId)
-			.where('isDeleted', '==', false)
-
-		if (visibility) {
-			query = query.where('visibility', '==', visibility)
-		}
-
-		query = query
-			.orderBy('updatedAt', 'desc')
-			.orderBy(FieldPath.documentId(), 'desc')
-			.limit(pageSize + 1)
-
-		if (cursor) {
-			query = query.startAfter(cursor.sortValue, cursor.id)
-		}
-
-		const snapshot = await query.get()
-		const hasMore = snapshot.docs.length > pageSize
-		const docs = snapshot.docs.slice(0, pageSize)
-
-		const items = docs.map((doc) => this.mapDocToSnippet(doc))
-
-		let nextCursor: SnippetListCursor | null = null
-		if (hasMore && docs.length > 0) {
-			const lastDoc = docs[docs.length - 1]
-			const lastData = lastDoc.data() as FirestoreSnippet
-			nextCursor = {
-				id: lastDoc.id,
-				sortValue: lastData.updatedAt,
-			}
-		}
-
-		return { items, nextCursor }
+		return listByUserPaginated(this, userId, visibility, limit, cursor)
 	}
 
 	async listByVisibility(
 		visibility: SnippetVisibility,
 		userId?: string,
 	): Promise<Snippet[]> {
-		let query = this.getCollection()
-			.where('visibility', '==', visibility)
-			.where('isDeleted', '==', false)
-
-		// Private snippets require owner filter
-		if (visibility === 'private') {
-			if (!userId) return []
-			query = query.where('ownerId', '==', userId)
-		}
-
-		// Shared snippets - TODO: implement shared list query
-		if (visibility === 'shared') {
-			if (!userId) return []
-			// This will need array-contains query on sharedWith
-			// query = query.where('sharedWith', 'array-contains', userId)
-		}
-
-		const snapshot = await query.orderBy('updatedAt', 'desc').get()
-
-		return snapshot.docs.map((doc) => {
-			const data = doc.data() as FirestoreSnippet
-			return {
-				id: doc.id,
-				...data,
-				versions: data.versions || [],
-			}
-		})
+		return listByVisibility(this, visibility, userId)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* UPDATE
-	/* ----------------------------------------------------------------------- */
 
 	async update(id: string, input: UpdateSnippetInput): Promise<void> {
-		const docRef = this.getCollection().doc(id)
-
-		// Check if snippet exists and is not deleted
-		const snapshot = await docRef.get()
-		if (!snapshot.exists) {
-			throw new Error('Snippet not found')
-		}
-
-		const data = snapshot.data() as FirestoreSnippet
-		if (data.isDeleted) {
-			throw new Error('Cannot update deleted snippet')
-		}
-
-		// Handle version creation if code changed
-		const updatePayload: any = {
-			...input,
-			updatedAt: Date.now(),
-		}
-
-		// If code is being updated, create a new version entry
-		if (input.code && input.code !== data.code) {
-			const versions = data.versions || []
-			const newVersion: SnippetVersion = {
-				version: versions.length + 1,
-				code: data.code, // Store the OLD code as a version
-				createdAt: Date.now(),
-				createdBy: data.ownerId,
-			}
-
-			updatePayload.versions = [...versions, newVersion]
-		}
-
-		await docRef.update(updatePayload)
+		return updateSnippet(this, id, input)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* DELETE (Soft Delete)
-	/* ----------------------------------------------------------------------- */
 
 	async delete(id: string): Promise<void> {
-		const docRef = this.getCollection().doc(id)
-
-		// Soft delete - just mark as deleted
-		await docRef.update({
-			isDeleted: true,
-			updatedAt: Date.now(),
-		})
+		return softDeleteSnippet(this, id)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* UTILITY OPERATIONS
-	/* ----------------------------------------------------------------------- */
-
 	async incrementViews(id: string): Promise<void> {
-		const docRef = this.getCollection().doc(id)
-
-		// Atomic increment - no need to read first
-		await docRef
-			.update({
-				viewsCount: FieldValue.increment(1),
-			})
-			.catch(() => {
-				// Silently fail - views aren't critical
-			})
+		return incrementViews(this, id)
 	}
 
 	async toggleLike(snippetId: string, userId: string): Promise<boolean> {
-		const likeRef = adminDb
-			.collection('snippet_likes')
-			.doc(`${snippetId}_${userId}`)
-		const snippetRef = this.getCollection().doc(snippetId)
-
-		const likeDoc = await likeRef.get()
-
-		if (likeDoc.exists) {
-			// Unlike
-			await Promise.all([
-				likeRef.delete(),
-				snippetRef.update({ likesCount: FieldValue.increment(-1) }),
-			])
-			return false
-		}
-
-		// Like
-		await Promise.all([
-			likeRef.set({ snippetId, userId, createdAt: Date.now() }),
-			snippetRef.update({ likesCount: FieldValue.increment(1) }),
-		])
-		return true
+		return toggleLike(this, snippetId, userId)
 	}
 
 	async checkLikeStatus(snippetId: string, userId: string): Promise<boolean> {
-		const likeRef = adminDb
-			.collection('snippet_likes')
-			.doc(`${snippetId}_${userId}`)
-		const likeDoc = await likeRef.get()
-		return likeDoc.exists
+		return checkLikeStatus(snippetId, userId)
 	}
 
-	/**
-	 * Get all snippet IDs that a user has liked.
-	 */
 	async getLikedSnippetIds(userId: string): Promise<string[]> {
-		const snapshot = await adminDb
-			.collection('snippet_likes')
-			.where('userId', '==', userId)
-			.get()
-
-		return snapshot.docs.map((doc) => doc.data().snippetId)
+		return getLikedSnippetIds(userId)
 	}
 
 	async cleanupUserData(userId: string): Promise<void> {
-		// 1) Permanently delete all snippets owned by the user.
-		const ownedSnippetsSnapshot = await this.getCollection()
-			.where('ownerId', '==', userId)
-			.get()
-		const ownedSnippetIds = ownedSnippetsSnapshot.docs.map((doc) => doc.id)
-		await this.deleteDocsInBatches(ownedSnippetsSnapshot.docs)
-
-		// 2) Remove likes created by this user.
-		const likesByUserSnapshot = await adminDb
-			.collection('snippet_likes')
-			.where('userId', '==', userId)
-			.get()
-		await this.deleteDocsInBatches(likesByUserSnapshot.docs)
-
-		// 3) Remove likes on snippets owned by this user.
-		for (const snippetId of ownedSnippetIds) {
-			const likesForSnippetSnapshot = await adminDb
-				.collection('snippet_likes')
-				.where('snippetId', '==', snippetId)
-				.get()
-			await this.deleteDocsInBatches(likesForSnippetSnapshot.docs)
-		}
-
-		// 4) Remove user from any sharedWith arrays.
-		const sharedWithSnapshot = await this.getCollection()
-			.where('sharedWith', 'array-contains', userId)
-			.get()
-		await this.updateDocsInBatches(sharedWithSnapshot.docs, () => ({
-			sharedWith: FieldValue.arrayRemove(userId),
-			updatedAt: Date.now(),
-		}))
+		return cleanupUserData(userId)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* HARD DELETE (Admin only)
-	/* ----------------------------------------------------------------------- */
-
-	/**
-	 * Permanently delete a snippet from Firestore.
-	 * This should only be used in tests or admin operations.
-	 */
 	async permanentlyDelete(id: string): Promise<void> {
-		await this.getCollection().doc(id).delete()
+		return permanentlyDelete(id)
 	}
 
-	/**
-	 * Permanently delete all snippets.
-	 * This should only be used in tests.
-	 */
 	async permanentlyDeleteAll(): Promise<void> {
-		const snapshot = await this.getCollection().get()
-		const batch = adminDb.batch()
-
-		snapshot.docs.forEach((doc) => {
-			batch.delete(doc.ref)
-		})
-
-		await batch.commit()
-	}
-
-	private getSortConfig(sortBy: SnippetSortBy): {
-		field: string
-		direction: 'asc' | 'desc'
-	} {
-		switch (sortBy) {
-			case 'latest':
-				return { field: 'createdAt', direction: 'desc' }
-			case 'oldest':
-				return { field: 'createdAt', direction: 'asc' }
-			case 'views':
-				return { field: 'viewsCount', direction: 'desc' }
-			case 'title':
-				return { field: 'title', direction: 'asc' }
-			default:
-				return { field: 'createdAt', direction: 'desc' }
-		}
-	}
-
-	private getSortValue(
-		snippet: FirestoreSnippet | Snippet,
-		sortBy: SnippetSortBy,
-	): number | string {
-		switch (sortBy) {
-			case 'latest':
-			case 'oldest':
-				return snippet.createdAt
-			case 'views':
-				return snippet.viewsCount
-			case 'title':
-				return snippet.title
-			default:
-				return snippet.createdAt
-		}
-	}
-
-	private mapDocToSnippet(
-		doc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>,
-	): Snippet {
-		const data = doc.data() as FirestoreSnippet
-		return {
-			id: doc.id,
-			...data,
-			versions: data.versions || [],
-		}
+		return permanentlyDeleteAll()
 	}
 }

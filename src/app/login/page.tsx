@@ -7,12 +7,12 @@ import { Card, CardBody } from '@/shared/ui/design-system'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { LoginForm } from './LoginForm'
-import { validateSignInForm, validateSignUpForm } from './login-validation'
 import {
-	handleGoogleLogin,
 	handleEmailSignIn,
 	handleEmailSignUp,
+	handleGoogleLogin,
 } from './login-handlers'
+import { validateSignInForm, validateSignUpForm } from './login-validation'
 
 function LoginContent() {
 	const { user, loading, refresh } = useAuth()

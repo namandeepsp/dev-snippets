@@ -1,6 +1,6 @@
-import type { Session, SignInResult } from '../../core/auth.types'
 import type { User } from '@/features/user/core/user.types'
 import type { User as FirebaseUser } from 'firebase/auth'
+import type { Session } from '../../core/auth.types'
 
 export async function fetchSessionPayload(): Promise<{
 	session: Session | null

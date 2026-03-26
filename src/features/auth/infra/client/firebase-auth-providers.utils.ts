@@ -1,8 +1,8 @@
 import {
+	type Auth,
 	GoogleAuthProvider,
 	signInWithPopup,
 	signInWithRedirect,
-	type Auth,
 } from 'firebase/auth'
 
 const googleProvider = new GoogleAuthProvider()

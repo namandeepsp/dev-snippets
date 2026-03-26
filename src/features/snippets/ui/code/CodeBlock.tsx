@@ -2,14 +2,16 @@
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import { useTheme } from '@/shared/hooks/useTheme'
-import { logger } from '@/shared/utils/logger'
 import type { Extension } from '@codemirror/state'
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
-import { loadLanguageExtension, loadThemeExtension } from './codemirror-extensions'
-import { CodeBlockHeader } from './CodeBlockHeader'
 import { CodeBlockFooter } from './CodeBlockFooter'
+import { CodeBlockHeader } from './CodeBlockHeader'
 import { copyToClipboard, shareSnippet } from './code-block-actions'
+import {
+	loadLanguageExtension,
+	loadThemeExtension,
+} from './codemirror-extensions'
 
 const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), {
 	ssr: false,
@@ -70,12 +72,7 @@ export function CodeBlock({
 	}
 
 	const handleShare = async () => {
-		await shareSnippet(
-			snippetId,
-			snippetTitle,
-			snippetDescription,
-			visibility,
-		)
+		await shareSnippet(snippetId, snippetTitle, snippetDescription, visibility)
 	}
 
 	const lines = code.split('\n')

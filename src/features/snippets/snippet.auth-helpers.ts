@@ -1,8 +1,8 @@
+import type { User } from '@/features/user/core/user.types'
 import { userService } from '@/features/user/user.container'
 import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
 import { logger } from '@/shared/utils/logger'
 import { cookies } from 'next/headers'
-import type { User } from '@/features/user/core/user.types'
 
 /**
  * ============================================================================

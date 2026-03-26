@@ -1,6 +1,6 @@
 import type { SnippetSortBy } from '@/features/snippets/core/repositories/snippet.repository'
 import type { SnippetTechnology } from '@/features/snippets/core/snippet.types'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getPublicSnippetsPage } from './actions'
 
 const PAGE_SIZE = 5

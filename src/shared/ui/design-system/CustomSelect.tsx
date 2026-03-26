@@ -34,7 +34,7 @@ export function CustomSelect({
 }: CustomSelectProps) {
 	const [open, setOpen] = useState(false)
 	const [query, setQuery] = useState('')
-	const [highlightedIndex, setHighlightedIndex] = useState(0)
+	const [highlightedIndex, setHighlightedIndex] = useState(-1)
 	const wrapperRef = useRef<HTMLDivElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
 
@@ -69,9 +69,12 @@ export function CustomSelect({
 	useEffect(() => {
 		if (!open) {
 			setQuery('')
-			setHighlightedIndex(0)
+			setHighlightedIndex(-1)
+			return
 		}
-	}, [open])
+		const selectedIndex = options.findIndex((option) => option.value === value)
+		setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : -1)
+	}, [open, options, value])
 
 	useEffect(() => {
 		if (open && searchable) {
@@ -91,10 +94,13 @@ export function CustomSelect({
 				e.preventDefault()
 				if (!open) {
 					setOpen(true)
-					setHighlightedIndex(0)
+					const selectedIndex = filteredOptions.findIndex(
+						(option) => option.value === value,
+					)
+					setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0)
 				} else {
 					setHighlightedIndex((prev) =>
-						prev === filteredOptions.length - 1 ? 0 : prev + 1,
+						prev < 0 ? 0 : prev === filteredOptions.length - 1 ? 0 : prev + 1,
 					)
 				}
 				break
@@ -102,10 +108,21 @@ export function CustomSelect({
 				e.preventDefault()
 				if (!open) {
 					setOpen(true)
-					setHighlightedIndex(Math.max(0, filteredOptions.length - 1))
+					const selectedIndex = filteredOptions.findIndex(
+						(option) => option.value === value,
+					)
+					setHighlightedIndex(
+						selectedIndex >= 0
+							? selectedIndex
+							: Math.max(0, filteredOptions.length - 1),
+					)
 				} else {
 					setHighlightedIndex((prev) =>
-						prev === 0 ? filteredOptions.length - 1 : prev - 1,
+						prev < 0
+							? Math.max(0, filteredOptions.length - 1)
+							: prev === 0
+								? filteredOptions.length - 1
+								: prev - 1,
 					)
 				}
 				break
@@ -115,6 +132,7 @@ export function CustomSelect({
 					const highlightedOption = filteredOptions[highlightedIndex]
 					if (highlightedOption && !highlightedOption.disabled) {
 						onChange(highlightedOption.value)
+						inputRef.current?.blur()
 						setOpen(false)
 					}
 				} else if (!open) {
@@ -227,14 +245,16 @@ export function CustomSelect({
 							disabled={option.disabled}
 							onClick={() => {
 								onChange(option.value)
+								inputRef.current?.blur()
 								setOpen(false)
 							}}
 							className={cn(
 								'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition',
-								'text-gray-800 hover:bg-gray-200 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800',
+								'text-gray-800 hover:bg-gray-200 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-100',
 								option.value === value &&
-									'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/40',
-								highlightedIndex === index && 'bg-gray-200 dark:bg-gray-800',
+									'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/40 dark:hover:text-blue-200',
+								highlightedIndex === index &&
+									'bg-gray-200 dark:bg-gray-800 dark:text-gray-100',
 								option.disabled && 'cursor-not-allowed opacity-50',
 							)}
 						>

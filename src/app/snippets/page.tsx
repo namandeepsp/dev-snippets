@@ -4,9 +4,9 @@ import { EmptySnippetsState } from '@/features/snippets/ui/EmptySnippetsState'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { SnippetCardSkeleton } from '@/features/snippets/ui/SnippetCardSkeleton'
 import { Suspense } from 'react'
+import { SnippetsHeader } from './SnippetsHeader'
 import { useSnippetsFilters } from './useSnippetsFilters'
 import { useSnippetsPagination } from './useSnippetsPagination'
-import { SnippetsHeader } from './SnippetsHeader'
 
 const PAGE_SIZE = 5
 

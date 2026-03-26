@@ -1,6 +1,6 @@
 import { EDITOR_LANGUAGES } from '@/features/editor/editor.config'
-import type { Snippet, SnippetTechnology } from './core/snippet.types'
 import type { SnippetSortBy } from './core/repositories/snippet.repository'
+import type { Snippet, SnippetTechnology } from './core/snippet.types'
 
 /**
  * ============================================================================
@@ -10,7 +10,10 @@ import type { SnippetSortBy } from './core/repositories/snippet.repository'
  * Search, filtering, and sorting utilities for snippets.
  */
 
-export function sortSnippets(snippets: Snippet[], sortBy: SnippetSortBy): Snippet[] {
+export function sortSnippets(
+	snippets: Snippet[],
+	sortBy: SnippetSortBy,
+): Snippet[] {
 	const copy = [...snippets]
 
 	switch (sortBy) {
@@ -77,15 +80,10 @@ export function filterByTechnology(
 	technology: SnippetTechnology | 'all',
 ): Snippet[] {
 	if (technology === 'all') return snippets
-	return snippets.filter((snippet) =>
-		snippet.technologies.includes(technology),
-	)
+	return snippets.filter((snippet) => snippet.technologies.includes(technology))
 }
 
-export function filterByQuery(
-	snippets: Snippet[],
-	query: string,
-): Snippet[] {
+export function filterByQuery(snippets: Snippet[], query: string): Snippet[] {
 	const normalizedQuery = query.trim().toLowerCase()
 	if (!normalizedQuery) return snippets
 

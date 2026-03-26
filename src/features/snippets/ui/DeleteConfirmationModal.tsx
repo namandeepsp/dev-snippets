@@ -32,8 +32,8 @@ export function DeleteConfirmationModal({
 			<div className="w-full max-w-md rounded-lg bg-card p-6 shadow-xl">
 				<h3 className="text-lg font-semibold mb-2">Delete Snippet</h3>
 				<p className="text-gray-600 dark:text-gray-400 mb-6">
-					Are you sure you want to delete "{snippetTitle}"? This action
-					cannot be undone.
+					Are you sure you want to delete "{snippetTitle}"? This action cannot
+					be undone.
 				</p>
 				<div className="flex justify-end gap-3">
 					<Button

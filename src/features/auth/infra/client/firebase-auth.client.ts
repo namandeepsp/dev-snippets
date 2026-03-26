@@ -12,10 +12,7 @@ import {
 import type { User } from '@/features/user/core/user.types'
 import { firebaseApp } from '@/services/firebase/firebase.client'
 import { logger } from '@/shared/utils/logger'
-import {
-	type AuthPort,
-	AuthError,
-} from '../../core/auth.port'
+import { AuthError, type AuthPort } from '../../core/auth.port'
 import type {
 	AuthProvider,
 	EmailCredentials,
@@ -25,16 +22,16 @@ import type {
 } from '../../core/auth.types'
 import { mapFirebaseError } from './firebase-auth-errors.utils'
 import {
+	handleGooglePopupError,
+	signInWithGooglePopup,
+} from './firebase-auth-providers.utils'
+import {
+	callLogoutEndpoint,
 	fetchSessionPayload,
+	isNewUser,
 	postSessionWithRetry,
 	validateSessionWithServer,
-	callLogoutEndpoint,
-	isNewUser,
 } from './firebase-auth-session.utils'
-import {
-	signInWithGooglePopup,
-	handleGooglePopupError,
-} from './firebase-auth-providers.utils'
 
 const auth = getAuth(firebaseApp)
 
@@ -185,9 +182,7 @@ export class FirebaseAuthClient implements AuthPort {
 			user: data.user as User,
 			session: data.session as Session,
 			isNewUser:
-				typeof data.isNewUser === 'boolean'
-					? data.isNewUser
-					: isNewUser(user),
+				typeof data.isNewUser === 'boolean' ? data.isNewUser : isNewUser(user),
 		}
 	}
 

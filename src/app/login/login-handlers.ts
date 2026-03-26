@@ -3,8 +3,8 @@ import {
 	signInWithGoogle,
 	signUpWithEmailAndPassword,
 } from '@/features/auth/auth.client.container'
-import { logger } from '@/shared/utils/logger'
 import { toast } from '@/shared/ui/design-system'
+import { logger } from '@/shared/utils/logger'
 
 export async function handleGoogleLogin(
 	onSuccess: () => Promise<void>,

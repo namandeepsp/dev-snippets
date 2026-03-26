@@ -2,7 +2,7 @@
 
 import { Button, Input } from '@/shared/ui/design-system'
 import { cn } from '@/shared/utils/utils'
-import { MailIcon, LockIcon, UserIcon } from './login-icons'
+import { LockIcon, MailIcon, UserIcon } from './login-icons'
 
 interface LoginFormProps {
 	mode: 'signin' | 'signup'

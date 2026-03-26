@@ -135,6 +135,16 @@ export const CATEGORIES: SnippetCategory[] = [
 	'infrastructure',
 	'deployment',
 	'utilities',
+	'network',
+	'data',
+	'architecture',
+	'types',
+	'state',
+	'events',
+	'storage',
+	'validation',
+	'api',
+	'microservices',
 ]
 
 // Map technologies to their categories

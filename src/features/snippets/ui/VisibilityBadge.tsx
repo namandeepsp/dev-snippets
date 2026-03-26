@@ -12,7 +12,9 @@ export function VisibilityBadge({ visibility }: VisibilityBadgeProps) {
 	}
 
 	return (
-		<span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${styles[visibility]}`}>
+		<span
+			className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${styles[visibility]}`}
+		>
 			{visibility}
 		</span>
 	)

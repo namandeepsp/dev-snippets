@@ -62,12 +62,8 @@ export function SnippetViewerMetadata({
 						</div>
 					)}
 					<div className="min-w-0">
-						<p className="truncate font-medium leading-tight">
-							{author.name}
-						</p>
-						<p className="truncate text-xs text-gray-500">
-							@{author.username}
-						</p>
+						<p className="truncate font-medium leading-tight">{author.name}</p>
+						<p className="truncate text-xs text-gray-500">@{author.username}</p>
 					</div>
 				</Link>
 

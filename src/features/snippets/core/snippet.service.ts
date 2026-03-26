@@ -5,11 +5,11 @@ import type {
 	SnippetRepository,
 } from './repositories/snippet.repository'
 import type { SnippetPort } from './snippet.port'
+import { SnippetReadService } from './snippet.read-service'
+import { SnippetSharingService } from './snippet.sharing-service'
 import type { Snippet } from './snippet.types'
 import { SnippetValidator } from './snippet.validator'
-import { SnippetReadService } from './snippet.read-service'
 import { SnippetVersionService } from './snippet.version-service'
-import { SnippetSharingService } from './snippet.sharing-service'
 
 /**
  * ============================================================================
@@ -95,16 +95,36 @@ export class SnippetService {
 		return this.readService.listPublic(sortBy)
 	}
 
-	listPublicPaginated(sortBy?: any, limit?: number, cursor?: any, technologies?: string[]) {
-		return this.readService.listPublicPaginated(sortBy, limit, cursor, technologies)
+	listPublicPaginated(
+		sortBy?: any,
+		limit?: number,
+		cursor?: any,
+		technologies?: string[],
+	) {
+		return this.readService.listPublicPaginated(
+			sortBy,
+			limit,
+			cursor,
+			technologies,
+		)
 	}
 
 	listByUser(userId: string, visibility?: any) {
 		return this.readService.listByUser(userId, visibility)
 	}
 
-	listByUserPaginated(userId: string, visibility?: any, limit?: number, cursor?: any) {
-		return this.readService.listByUserPaginated(userId, visibility, limit, cursor)
+	listByUserPaginated(
+		userId: string,
+		visibility?: any,
+		limit?: number,
+		cursor?: any,
+	) {
+		return this.readService.listByUserPaginated(
+			userId,
+			visibility,
+			limit,
+			cursor,
+		)
 	}
 
 	listByUsername(username: string) {
@@ -115,8 +135,18 @@ export class SnippetService {
 		return this.readService.listProfileByUsername(username, viewerUserId)
 	}
 
-	listProfileByUsernamePaginated(username: string, viewerUserId?: string, limit?: number, cursor?: any) {
-		return this.readService.listProfileByUsernamePaginated(username, viewerUserId, limit, cursor)
+	listProfileByUsernamePaginated(
+		username: string,
+		viewerUserId?: string,
+		limit?: number,
+		cursor?: any,
+	) {
+		return this.readService.listProfileByUsernamePaginated(
+			username,
+			viewerUserId,
+			limit,
+			cursor,
+		)
 	}
 
 	listByVisibility(visibility: any, userId?: string) {
@@ -213,12 +243,28 @@ export class SnippetService {
 	/* SHARING - Delegated to SnippetSharingService
 	/* ----------------------------------------------------------------------- */
 
-	shareWithUsers(snippetId: string, userIds: string[], requestingUserId: string) {
-		return this.sharingService.shareWithUsers(snippetId, userIds, requestingUserId)
+	shareWithUsers(
+		snippetId: string,
+		userIds: string[],
+		requestingUserId: string,
+	) {
+		return this.sharingService.shareWithUsers(
+			snippetId,
+			userIds,
+			requestingUserId,
+		)
 	}
 
-	unshareWithUsers(snippetId: string, userIds: string[], requestingUserId: string) {
-		return this.sharingService.unshareWithUsers(snippetId, userIds, requestingUserId)
+	unshareWithUsers(
+		snippetId: string,
+		userIds: string[],
+		requestingUserId: string,
+	) {
+		return this.sharingService.unshareWithUsers(
+			snippetId,
+			userIds,
+			requestingUserId,
+		)
 	}
 
 	/* ----------------------------------------------------------------------- */

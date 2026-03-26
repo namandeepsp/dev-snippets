@@ -1,4 +1,3 @@
-import { logger } from '@/shared/utils/logger'
 import type { SnippetRepository } from './repositories/snippet.repository'
 import { createNextVersion } from './snippet.model'
 import type { SnippetVersion } from './snippet.types'

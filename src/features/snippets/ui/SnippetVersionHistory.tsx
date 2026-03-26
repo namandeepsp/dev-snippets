@@ -1,7 +1,7 @@
 'use client'
 
-import { formatDate } from '@/shared/utils/date'
 import { Button } from '@/shared/ui/design-system'
+import { formatDate } from '@/shared/utils/date'
 import type { SnippetVersion } from '../core/snippet.types'
 
 /**
@@ -49,10 +49,7 @@ export function SnippetVersionHistory({
 								{formatDate(version.createdAt)}
 							</time>
 							<span className="text-gray-600 dark:text-gray-400">
-								by{' '}
-								{version.createdBy === ownerId
-									? authorName
-									: 'User'}
+								by {version.createdBy === ownerId ? authorName : 'User'}
 							</span>
 						</div>
 					))}

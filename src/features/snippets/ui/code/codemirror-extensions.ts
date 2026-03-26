@@ -1,5 +1,5 @@
-import type { Extension } from '@codemirror/state'
 import type { EditorLanguage } from '@/features/editor/editor.config'
+import type { Extension } from '@codemirror/state'
 
 /**
  * ============================================================================

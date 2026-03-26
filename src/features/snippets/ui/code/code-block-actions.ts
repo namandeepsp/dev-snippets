@@ -1,5 +1,5 @@
-import { logger } from '@/shared/utils/logger'
 import { toast } from '@/shared/ui/design-system'
+import { logger } from '@/shared/utils/logger'
 
 /**
  * ============================================================================

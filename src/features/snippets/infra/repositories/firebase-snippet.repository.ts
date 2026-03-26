@@ -32,8 +32,8 @@ import {
 	listPublicSnippets,
 } from './firebase-snippet.repository.read'
 import {
-	listPublicSnippetsPaginated,
 	listByUserPaginated,
+	listPublicSnippetsPaginated,
 } from './firebase-snippet.repository.read-paginated'
 import {
 	createSnippet,

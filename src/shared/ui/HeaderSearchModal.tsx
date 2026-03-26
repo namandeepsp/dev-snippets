@@ -19,7 +19,7 @@ import RecentlyOpenedSnippets from './components/RecentlyOpenedSnippets'
 import SearchModalForm from './components/SearchModalForm'
 import SearchResults from './components/SearchResults'
 import SearchResultsSkeleton from './components/SearchResultsSkeleton'
-import { SearchResult, SearchScope } from './types'
+import type { SearchResult, SearchScope } from './types'
 
 type Props = {
 	open: boolean

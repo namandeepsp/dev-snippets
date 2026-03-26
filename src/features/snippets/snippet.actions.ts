@@ -1,10 +1,9 @@
 'use server'
 
-import { userService } from '@/features/user/user.container'
-import { logger } from '@/shared/utils/logger'
-import { snippetService } from './snippet.server.container'
 import { getCurrentServerUser } from '@/features/auth/auth.server.container'
 import type { ApiResponse } from '@/features/user/infra/client/user-api.client'
+import { userService } from '@/features/user/user.container'
+import { logger } from '@/shared/utils/logger'
 import type {
 	CreateSnippetServiceInput,
 	SnippetSortBy,
@@ -13,10 +12,11 @@ import type {
 import type { Snippet, SnippetTechnology } from './core/snippet.types'
 import { requireAuth } from './snippet.auth-helpers'
 import {
-	sortSnippets,
-	filterByTechnology,
 	filterByQuery,
+	filterByTechnology,
+	sortSnippets,
 } from './snippet.search-utils'
+import { snippetService } from './snippet.server.container'
 
 type SnippetSearchScope = 'public' | 'mine' | 'all-visible'
 

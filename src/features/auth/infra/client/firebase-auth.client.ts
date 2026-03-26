@@ -1,14 +1,11 @@
 import {
 	type User as FirebaseUser,
-	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
 	onAuthStateChanged as firebaseOnAuthStateChanged,
 	signInWithEmailAndPassword as firebaseSignInWithEmail,
 	signOut as firebaseSignOut,
 	getAuth,
 	getRedirectResult,
-	signInWithPopup,
-	signInWithRedirect,
 	updateProfile,
 } from 'firebase/auth'
 
@@ -16,10 +13,8 @@ import type { User } from '@/features/user/core/user.types'
 import { firebaseApp } from '@/services/firebase/firebase.client'
 import { logger } from '@/shared/utils/logger'
 import {
-	AuthError,
-	type AuthErrorCode,
-	AuthErrorMessages,
 	type AuthPort,
+	AuthError,
 } from '../../core/auth.port'
 import type {
 	AuthProvider,
@@ -28,9 +23,20 @@ import type {
 	SignInResult,
 	SignUpCredentials,
 } from '../../core/auth.types'
+import { mapFirebaseError } from './firebase-auth-errors.utils'
+import {
+	fetchSessionPayload,
+	postSessionWithRetry,
+	validateSessionWithServer,
+	callLogoutEndpoint,
+	isNewUser,
+} from './firebase-auth-session.utils'
+import {
+	signInWithGooglePopup,
+	handleGooglePopupError,
+} from './firebase-auth-providers.utils'
 
 const auth = getAuth(firebaseApp)
-const googleProvider = new GoogleAuthProvider()
 
 /**
  * ============================================================================
@@ -50,65 +56,33 @@ const googleProvider = new GoogleAuthProvider()
  */
 
 export class FirebaseAuthClient implements AuthPort {
-	/* ----------------------------------------------------------------------- */
-	/* SIGN IN
-	/* ----------------------------------------------------------------------- */
-
 	async signInWithEmailAndPassword(
 		credentials: EmailCredentials,
 	): Promise<SignInResult> {
 		try {
 			const { email, password } = credentials
 			const result = await firebaseSignInWithEmail(auth, email, password)
-
-			// Create session cookie
-			const { user, session, isNewUser } = await this.createSessionCookie(
-				result.user,
-			)
-
-			return {
-				user,
-				session,
-				isNewUser,
-			}
+			return this.createSessionCookie(result.user)
 		} catch (error: any) {
-			throw this.mapFirebaseError(error)
+			throw mapFirebaseError(error)
 		}
 	}
 
 	async signInWithGoogle(): Promise<SignInResult> {
 		try {
-			const result = await signInWithPopup(auth, googleProvider)
-
-			// Create session cookie
-			const { user, session, isNewUser } = await this.createSessionCookie(
-				result.user,
-			)
-
-			return {
-				user,
-				session,
-				isNewUser,
-			}
+			const result = await signInWithGooglePopup(auth)
+			return this.createSessionCookie(result.user)
 		} catch (error: any) {
-			const code = error?.code as string | undefined
-			if (
-				code === 'auth/popup-blocked' ||
-				code === 'auth/cancelled-popup-request' ||
-				code === 'auth/operation-not-supported-in-this-environment'
-			) {
-				await signInWithRedirect(auth, googleProvider)
+			if (await handleGooglePopupError(auth, error)) {
 				return new Promise<never>(() => {})
 			}
-
-			throw this.mapFirebaseError(error)
+			throw mapFirebaseError(error)
 		}
 	}
 
 	async signInWithProvider(
 		provider: Exclude<AuthProvider, 'email'>,
 	): Promise<SignInResult> {
-		// For now, only Google is implemented
 		if (provider === 'google') {
 			return this.signInWithGoogle()
 		}
@@ -120,10 +94,6 @@ export class FirebaseAuthClient implements AuthPort {
 		)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* SIGN UP
-	/* ----------------------------------------------------------------------- */
-
 	async signUpWithEmailAndPassword(
 		credentials: SignUpCredentials,
 	): Promise<SignInResult> {
@@ -131,104 +101,50 @@ export class FirebaseAuthClient implements AuthPort {
 			const { email, password, name } = credentials
 			const result = await createUserWithEmailAndPassword(auth, email, password)
 
-			// Keep Firebase Auth profile in sync with our user profile name
 			const displayName = name.trim()
 			if (displayName) {
 				await updateProfile(result.user, { displayName })
 			}
 
-			// Create session cookie
-			const { user, session } = await this.createSessionCookie(
-				result.user,
-				displayName || undefined,
-			)
-
-			return {
-				user,
-				session,
-				isNewUser: true,
-			}
+			return this.createSessionCookie(result.user, displayName || undefined)
 		} catch (error: any) {
-			throw this.mapFirebaseError(error)
+			throw mapFirebaseError(error)
 		}
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* SESSION
-	/* ----------------------------------------------------------------------- */
-
 	async getCurrentSession(): Promise<Session | null> {
-		// Session is stored in HTTP-only cookie
-		// We can't read it directly from client-side JavaScript
-		// Instead, we call an endpoint to validate and return session info
-		try {
-			const response = await fetch('/api/auth/session', {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' },
-			})
-
-			if (!response.ok) {
-				return null
-			}
-
-			const data = await response.json()
-			return data.session || null
-		} catch {
-			return null
-		}
+		const { session } = await fetchSessionPayload()
+		return session
 	}
 
 	async getCurrentUser(): Promise<User | null> {
-		const payload = await this.getSessionPayload()
-		return payload.user
+		const { user } = await fetchSessionPayload()
+		return user
 	}
 
 	async validateSession(): Promise<User | null> {
 		try {
-			// Force token refresh and verification
 			const firebaseUser = auth.currentUser
 
 			if (!firebaseUser) {
 				return null
 			}
 
-			// This will throw if token is invalid
 			const idToken = await firebaseUser.getIdToken(true)
-
-			// Validate with server
-			const response = await fetch('/api/auth/validate', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ idToken }),
-			})
-
-			if (!response.ok) {
-				return null
-			}
-
-			const data = await response.json()
-			return data.user ?? null
+			return validateSessionWithServer(idToken)
 		} catch {
 			return null
 		}
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* SIGN OUT
-	/* ----------------------------------------------------------------------- */
-
 	async signOut(): Promise<void> {
 		try {
 			await firebaseSignOut(auth)
-			await fetch('/api/auth/logout', { method: 'POST' })
+			await callLogoutEndpoint()
 		} catch (error: any) {
-			throw this.mapFirebaseError(error)
+			throw mapFirebaseError(error)
 		}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* STATE OBSERVATION
-	/* ----------------------------------------------------------------------- */
 
 	onAuthStateChanged(callback: (user: User | null) => void): () => void {
 		return firebaseOnAuthStateChanged(auth, async (firebaseUser) => {
@@ -237,16 +153,16 @@ export class FirebaseAuthClient implements AuthPort {
 				return
 			}
 
-			const payload = await this.getSessionPayload()
-			if (payload.user) {
-				callback(payload.user)
+			const { user } = await fetchSessionPayload()
+			if (user) {
+				callback(user)
 				return
 			}
 
 			try {
 				await this.completeRedirectSession(firebaseUser)
-				const hydrated = await this.getSessionPayload()
-				callback(hydrated.user)
+				const { user: hydrated } = await fetchSessionPayload()
+				callback(hydrated)
 			} catch (error) {
 				logger.error('Failed to hydrate auth session from Firebase user', error)
 				callback(null)
@@ -254,16 +170,12 @@ export class FirebaseAuthClient implements AuthPort {
 		})
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* PRIVATE HELPERS
-	/* ----------------------------------------------------------------------- */
-
 	private async createSessionCookie(
 		user: FirebaseUser,
 		name?: string,
 	): Promise<SignInResult> {
 		const idToken = await user.getIdToken(true)
-		const data = await this.postSessionWithRetry(idToken, name)
+		const data = await postSessionWithRetry(idToken, name)
 
 		if (!data?.user || !data?.session) {
 			throw new Error('Session response missing user data')
@@ -275,31 +187,7 @@ export class FirebaseAuthClient implements AuthPort {
 			isNewUser:
 				typeof data.isNewUser === 'boolean'
 					? data.isNewUser
-					: this.isNewUser(user),
-		}
-	}
-
-	private async getSessionPayload(): Promise<{
-		session: Session | null
-		user: User | null
-	}> {
-		try {
-			const response = await fetch('/api/auth/session', {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' },
-			})
-
-			if (!response.ok) {
-				return { session: null, user: null }
-			}
-
-			const data = await response.json()
-			return {
-				session: (data.session as Session | null) ?? null,
-				user: (data.user as User | null) ?? null,
-			}
-		} catch {
-			return { session: null, user: null }
+					: isNewUser(user),
 		}
 	}
 
@@ -309,75 +197,5 @@ export class FirebaseAuthClient implements AuthPort {
 		const redirectResult = await getRedirectResult(auth).catch(() => null)
 		const user = redirectResult?.user || firebaseUser
 		await this.createSessionCookie(user)
-	}
-
-	private async postSessionWithRetry(
-		idToken: string,
-		name?: string,
-		maxAttempts = 2,
-	): Promise<any> {
-		let lastError: unknown
-
-		for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-			try {
-				const response = await fetch('/api/auth/session', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ idToken, name }),
-				})
-
-				if (!response.ok) {
-					const payload = await response
-						.json()
-						.catch(() => ({ error: 'Failed to create session cookie' }))
-					throw new Error(payload?.error || 'Failed to create session cookie')
-				}
-
-				return await response.json()
-			} catch (error) {
-				lastError = error
-				if (attempt < maxAttempts) {
-					await new Promise((resolve) => setTimeout(resolve, attempt * 300))
-				}
-			}
-		}
-
-		throw lastError instanceof Error
-			? lastError
-			: new Error('Failed to create session cookie')
-	}
-
-	private isNewUser(user: FirebaseUser): boolean {
-		// Firebase doesn't provide a reliable way to check if user just signed up
-		// We can check metadata: if creation time is within last minute
-		const creationTime = user.metadata?.creationTime
-		if (!creationTime) return false
-
-		const created = new Date(creationTime).getTime()
-		const now = Date.now()
-
-		return now - created < 60 * 1000 // Less than 1 minute ago
-	}
-
-	private mapFirebaseError(error: any): AuthError {
-		const code = error.code as string
-
-		const errorMap: Record<string, AuthErrorCode> = {
-			'auth/invalid-credential': 'INVALID_CREDENTIALS',
-			'auth/wrong-password': 'INVALID_CREDENTIALS',
-			'auth/user-not-found': 'USER_NOT_FOUND',
-			'auth/email-already-in-use': 'EMAIL_ALREADY_EXISTS',
-			'auth/weak-password': 'WEAK_PASSWORD',
-			'auth/invalid-email': 'INVALID_EMAIL',
-			'auth/user-disabled': 'USER_DISABLED',
-			'auth/popup-blocked': 'POPUP_BLOCKED',
-			'auth/popup-closed-by-user': 'POPUP_CLOSED',
-			'auth/unauthorized-domain': 'UNAUTHORIZED_DOMAIN',
-			'auth/network-request-failed': 'NETWORK_ERROR',
-		}
-
-		const authErrorCode = errorMap[code] || 'UNKNOWN_ERROR'
-
-		return new AuthError(AuthErrorMessages[authErrorCode], authErrorCode)
 	}
 }

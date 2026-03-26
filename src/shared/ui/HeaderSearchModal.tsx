@@ -10,44 +10,20 @@ import {
 	getRecentSnippets,
 	removeRecentSnippet,
 } from '@/features/snippets/ui/recent-snippets'
-import { TECHNOLOGY_OPTIONS } from '@/features/technologies/technologies.config'
 import { useDebounce } from '@/shared/hooks/useDebounce'
-import { Button, Select, Skeleton } from '@/shared/ui/design-system'
-import { formatDate } from '@/shared/utils/date'
-import Link from 'next/link'
+import { Button } from '@/shared/ui/design-system'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { LuFilter, LuSearch, LuX } from 'react-icons/lu'
-
-type SearchScope = 'public' | 'mine' | 'all-visible'
-type SearchResult = NonNullable<
-	Awaited<ReturnType<typeof searchSnippetsAction>>['data']
->[number]
+import { LuX } from 'react-icons/lu'
+import RecentlyOpenedSnippets from './components/RecentlyOpenedSnippets'
+import SearchModalForm from './components/SearchModalForm'
+import SearchResults from './components/SearchResults'
+import SearchResultsSkeleton from './components/SearchResultsSkeleton'
+import { SearchResult, SearchScope } from './types'
 
 type Props = {
 	open: boolean
 	onClose: () => void
-}
-
-function SearchResultsSkeleton() {
-	return (
-		<div className="space-y-2">
-			{Array.from({ length: 3 }).map((_, index) => (
-				<div
-					key={`search-skeleton-${index}`}
-					className="rounded-lg border border-default px-3 py-2"
-				>
-					<div className="space-y-2">
-						<Skeleton className="h-4 w-2/3" />
-						<div className="flex items-center justify-between gap-2">
-							<Skeleton className="h-3 w-1/3" />
-							<Skeleton className="h-3 w-12" />
-						</div>
-					</div>
-				</div>
-			))}
-		</div>
-	)
 }
 
 export function HeaderSearchModal({ open, onClose }: Props) {
@@ -219,156 +195,32 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 						}
 					}}
 				>
-					<form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
-						<div className="flex items-center gap-2">
-							<div className="relative flex-1">
-								<LuSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/50" />
-								<input
-									ref={queryRef}
-									type="text"
-									value={query}
-									onFocus={loadRecent}
-									onChange={(e) => setQuery(e.target.value)}
-									placeholder="Search by title, description, technology..."
-									className="h-11 w-full rounded-xl border border-default bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-								/>
-							</div>
-
-							<div ref={filtersRef} tabIndex={-1} className="relative">
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									className={`h-11 rounded-xl ${activeFilterCount > 0 ? 'border-blue-400 text-blue-600 dark:border-blue-500 dark:text-blue-300' : ''}`}
-									onClick={() => setShowFilters((prev) => !prev)}
-								>
-									<LuFilter className="h-4 w-4" />
-									<span className="max-sm:hidden">Filters</span>
-									{activeFilterCount > 0 && (
-										<span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-semibold text-white dark:bg-blue-500">
-											{activeFilterCount}
-										</span>
-									)}
-								</Button>
-
-								{showFilters && (
-									<div className="absolute right-0 top-12 z-20 w-72 rounded-xl border border-default bg-background p-3 text-foreground shadow-xl">
-										<div className="mb-2">
-											<label className="mb-1 block text-xs font-medium text-foreground/65">
-												Technology
-											</label>
-											<Select
-												uiSize="sm"
-												value={technology}
-												onChange={(e) =>
-													setTechnology(
-														e.target.value as SnippetTechnology | 'all',
-													)
-												}
-												className="w-full"
-											>
-												<option value="all">All technologies</option>
-												{TECHNOLOGY_OPTIONS.map((item) => (
-													<option key={item.value} value={item.value}>
-														{item.label}
-													</option>
-												))}
-											</Select>
-										</div>
-
-										<div className="mb-2">
-											<label className="mb-1 block text-xs font-medium text-foreground/65">
-												Sort
-											</label>
-											<Select
-												uiSize="sm"
-												value={sortBy}
-												onChange={(e) =>
-													setSortBy(e.target.value as SnippetSortBy)
-												}
-												className="w-full"
-											>
-												<option value="latest">Latest</option>
-												<option value="oldest">Oldest</option>
-												<option value="views">Most viewed</option>
-												<option value="title">Title (A-Z)</option>
-											</Select>
-										</div>
-
-										<div>
-											<label className="mb-1 block text-xs font-medium text-foreground/65">
-												Scope
-											</label>
-											<Select
-												uiSize="sm"
-												value={scope}
-												onChange={(e) =>
-													setScope(e.target.value as SearchScope)
-												}
-												className="w-full"
-											>
-												<option value="public">Public snippets</option>
-												{user && (
-													<option value="all-visible">
-														Public + my snippets
-													</option>
-												)}
-												{user && <option value="mine">My snippets only</option>}
-											</Select>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-					</form>
+					<SearchModalForm
+						queryRef={queryRef}
+						query={query}
+						loadRecent={loadRecent}
+						setQuery={setQuery}
+						filtersRef={filtersRef}
+						activeFilterCount={activeFilterCount}
+						setShowFilters={setShowFilters}
+						showFilters={showFilters}
+						technology={technology}
+						setTechnology={setTechnology}
+						sortBy={sortBy}
+						setSortBy={setSortBy}
+						scope={scope}
+						setScope={setScope}
+						user={user}
+					/>
 
 					<div className="mt-3 max-h-[60vh] overflow-auto">
 						{showRecent && !shouldSearch && (
-							<div>
-								<div className="mb-2 flex items-center justify-between gap-2">
-									<p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
-										Recent snippets
-									</p>
-									<Button
-										type="button"
-										onClick={handleClearRecent}
-										variant="ghost"
-										className="text-xs font-medium text-foreground/60 transition hover:text-foreground hover:bg-transparent!"
-									>
-										Clear all
-									</Button>
-								</div>
-								<div className="space-y-2">
-									{displayedRecent.map((item) => (
-										<div key={item.id} className="group relative">
-											<Link
-												href={`/snippets/${item.id}`}
-												onClick={onClose}
-												className="block rounded-lg border border-default px-3 py-2 pr-10 transition hover:bg-foreground/5"
-											>
-												<p className="text-sm font-medium">{item.title}</p>
-												<p className="text-xs text-foreground/60">
-													{item.ownerName} • {item.language} •{' '}
-													{formatDate(item.viewedAt)}
-												</p>
-											</Link>
-											<Button
-												type="button"
-												onClick={(event) => {
-													event.stopPropagation()
-													event.preventDefault()
-													handleDeleteRecent(item.id)
-												}}
-												variant="ghost"
-												className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md! p-1! text-foreground/50! opacity-100! transition! hover:bg-transparent! hover:text-foreground! sm:opacity-0! sm:group-hover:opacity-100! sm:group-focus-within:opacity-100!"
-												aria-label={`Delete ${item.title} from recent`}
-											>
-												<LuX className="h-4 w-4" />
-											</Button>
-										</div>
-									))}
-								</div>
-							</div>
+							<RecentlyOpenedSnippets
+								displayedRecent={displayedRecent}
+								onClose={onClose}
+								handleDeleteRecent={handleDeleteRecent}
+								handleClearRecent={handleClearRecent}
+							/>
 						)}
 
 						{isSearchAreaFocused && isSearching && <SearchResultsSkeleton />}
@@ -393,30 +245,7 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 							!isSearching &&
 							!searchError &&
 							results.length > 0 && (
-								<div className="space-y-2">
-									{results.map((snippet) => (
-										<Link
-											key={snippet.id}
-											href={`/snippets/${snippet.id}`}
-											onClick={onClose}
-											className="block rounded-lg border border-default px-3 py-2 transition hover:bg-foreground/5"
-										>
-											<div className="flex items-start justify-between gap-3">
-												<div className="min-w-0">
-													<p className="truncate text-sm font-medium">
-														{snippet.title}
-													</p>
-													<p className="truncate text-xs text-foreground/60">
-														@{snippet.author.username} • {snippet.language}
-													</p>
-												</div>
-												<span className="text-xs text-foreground/60">
-													{snippet.viewsCount} views
-												</span>
-											</div>
-										</Link>
-									))}
-								</div>
+								<SearchResults results={results} onClose={onClose} />
 							)}
 					</div>
 				</div>

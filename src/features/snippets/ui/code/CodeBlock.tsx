@@ -2,98 +2,21 @@
 
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import { useTheme } from '@/shared/hooks/useTheme'
-import { Button } from '@/shared/ui/design-system'
-import { toast } from '@/shared/ui/design-system'
 import { logger } from '@/shared/utils/logger'
 import type { Extension } from '@codemirror/state'
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
-import { BiError } from 'react-icons/bi'
-import { LuCheck, LuFileText, LuShare2 } from 'react-icons/lu'
-import { MdOutlineContentCopy } from 'react-icons/md'
+import { loadLanguageExtension, loadThemeExtension } from './codemirror-extensions'
+import { CodeBlockHeader } from './CodeBlockHeader'
+import { CodeBlockFooter } from './CodeBlockFooter'
+import { copyToClipboard, shareSnippet } from './code-block-actions'
 
 const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), {
 	ssr: false,
 	loading: () => (
-		<div className="min-h-[120px] rounded-xl border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]" />
+		<div className="min-h-30 rounded-xl border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]" />
 	),
 })
-
-const loadLanguageExtension = async (
-	lang: EditorLanguage,
-): Promise<Extension> => {
-	switch (lang) {
-		case 'javascript': {
-			const { javascript } = await import('@codemirror/lang-javascript')
-			return javascript({ jsx: true })
-		}
-		case 'typescript': {
-			const { javascript } = await import('@codemirror/lang-javascript')
-			return javascript({ typescript: true, jsx: true })
-		}
-		case 'json': {
-			const { json } = await import('@codemirror/lang-json')
-			return json()
-		}
-		case 'html': {
-			const { html } = await import('@codemirror/lang-html')
-			return html()
-		}
-		case 'css': {
-			const { css } = await import('@codemirror/lang-css')
-			return css()
-		}
-		case 'python': {
-			const { python } = await import('@codemirror/lang-python')
-			return python()
-		}
-		case 'java': {
-			const { java } = await import('@codemirror/lang-java')
-			return java()
-		}
-		case 'cpp': {
-			const { cpp } = await import('@codemirror/lang-cpp')
-			return cpp()
-		}
-		case 'rust': {
-			const { rust } = await import('@codemirror/lang-rust')
-			return rust()
-		}
-		case 'php': {
-			const { php } = await import('@codemirror/lang-php')
-			return php()
-		}
-		case 'sql': {
-			const { sql } = await import('@codemirror/lang-sql')
-			return sql()
-		}
-		case 'markdown': {
-			const { markdown } = await import('@codemirror/lang-markdown')
-			return markdown()
-		}
-		case 'go':
-		case 'yaml':
-		case 'ruby':
-		case 'csharp':
-		case 'bash':
-		case 'dockerfile':
-		default: {
-			const { javascript } = await import('@codemirror/lang-javascript')
-			return javascript()
-		}
-	}
-}
-
-const loadThemeExtension = async (
-	theme: 'dark' | 'light',
-): Promise<Extension> => {
-	if (theme === 'dark') {
-		const { vscodeDark } = await import('@uiw/codemirror-theme-vscode')
-		return vscodeDark
-	}
-	const { sublime } = await import('@uiw/codemirror-theme-sublime')
-	return sublime
-}
 
 type Props = {
 	code: string
@@ -128,52 +51,35 @@ export function CodeBlock({
 
 	const showShareButton = snippetId && visibility !== 'private'
 
-	async function handleCopy() {
-		try {
-			await navigator.clipboard.writeText(code)
-			setCopied(true)
-			setCopyError(null)
-			setTimeout(() => setCopied(false), 2000)
-		} catch (_err) {
-			setCopyError('Failed to copy')
-			setTimeout(() => setCopyError(null), 2000)
-		}
+	const actionButtonBaseClasses =
+		'h-8! gap-1.5! rounded-[10px]! px-3! py-1! text-xs! font-semibold! transition-all focus:ring-0 focus:outline-none !bg-[#303841] !text-white dark:!bg-[#4F565E] dark:!text-gray-300'
+
+	const handleCopy = async () => {
+		await copyToClipboard(
+			code,
+			() => {
+				setCopied(true)
+				setCopyError(null)
+				setTimeout(() => setCopied(false), 2000)
+			},
+			(error) => {
+				setCopyError(error)
+				setTimeout(() => setCopyError(null), 2000)
+			},
+		)
 	}
 
-	async function handleShare() {
-		if (!snippetId) return
-
-		const url = `${globalThis.location.origin}/snippets/${snippetId}`
-
-		if (visibility === 'private') {
-			toast.warning('Cannot share private snippet', {
-				description: 'Make it public to share with others',
-			})
-			return
-		}
-
-		if (navigator.share) {
-			try {
-				await navigator.share({
-					title: snippetTitle || 'Code Snippet',
-					text: snippetDescription || 'Check out this code snippet',
-					url,
-				})
-			} catch (err) {
-				if ((err as Error).name !== 'AbortError') {
-					logger.error('Share failed', err)
-				}
-			}
-		} else {
-			await navigator.clipboard.writeText(url)
-			toast.success('Link copied to clipboard!')
-		}
+	const handleShare = async () => {
+		await shareSnippet(
+			snippetId,
+			snippetTitle,
+			snippetDescription,
+			visibility,
+		)
 	}
 
 	const lines = code.split('\n')
 	const lineCount = lines.length
-	const actionButtonBaseClasses =
-		'h-8! gap-1.5! rounded-[10px]! px-3! py-1! text-xs! font-semibold! transition-all focus:ring-0 focus:outline-none !bg-[#303841] !text-white dark:!bg-[#4F565E] dark:!text-gray-300'
 
 	useEffect(() => {
 		let active = true
@@ -206,15 +112,12 @@ export function CodeBlock({
 
 	return (
 		<div className="flex flex-col gap-2 overflow-hidden rounded-xl border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]">
-			{/* <div className="flex-col items-center justify-between gap-4 ">
-
-			</div> */}
-			<Header
+			<CodeBlockHeader
 				language={language}
 				title={title}
 				showShareButton={showShareButton}
-				handleShare={handleShare}
-				handleCopy={handleCopy}
+				onShare={handleShare}
+				onCopy={handleCopy}
 				copied={copied}
 				copyError={copyError}
 				actionButtonBaseClasses={actionButtonBaseClasses}
@@ -249,123 +152,12 @@ export function CodeBlock({
 					/>
 				</div>
 
-				<Footer lineCount={lineCount} code={code} language={language} />
+				<CodeBlockFooter
+					lineCount={lineCount}
+					code={code}
+					language={language}
+				/>
 			</div>
-		</div>
-	)
-}
-
-interface HeaderProps {
-	language: string
-	title?: string
-	showShareButton?: string | boolean
-	handleShare: () => void
-	handleCopy: () => void
-	copied: boolean
-	copyError: string | null
-	actionButtonBaseClasses: string
-}
-
-function Header({
-	language,
-	title,
-	showShareButton,
-	handleShare,
-	handleCopy,
-	copied,
-	copyError,
-	actionButtonBaseClasses,
-}: HeaderProps) {
-	return (
-		<div className="flex justify-between">
-			<div className="flex items-center gap-2 min-w-0">
-				<span className="rounded-md bg-[#303841] px-2 py-1 text-xs font-semibold text-white dark:bg-[#4F565E] dark:text-gray-300">
-					{language}
-				</span>
-				{title && (
-					<span className="truncate text-sm text-[#6F6F6F] dark:text-gray-400">
-						{title}
-					</span>
-				)}
-			</div>
-
-			<div className="flex items-center gap-2">
-				{showShareButton && (
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						onClick={handleShare}
-						data-tooltip-id="app-tooltip"
-						data-tooltip-content="Share snippet"
-						className={actionButtonBaseClasses}
-						aria-label="Share snippet"
-					>
-						<LuShare2 className="h-3.5 w-3.5" />
-						<span className="hidden sm:inline">Share</span>
-					</Button>
-				)}
-
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					onClick={handleCopy}
-					className={`${
-						copied
-							? actionButtonBaseClasses
-							: copyError
-								? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-								: actionButtonBaseClasses
-					}`}
-					aria-label={
-						copied ? 'Copied!' : copyError || 'Copy code to clipboard'
-					}
-				>
-					{copied ? (
-						<>
-							<LuCheck className="h-3.5 w-3.5" />
-							<span className="hidden sm:inline">Copied!</span>
-						</>
-					) : copyError ? (
-						<>
-							<BiError className="h-3.5 w-3.5" />
-							<span className="hidden sm:inline">{copyError}</span>
-						</>
-					) : (
-						<>
-							<MdOutlineContentCopy className="h-3.5 w-3.5" />
-							<span className="hidden sm:inline">Copy</span>
-						</>
-					)}
-				</Button>
-			</div>
-		</div>
-	)
-}
-
-interface FooterProps {
-	lineCount: number
-	code: string
-	language: string
-}
-
-function Footer({ lineCount, code, language }: FooterProps) {
-	return (
-		<div className="flex items-center justify-between border-t border-[#D4D4D4] bg-[#4F565E] py-1.5 text-xs text-white dark:border-gray-[550] dark:bg-[#333333] dark:text-gray-200">
-			<div className="flex justify-between items-center gap-2">
-				<div className="flex items-center gap-2">
-					<LuFileText className="h-3.5 w-3.5" />
-					<span>
-						{lineCount} {lineCount === 1 ? 'line' : 'lines'}
-					</span>
-				</div>
-				<span>•</span>
-				<span className="font-mono">{code.length} characters</span>
-			</div>
-			<span className="hidden sm:block">
-				{language.charAt(0).toUpperCase() + language.slice(1)} syntax
-			</span>
 		</div>
 	)
 }

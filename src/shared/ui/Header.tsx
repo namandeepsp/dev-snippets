@@ -2,11 +2,11 @@
 
 import { useAuth } from '@/features/auth/auth.client.container'
 import { cn } from '@/shared/utils/utils'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { LuSearch } from 'react-icons/lu'
-import { HeaderSearchModal } from './HeaderSearchModal'
 import Logo from './Logo'
 import { ThemeToggle } from './ThemeToggle'
 import { Button, Skeleton } from './design-system'
@@ -305,10 +305,22 @@ export function Header() {
 				</div>
 			)}
 
-			<HeaderSearchModal
-				open={searchOpen}
-				onClose={() => setSearchOpen(false)}
-			/>
+			{searchOpen && (
+				<HeaderSearchModal
+					open={searchOpen}
+					onClose={() => setSearchOpen(false)}
+				/>
+			)}
 		</header>
 	)
 }
+
+const HeaderSearchModal = dynamic(
+	() =>
+		import('./HeaderSearchModal').then((mod) => ({
+			default: mod.HeaderSearchModal,
+		})),
+	{
+		ssr: false,
+	},
+)

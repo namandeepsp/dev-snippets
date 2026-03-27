@@ -9,6 +9,7 @@ A Next.js application for storing, organizing, and sharing reusable code snippet
 - TypeScript
 - Firebase Auth + Firestore
 - Vitest for script-driven integration tests
+- App Router (`src/app`)
 
 ## Quick Start
 
@@ -18,6 +19,8 @@ pnpm dev
 ```
 
 Open `http://localhost:3000`.
+
+Note: `pnpm dev` runs `pnpm code:fix` first (format + organize imports).
 
 ## Architecture Summary
 
@@ -59,6 +62,14 @@ pnpm tools:snippet
 - `docs/API_MIGRATION.md`
 - `docs/FIREBASE_CONFIG.md`
 - `scripts/README.md`
+
+## Environment Variables
+
+Required Firebase and optional service variables are documented in `docs/FIREBASE_CONFIG.md`.
+
+## SEO
+
+The app includes per-page metadata, `metadataBase`, `robots.ts`, and `sitemap.ts` to improve discoverability.
 
 ## Feature Architecture
 

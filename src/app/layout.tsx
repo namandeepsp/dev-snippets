@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 	title: 'DevSnippets',
 	description:
 		'Store, share, and manage reusable code snippets across technologies.',
+	metadataBase: new URL('https://dev-snippets-chi.vercel.app'),
 	icons: {
 		icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
 		shortcut: ['/icon.svg'],

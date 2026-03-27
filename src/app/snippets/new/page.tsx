@@ -1,16 +1,15 @@
-'use client'
+import type { Metadata } from 'next'
+import { NewSnippetPageClient } from './NewSnippetPageClient'
 
-import { RequireAuth } from '@/features/auth/ui/RequireAuth'
-import { SnippetForm } from '@/features/snippets/ui/SnippetForm'
-import { SnippetFormSkeleton } from '@/features/snippets/ui/SnippetFormSkeleton'
+export const metadata: Metadata = {
+	title: 'Create Snippet - DevSnippets',
+	description: 'Create a new code snippet and share it with your team.',
+	robots: {
+		index: false,
+		follow: false,
+	},
+}
 
 export default function NewSnippetPage() {
-	return (
-		<RequireAuth fallback={<SnippetFormSkeleton />}>
-			<div className="mx-auto max-w-5xl px-4 py-8">
-				<h1 className="mb-6 text-3xl font-bold">Create Snippet</h1>
-				<SnippetForm mode="create" />
-			</div>
-		</RequireAuth>
-	)
+	return <NewSnippetPageClient />
 }

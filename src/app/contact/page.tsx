@@ -1,6 +1,16 @@
 import { ContactForm } from '@/features/contact/ui/ContactForm'
+import type { Metadata } from 'next'
 
 const CONTACT_EMAIL = 'namandeepsp@gmail.com'
+
+export const metadata: Metadata = {
+	title: 'Contact DevSnippets',
+	description:
+		'Reach out to the DevSnippets team with feedback, feature requests, or support questions.',
+	alternates: {
+		canonical: '/contact',
+	},
+}
 
 export default function ContactPage() {
 	return (

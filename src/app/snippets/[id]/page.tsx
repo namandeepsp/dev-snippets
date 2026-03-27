@@ -47,6 +47,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	return {
 		title: `${snippet.title} - DevSnippets`,
 		description: snippet.description || 'View code snippet on DevSnippets',
+		alternates: {
+			canonical: `/snippets/${id}`,
+		},
+		robots:
+			snippet.visibility === 'public'
+				? { index: true, follow: true }
+				: { index: false, follow: false },
 		openGraph: {
 			title: snippet.title,
 			description: snippet.description || 'Code snippet',

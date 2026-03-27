@@ -39,6 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	return {
 		title: `${user.name} (@${user.username}) - DevSnippets`,
 		description: user.bio || `View ${user.name}'s code snippets on DevSnippets`,
+		alternates: {
+			canonical: `/profile/${user.username}`,
+		},
 		openGraph: {
 			title: `${user.name} (@${user.username})`,
 			description: user.bio || `Code snippets by ${user.name}`,

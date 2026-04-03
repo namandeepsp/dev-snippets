@@ -9,16 +9,29 @@ type FormatterServiceConfig = {
 	apiKey?: string
 }
 
+import { logger } from './logger'
+
 export class FormatterService {
 	private getConfig(): FormatterServiceConfig {
-		const baseUrl = process.env.FORMATTER_SERVICE_URL
+		const baseUrl =
+			process.env.FORMATTER_SERVICE_URL ||
+			process.env.NEXT_PUBLIC_FORMATTER_SERVICE_URL ||
+			(typeof window !== 'undefined' ? window.location.origin : undefined)
+
+		logger.info('baseUrl13434: ', baseUrl)
+
 		if (!baseUrl) {
-			throw new Error('Formatter service is not configured')
+			throw new Error(
+				'Formatter service is not configured - set FORMATTER_SERVICE_URL or NEXT_PUBLIC_FORMATTER_SERVICE_URL',
+			)
 		}
 
 		return {
 			baseUrl,
-			apiKey: process.env.FORMATTER_SERVICE_API_KEY,
+			apiKey:
+				process.env.FORMATTER_SERVICE_API_KEY ||
+				process.env.NEXT_PUBLIC_FORMATTER_SERVICE_API_KEY ||
+				undefined,
 		}
 	}
 

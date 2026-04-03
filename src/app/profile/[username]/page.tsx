@@ -1,6 +1,7 @@
 import { getCurrentServerUser } from '@/features/auth/auth.server.container'
 import { snippetService } from '@/features/snippets/snippet.server.container'
 import { userService } from '@/features/user/user.container'
+import { logger } from '@/shared/utils/logger'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ProfileSnippetsSection } from './ProfileSnippetsSection'
@@ -60,7 +61,7 @@ export default async function ProfilePage({ params }: Props) {
 		currentUser = await getCurrentServerUser()
 	} catch {
 		// Continue as guest when session is invalid/missing
-		console.warn('No valid session found, rendering profile as guest')
+		logger.warn('No valid session found, rendering profile as guest')
 	}
 
 	const user = await userService.getPublicProfile(username)

@@ -44,16 +44,26 @@ export function useSnippetFormState({
 	const [isFormatting, setIsFormatting] = useState(false)
 
 	const handleDetectedLanguage = (detected: EditorLanguage) => {
-		logger.info('Language detected:', detected)
-		const primaryTech = LANGUAGE_TO_PRIMARY_TECHNOLOGY[detected]
-		logger.info('Primary tech for detected language:', primaryTech)
-		if (!primaryTech) return
+		logger.info('🔍 handleDetectedLanguage called with:', detected)
+		logger.info('Language detected in form:', detected)
 
+		const primaryTech = LANGUAGE_TO_PRIMARY_TECHNOLOGY[detected]
+		logger.info('📍 Primary tech mapping:', primaryTech)
+		logger.info('Primary tech for detected language:', primaryTech)
+
+		if (!primaryTech) {
+			logger.warn('⚠️ No primary technology mapping found for:', detected)
+			logger.warn('No primary technology mapping found for:', detected)
+			return
+		}
+
+		logger.info('📝 Current technologies before update:', technologies)
 		setTechnologies((prev) => {
 			const updated = prev.includes(primaryTech)
 				? [primaryTech, ...prev.filter((t) => t !== primaryTech)]
 				: [primaryTech, ...prev]
-			logger.info('Updated technologies:', updated)
+			logger.info('✅ Updated technologies array:', updated)
+			logger.info('Updated technologies array:', updated)
 			return updated
 		})
 	}
@@ -91,6 +101,13 @@ export function useSnippetFormState({
 		? TECHNOLOGY_TO_EDITOR_LANGUAGE[primaryTechnology] ||
 			(primaryTechnology as EditorLanguage)
 		: language
+
+	// Log formatter language changes
+	useEffect(() => {
+		logger.info('📤 formatterLanguage updated to:', formatterLanguage)
+		logger.info('📤 primaryTechnology:', primaryTechnology)
+		logger.info('Formatter language updated:', formatterLanguage)
+	}, [formatterLanguage, primaryTechnology])
 
 	function toggleCategory(cat: SnippetCategory) {
 		setCategories((prev) =>

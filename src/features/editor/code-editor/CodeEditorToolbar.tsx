@@ -3,12 +3,18 @@
 import { Button } from '@/shared/ui/design-system'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 import { IoCheckmark } from 'react-icons/io5'
-import { MdOutlineContentCopy, MdOutlineContentPaste } from 'react-icons/md'
+import {
+	MdErrorOutline,
+	MdOutlineContentCopy,
+	MdOutlineContentPaste,
+} from 'react-icons/md'
 
 type CodeEditorToolbarProps = {
 	copied: boolean
 	isApiFormatting: boolean
 	readOnly: boolean
+	formattingErrors: string[]
+	onToggleErrorAccordion: () => void
 	onCopy: () => void
 	onPaste: () => void
 }
@@ -17,9 +23,13 @@ export function CodeEditorToolbar({
 	copied,
 	isApiFormatting,
 	readOnly,
+	formattingErrors,
+	onToggleErrorAccordion,
 	onCopy,
 	onPaste,
 }: CodeEditorToolbarProps) {
+	const hasErrors = formattingErrors.length > 0
+
 	return (
 		<div className="absolute top-2 right-2 z-10 flex gap-2">
 			{isApiFormatting ? (
@@ -29,6 +39,24 @@ export function CodeEditorToolbar({
 				>
 					<AiOutlineLoading3Quarters className="animate-spin text-base" />
 				</div>
+			) : null}
+
+			{hasErrors ? (
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					onClick={onToggleErrorAccordion}
+					data-tooltip-id="app-tooltip"
+					data-tooltip-content={`${formattingErrors.length} formatting error${formattingErrors.length > 1 ? 's' : ''}`}
+					className="pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-red-100! text-red-700! hover:bg-red-200! dark:bg-red-900/30! dark:text-red-400! dark:hover:bg-red-900/50!"
+					aria-label="Show formatting errors"
+				>
+					<MdErrorOutline />
+					<span className="ml-1 text-sm font-medium">
+						{formattingErrors.length}
+					</span>
+				</Button>
 			) : null}
 			<Button
 				type="button"

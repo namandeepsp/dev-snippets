@@ -74,7 +74,7 @@ export class ApiDetector {
 				return null
 			}
 
-			// Extract language from correct path: data.data.language
+			// Extract language from nested data: data.data.language
 			const detected =
 				typeof data?.data?.language === 'string'
 					? data.data.language.toLowerCase()

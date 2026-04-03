@@ -43,11 +43,14 @@ export async function POST(request: Request) {
 			.json()
 			.catch(() => ({}))) as Partial<UpstreamDetectResponse>
 		const language =
-			payload.language === null || typeof payload.language === 'string'
-				? payload.language
+			payload.data?.language === null ||
+			typeof payload.data?.language === 'string'
+				? payload.data?.language
 				: null
 		const confidence =
-			typeof payload.confidence === 'string' ? payload.confidence : 'unknown'
+			typeof payload.data?.confidence === 'string'
+				? payload.data.confidence
+				: 'unknown'
 
 		if (!response.ok) {
 			return NextResponse.json<DetectProxyResponse>(

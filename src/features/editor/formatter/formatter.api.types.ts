@@ -62,8 +62,12 @@ export type DetectProxyRequest = {
 }
 
 export type UpstreamDetectResponse = {
-	language: string | null
-	confidence?: string | null
+	success: boolean
+	error: string | null
+	data: {
+		language: string | null
+		confidence: string
+	} | null
 }
 
 export type DetectProxyResponse = {

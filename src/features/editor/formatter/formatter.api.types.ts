@@ -50,9 +50,11 @@ export type UpstreamFormatResponse =
 	| UpstreamFormatErrorResponse
 
 export type ProxyFormatResponse = {
-	formattedCode: string
 	success: boolean
 	error: string | null
+	data: {
+		formatted_code: string
+	}
 }
 
 export type DetectProxyRequest = {

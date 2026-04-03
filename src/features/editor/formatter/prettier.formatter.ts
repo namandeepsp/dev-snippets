@@ -80,8 +80,10 @@ const prettierFormatter: PrettierFormatter = {
 
 	async format(request: FormatRequest): Promise<FormatResult> {
 		try {
+			logger.info('✨ Prettier formatter called for:', request.language)
 			// Map our language to Prettier parser
 			const parser = this.getParser(request.language)
+			logger.info('✨ Using parser:', parser)
 			const options = {
 				plugins: [
 					babelPlugin,
@@ -108,7 +110,9 @@ const prettierFormatter: PrettierFormatter = {
 					...options,
 					parser,
 				})
+				logger.info('✨ Prettier formatting succeeded')
 			} catch (primaryError) {
+				logger.info('✨ Prettier formatting failed, trying YAML fallback')
 				if (parser !== 'yaml' && looksLikeYaml(request.code)) {
 					formattedCode = await prettier.format(request.code, {
 						...options,
@@ -127,6 +131,7 @@ const prettierFormatter: PrettierFormatter = {
 			if (!isPrettierParseError(error)) {
 				logger.error('Prettier formatting failed', error)
 			}
+			logger.info('✨ Prettier formatting error:', error)
 			return {
 				formattedCode: request.code,
 				error: error instanceof Error ? error.message : 'Formatting failed',

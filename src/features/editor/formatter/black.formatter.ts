@@ -20,9 +20,7 @@ import type {
  * Python code formatter using Black.
  *
  * Note: This is a server-side formatter because Black requires Python.
- * The client sends code to a serverless function or API endpoint.
- *
- * TODO: Implement server-side formatting endpoint
+ * The client sends code to the /api/format/python endpoint.
  */
 
 const blackFormatter: CodeFormatter = {
@@ -49,15 +47,15 @@ const blackFormatter: CodeFormatter = {
 				.json()
 				.catch(() => ({}))) as Partial<ProxyFormatResponse>
 			const formattedCode =
-				typeof data.formattedCode === 'string'
-					? data.formattedCode
+				typeof data?.data?.formatted_code === 'string'
+					? data.data.formatted_code
 					: request.code
 
-			if (!response.ok || data.success === false || data.error) {
+			if (!response.ok || data?.success === false || data?.error) {
 				return {
-					formattedCode,
+					formattedCode: request.code,
 					error:
-						typeof data.error === 'string'
+						typeof data?.error === 'string'
 							? data.error
 							: 'Failed to format Python code',
 				}

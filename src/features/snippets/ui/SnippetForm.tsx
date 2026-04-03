@@ -1,8 +1,5 @@
 'use client'
 
-import { formatCodeWithStatus } from '@/features/editor/formatter/formatter.registry'
-import { toast } from '@/shared/ui/design-system'
-import { logger } from '@/shared/utils/logger'
 import type { Snippet } from '../core/snippet.types'
 import { SnippetFormActions } from './SnippetFormActions'
 import { SnippetFormCategories } from './SnippetFormCategories'
@@ -48,27 +45,6 @@ export function SnippetForm({ mode, snippet }: Props) {
 		visibility: formState.visibility,
 	})
 
-	async function handleFormatCode() {
-		if (!formState.code.trim()) return
-
-		formState.setIsFormatting(true)
-		try {
-			const result = await formatCodeWithStatus(
-				formState.code,
-				formState.formatterLanguage,
-			)
-			if (result.error) {
-				toast.error(result.error)
-				return
-			}
-			formState.setCode(result.formattedCode)
-		} catch (err) {
-			logger.error('Snippet form format action failed', err)
-		} finally {
-			formState.setIsFormatting(false)
-		}
-	}
-
 	return (
 		<form onSubmit={submission.handleSubmit} className="space-y-8">
 			<SnippetFormTitleDescription
@@ -98,7 +74,6 @@ export function SnippetForm({ mode, snippet }: Props) {
 				onLanguageDetected={formState.handleDetectedLanguage}
 				isSaving={submission.isSaving}
 				isFormatting={formState.isFormatting}
-				onFormatCode={handleFormatCode}
 			/>
 
 			<SnippetFormVisibility

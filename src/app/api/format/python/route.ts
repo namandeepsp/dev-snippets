@@ -18,9 +18,11 @@ export async function POST(request: Request) {
 		if (!code.trim()) {
 			return NextResponse.json<ProxyFormatResponse>(
 				{
-					formattedCode: code,
 					success: false,
 					error: 'Code is required',
+					data: {
+						formatted_code: code,
+					},
 				},
 				{ status: 400 },
 			)
@@ -32,9 +34,11 @@ export async function POST(request: Request) {
 		) {
 			return NextResponse.json<ProxyFormatResponse>(
 				{
-					formattedCode: code,
 					success: false,
 					error: `Unsupported language for python route: ${String(incomingLanguage)}`,
+					data: {
+						formatted_code: code,
+					},
 				},
 				{ status: 400 },
 			)
@@ -43,9 +47,11 @@ export async function POST(request: Request) {
 		if (!process.env.FORMATTER_SERVICE_URL) {
 			return NextResponse.json<ProxyFormatResponse>(
 				{
-					formattedCode: code,
 					success: false,
 					error: 'Formatter service is not configured',
+					data: {
+						formatted_code: code,
+					},
 				},
 				{ status: 500 },
 			)
@@ -73,26 +79,32 @@ export async function POST(request: Request) {
 		if (!response.ok) {
 			return NextResponse.json<ProxyFormatResponse>(
 				{
-					formattedCode: upstreamFormattedCode,
 					success: false,
 					error: upstreamError,
+					data: {
+						formatted_code: upstreamFormattedCode,
+					},
 				},
 				{ status: response.status },
 			)
 		}
 
 		return NextResponse.json<ProxyFormatResponse>({
-			formattedCode: upstreamFormattedCode,
 			success: upstreamSuccess,
 			error: upstreamSuccess ? null : upstreamError,
+			data: {
+				formatted_code: upstreamFormattedCode,
+			},
 		})
 	} catch (error) {
 		logger.error('Python formatting API route failed', error)
 		return NextResponse.json<ProxyFormatResponse>(
 			{
-				formattedCode: '',
 				success: false,
 				error: 'Failed to format Python code',
+				data: {
+					formatted_code: '',
+				},
 			},
 			{ status: 500 },
 		)

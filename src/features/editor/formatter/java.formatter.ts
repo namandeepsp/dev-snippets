@@ -43,15 +43,15 @@ const javaFormatter: CodeFormatter = {
 				.json()
 				.catch(() => ({}))) as Partial<ProxyFormatResponse>
 			const formattedCode =
-				typeof data.formattedCode === 'string'
-					? data.formattedCode
+				typeof data?.data?.formatted_code === 'string'
+					? data.data.formatted_code
 					: request.code
 
-			if (!response.ok || data.success === false || data.error) {
+			if (!response.ok || data?.success === false || data?.error) {
 				return {
-					formattedCode,
+					formattedCode: request.code,
 					error:
-						typeof data.error === 'string'
+						typeof data?.error === 'string'
 							? data.error
 							: 'Failed to format Java code',
 				}

@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/shared/ui/design-system'
-import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 import { IoCheckmark } from 'react-icons/io5'
 import {
 	MdErrorOutline,
@@ -11,7 +10,6 @@ import {
 } from 'react-icons/md'
 type CodeEditorToolbarProps = {
 	copied: boolean
-	isApiFormatting: boolean
 	readOnly: boolean
 	formattingErrors: string[]
 	onToggleErrorAccordion: () => void
@@ -23,7 +21,6 @@ type CodeEditorToolbarProps = {
 
 export function CodeEditorToolbar({
 	copied,
-	isApiFormatting,
 	readOnly,
 	formattingErrors,
 	onToggleErrorAccordion,
@@ -35,16 +32,7 @@ export function CodeEditorToolbar({
 	const hasErrors = formattingErrors.length > 0
 
 	return (
-		<div className="absolute top-2 right-2 z-10 flex gap-2">
-			{isApiFormatting ? (
-				<div
-					className="pointer-events-none inline-flex items-center justify-center rounded-lg bg-gray-200 px-3 py-2 text-slate-700 dark:bg-slate-800/90 dark:text-slate-200"
-					aria-label="Formatting in progress"
-				>
-					<AiOutlineLoading3Quarters className="animate-spin text-base" />
-				</div>
-			) : null}
-
+		<div className="flex items-center gap-2">
 			{hasErrors ? (
 				<Button
 					type="button"

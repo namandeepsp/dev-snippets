@@ -65,7 +65,7 @@ export const TECHNOLOGY_TO_EDITOR_LANGUAGE: Partial<
 	sql: 'sql',
 	'postgres-sql': 'sql',
 	nosql: 'json',
-	docker: 'dockerfile',
+	docker: 'yaml',
 	'dev-ops': 'bash',
 	json: 'json',
 	html: 'html',

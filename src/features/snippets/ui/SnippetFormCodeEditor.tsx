@@ -146,6 +146,7 @@ export function SnippetFormCodeEditor({
 				value={code}
 				onChange={onCodeChange}
 				language={formatterLanguage}
+				primaryTechnology={primaryTechnology}
 				onLanguageDetected={onLanguageDetected}
 				onDetectingChange={setDetectionState}
 				onSave={onSave}

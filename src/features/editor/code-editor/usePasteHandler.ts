@@ -15,6 +15,7 @@ interface UsePasteHandlerProps {
 	) => Promise<{ formattedCode: string; error?: string }>
 	onChange?: (value: string) => void
 	onClearErrors?: () => void
+	onFormattingError?: (error: string) => void
 	setIsDetecting?: (isDetecting: boolean) => void
 }
 
@@ -28,6 +29,7 @@ export function usePasteHandler({
 	formatWithStatusForEditor,
 	onChange,
 	onClearErrors,
+	onFormattingError,
 	setIsDetecting,
 }: UsePasteHandlerProps) {
 	const createPasteHandler = () => {
@@ -103,7 +105,7 @@ export function usePasteHandler({
 
 					// Handle paste errors or clear them on success
 					if (pasteError) {
-						// Error is already handled by state
+						onFormattingError?.(pasteError)
 					} else {
 						onClearErrors?.()
 					}

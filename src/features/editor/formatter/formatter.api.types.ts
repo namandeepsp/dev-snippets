@@ -71,9 +71,12 @@ export type UpstreamDetectResponse = {
 }
 
 export type DetectProxyResponse = {
-	language: string | null
-	confidence: string
+	success: boolean
 	error: string | null
+	data: {
+		language: string | null
+		confidence: string
+	} | null
 }
 
 const PYTHON_ALIASES = new Set<string>(['python', 'django', 'fastapi', 'flask'])

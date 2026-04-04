@@ -15,9 +15,9 @@ export async function POST(request: Request) {
 		if (!code.trim()) {
 			return NextResponse.json<DetectProxyResponse>(
 				{
-					language: null,
-					confidence: 'unknown',
+					success: false,
 					error: 'Code is required',
+					data: null,
 				},
 				{ status: 400 },
 			)
@@ -26,9 +26,9 @@ export async function POST(request: Request) {
 		if (!process.env.FORMATTER_SERVICE_URL) {
 			return NextResponse.json<DetectProxyResponse>(
 				{
-					language: null,
-					confidence: 'unknown',
+					success: false,
 					error: 'Formatter service is not configured',
+					data: null,
 				},
 				{ status: 500 },
 			)
@@ -42,39 +42,30 @@ export async function POST(request: Request) {
 		const payload = (await response
 			.json()
 			.catch(() => ({}))) as Partial<UpstreamDetectResponse>
-		const language =
-			payload.data?.language === null ||
-			typeof payload.data?.language === 'string'
-				? payload.data?.language
-				: null
-		const confidence =
-			typeof payload.data?.confidence === 'string'
-				? payload.data.confidence
-				: 'unknown'
 
 		if (!response.ok) {
 			return NextResponse.json<DetectProxyResponse>(
 				{
-					language,
-					confidence,
+					success: false,
 					error: 'Language detection failed',
+					data: null,
 				},
 				{ status: response.status },
 			)
 		}
 
 		return NextResponse.json<DetectProxyResponse>({
-			language,
-			confidence,
-			error: null,
+			success: payload.success ?? true,
+			error: payload.error ?? null,
+			data: payload.data ?? null,
 		})
 	} catch (error) {
 		logger.error('Language detection API route failed', error)
 		return NextResponse.json<DetectProxyResponse>(
 			{
-				language: null,
-				confidence: 'unknown',
+				success: false,
 				error: 'Failed to detect language',
+				data: null,
 			},
 			{ status: 500 },
 		)

@@ -42,32 +42,12 @@ export async function POST(request: Request) {
 		const payload = (await response
 			.json()
 			.catch(() => ({}))) as Partial<UpstreamFormatResponse>
-		const formatted_code =
-			typeof payload.formatted_code === 'string' ? payload.formatted_code : code
-		const upstreamError =
-			typeof payload.error === 'string' ? payload.error : 'Formatting failed'
-		const upstreamSuccess = payload.success === true
 
-		if (!response.ok || !upstreamSuccess) {
-			return NextResponse.json(
-				{
-					success: false,
-					error: upstreamError,
-					data: {
-						formatted_code,
-					},
-				},
-				{ status: response.ok ? 400 : response.status },
-			)
+		if (!response.ok) {
+			return NextResponse.json(payload, { status: response.status })
 		}
 
-		return NextResponse.json({
-			success: true,
-			error: null,
-			data: {
-				formatted_code,
-			},
-		})
+		return NextResponse.json(payload)
 	} catch (error) {
 		logger.error('Format API route failed', error)
 		return NextResponse.json(

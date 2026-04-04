@@ -22,6 +22,7 @@ type UseSnippetFormSubmissionProps = {
 	technologies: SnippetTechnology[]
 	categories: SnippetCategory[]
 	visibility: SnippetVisibility
+	canSubmit: boolean
 }
 
 export function useSnippetFormSubmission({
@@ -34,12 +35,17 @@ export function useSnippetFormSubmission({
 	technologies,
 	categories,
 	visibility,
+	canSubmit,
 }: UseSnippetFormSubmissionProps) {
 	const router = useRouter()
 	const [isSaving, setIsSaving] = useState(false)
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
+	const submit = async () => {
+		if (isSaving) return
+		if (!canSubmit) {
+			toast.error('Please complete required fields before saving.')
+			return
+		}
 
 		setIsSaving(true)
 
@@ -85,8 +91,14 @@ export function useSnippetFormSubmission({
 		}
 	}
 
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		await submit()
+	}
+
 	return {
 		isSaving,
+		submit,
 		handleSubmit,
 	}
 }

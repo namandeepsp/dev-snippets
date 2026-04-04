@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic'
 import React from 'react'
 import { CodeEditorSkeleton } from './code-editor/CodeEditorSkeleton'
 import { CodeEditorToolbar } from './code-editor/CodeEditorToolbar'
+import { EditorShortcutsModal } from './code-editor/EditorShortcutsModal'
 import { ErrorAccordion } from './code-editor/ErrorAccordion'
+import { buildEditorShortcuts } from './code-editor/editor.shortcuts'
 import { useCodeEditorActions } from './code-editor/useCodeEditorActions'
 import { useCodeEditorFormatting } from './code-editor/useCodeEditorFormatting'
 import { useCodeEditorState } from './code-editor/useCodeEditorState'
@@ -30,6 +32,7 @@ interface CodeEditorProps {
 	maxHeight?: string
 	onLanguageDetected?: (language: EditorLanguage) => void
 	onDetectingChange?: (isDetecting: boolean) => void
+	onSave?: () => void
 }
 
 interface CodeEditorRef {
@@ -48,9 +51,11 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			maxHeight = '600px',
 			onLanguageDetected,
 			onDetectingChange,
+			onSave,
 		},
 		ref,
 	) {
+		const [isShortcutsOpen, setIsShortcutsOpen] = React.useState(false)
 		const { resolvedTheme } = useTheme()
 		const { languageExtension, themeExtension } = useCodeMirrorExtensions(
 			language,
@@ -103,6 +108,46 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			format: handleFormat,
 		}))
 
+		const basicSetup = {
+			lineNumbers: true,
+			highlightActiveLineGutter: true,
+			highlightSpecialChars: true,
+			foldGutter: true,
+			drawSelection: true,
+			dropCursor: true,
+			allowMultipleSelections: true,
+			indentOnInput: true,
+			bracketMatching: true,
+			closeBrackets: true,
+			autocompletion: true,
+			rectangularSelection: true,
+			crosshairCursor: true,
+			highlightActiveLine: true,
+			highlightSelectionMatches: true,
+			closeBracketsKeymap: true,
+			searchKeymap: true,
+			foldKeymap: true,
+			completionKeymap: true,
+			lintKeymap: true,
+			historyKeymap: true,
+		}
+
+		const shortcuts = buildEditorShortcuts({
+			includeSave: Boolean(onSave),
+			includeFormat: true,
+			includeCopyPaste: true,
+			includeShortcutsHelp: true,
+			shortcutsHelpKeys: ['Ctrl+Shift+/', 'Cmd+Shift+/'],
+			keymaps: {
+				search: basicSetup.searchKeymap !== false,
+				history: basicSetup.historyKeymap !== false,
+				fold: basicSetup.foldKeymap !== false,
+				completion: basicSetup.completionKeymap !== false,
+				lint: basicSetup.lintKeymap !== false,
+				closeBrackets: basicSetup.closeBracketsKeymap !== false,
+			},
+		})
+
 		return (
 			<div className="space-y-2">
 				<div
@@ -125,6 +170,8 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 									setTimeout(() => state.setCopied(false), 2000)
 								}}
 								onPaste={handlePaste}
+								onOpenShortcuts={() => setIsShortcutsOpen(true)}
+								shortcutsHint="Show shortcuts (Ctrl+Shift+/ or Cmd+Shift+/)"
 							/>
 							<div className="overflow-auto" style={{ maxHeight }}>
 								<CodeMirror
@@ -142,38 +189,42 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 													return true
 												},
 											},
+											...(onSave
+												? [
+														{
+															key: 'Mod-s',
+															run: () => {
+																if (!readOnly) {
+																	onSave()
+																}
+																return true
+															},
+														},
+													]
+												: []),
+											{
+												key: 'Mod-Shift-/',
+												run: () => {
+													setIsShortcutsOpen(true)
+													return true
+												},
+											},
 										]),
 									]}
 									placeholder={placeholder}
 									readOnly={readOnly}
-									basicSetup={{
-										lineNumbers: true,
-										highlightActiveLineGutter: true,
-										highlightSpecialChars: true,
-										foldGutter: true,
-										drawSelection: true,
-										dropCursor: true,
-										allowMultipleSelections: true,
-										indentOnInput: true,
-										bracketMatching: true,
-										closeBrackets: true,
-										autocompletion: true,
-										rectangularSelection: true,
-										crosshairCursor: true,
-										highlightActiveLine: true,
-										highlightSelectionMatches: true,
-										closeBracketsKeymap: true,
-										searchKeymap: true,
-										foldKeymap: true,
-										completionKeymap: true,
-										lintKeymap: true,
-									}}
+									basicSetup={basicSetup}
 									style={{
 										fontSize: '14px',
 										minHeight,
 									}}
 								/>
 							</div>
+							<EditorShortcutsModal
+								isOpen={isShortcutsOpen}
+								onClose={() => setIsShortcutsOpen(false)}
+								shortcuts={shortcuts}
+							/>
 						</>
 					)}
 				</div>

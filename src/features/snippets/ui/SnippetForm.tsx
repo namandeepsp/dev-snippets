@@ -1,10 +1,12 @@
 'use client'
 
+import { useEffect } from 'react'
 import type { Snippet } from '../core/snippet.types'
 import { SnippetFormActions } from './SnippetFormActions'
 import { SnippetFormCategories } from './SnippetFormCategories'
 import { SnippetFormCodeEditor } from './SnippetFormCodeEditor'
 import { SnippetFormPreview } from './SnippetFormPreview'
+import { SnippetFormSkeleton } from './SnippetFormSkeleton'
 import { SnippetFormTechnologySelect } from './SnippetFormTechnologySelect'
 import { SnippetFormTitleDescription } from './SnippetFormTitleDescription'
 import { SnippetFormVisibility } from './SnippetFormVisibility'
@@ -43,7 +45,31 @@ export function SnippetForm({ mode, snippet }: Props) {
 		technologies: formState.technologies,
 		categories: formState.categories,
 		visibility: formState.visibility,
+		canSubmit: validation.canSubmit,
 	})
+
+	useEffect(() => {
+		const onKeyDown = (event: KeyboardEvent) => {
+			const isSave =
+				(event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's'
+			if (!isSave || event.repeat || submission.isSaving) return
+			event.preventDefault()
+			submission.submit()
+		}
+
+		window.addEventListener('keydown', onKeyDown)
+		return () => window.removeEventListener('keydown', onKeyDown)
+	}, [submission])
+
+	if (submission.isSaving) {
+		return (
+			<div className="fixed inset-0 z-50 overflow-auto bg-white dark:bg-slate-950">
+				<SnippetFormSkeleton
+					maxWidth={mode === 'edit' ? 'max-w-4xl' : 'max-w-5xl'}
+				/>
+			</div>
+		)
+	}
 
 	return (
 		<form onSubmit={submission.handleSubmit} className="space-y-8">
@@ -74,6 +100,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 				onLanguageDetected={formState.handleDetectedLanguage}
 				isSaving={submission.isSaving}
 				isFormatting={formState.isFormatting}
+				onSave={submission.submit}
 			/>
 
 			<SnippetFormVisibility

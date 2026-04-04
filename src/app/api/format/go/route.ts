@@ -1,6 +1,5 @@
 import {
 	type FormatProxyRequest,
-	type ProxyFormatResponse,
 	type UpstreamFormatResponse,
 	isGoFamilyLanguage,
 	normalizeGoLanguage,
@@ -16,13 +15,11 @@ export async function POST(request: Request) {
 		const incomingLanguage = body.language
 
 		if (!code.trim()) {
-			return NextResponse.json<ProxyFormatResponse>(
+			return NextResponse.json(
 				{
 					success: false,
 					error: 'Code is required',
-					data: {
-						formatted_code: code,
-					},
+					data: null,
 				},
 				{ status: 400 },
 			)
@@ -32,26 +29,22 @@ export async function POST(request: Request) {
 			typeof incomingLanguage !== 'undefined' &&
 			!isGoFamilyLanguage(incomingLanguage)
 		) {
-			return NextResponse.json<ProxyFormatResponse>(
+			return NextResponse.json(
 				{
 					success: false,
 					error: `Unsupported language for go route: ${String(incomingLanguage)}`,
-					data: {
-						formatted_code: code,
-					},
+					data: null,
 				},
 				{ status: 400 },
 			)
 		}
 
 		if (!process.env.FORMATTER_SERVICE_URL) {
-			return NextResponse.json<ProxyFormatResponse>(
+			return NextResponse.json(
 				{
 					success: false,
 					error: 'Formatter service is not configured',
-					data: {
-						formatted_code: code,
-					},
+					data: null,
 				},
 				{ status: 500 },
 			)
@@ -68,41 +61,19 @@ export async function POST(request: Request) {
 		const payload = (await response
 			.json()
 			.catch(() => ({}))) as Partial<UpstreamFormatResponse>
-		const upstreamFormattedCode =
-			typeof payload.formatted_code === 'string' ? payload.formatted_code : code
-		const upstreamError =
-			typeof payload.error === 'string' ? payload.error : 'Go formatting failed'
-		const upstreamSuccess = payload.success === true
 
 		if (!response.ok) {
-			return NextResponse.json<ProxyFormatResponse>(
-				{
-					success: false,
-					error: upstreamError,
-					data: {
-						formatted_code: upstreamFormattedCode,
-					},
-				},
-				{ status: response.status },
-			)
+			return NextResponse.json(payload, { status: response.status })
 		}
 
-		return NextResponse.json<ProxyFormatResponse>({
-			success: upstreamSuccess,
-			error: upstreamSuccess ? null : upstreamError,
-			data: {
-				formatted_code: upstreamFormattedCode,
-			},
-		})
+		return NextResponse.json(payload)
 	} catch (error) {
 		logger.error('Go formatting API route failed', error)
-		return NextResponse.json<ProxyFormatResponse>(
+		return NextResponse.json(
 			{
 				success: false,
 				error: 'Failed to format Go code',
-				data: {
-					formatted_code: '',
-				},
+				data: null,
 			},
 			{ status: 500 },
 		)

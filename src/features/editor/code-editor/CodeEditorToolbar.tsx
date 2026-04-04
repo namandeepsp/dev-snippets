@@ -7,8 +7,8 @@ import {
 	MdErrorOutline,
 	MdOutlineContentCopy,
 	MdOutlineContentPaste,
+	MdOutlineInfo,
 } from 'react-icons/md'
-
 type CodeEditorToolbarProps = {
 	copied: boolean
 	isApiFormatting: boolean
@@ -17,6 +17,8 @@ type CodeEditorToolbarProps = {
 	onToggleErrorAccordion: () => void
 	onCopy: () => void
 	onPaste: () => void
+	onOpenShortcuts: () => void
+	shortcutsHint: string
 }
 
 export function CodeEditorToolbar({
@@ -27,6 +29,8 @@ export function CodeEditorToolbar({
 	onToggleErrorAccordion,
 	onCopy,
 	onPaste,
+	onOpenShortcuts,
+	shortcutsHint,
 }: CodeEditorToolbarProps) {
 	const hasErrors = formattingErrors.length > 0
 
@@ -82,6 +86,18 @@ export function CodeEditorToolbar({
 				aria-label={copied ? 'Copied!' : 'Copy code to clipboard'}
 			>
 				{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				data-tooltip-id="app-tooltip"
+				data-tooltip-content={shortcutsHint}
+				onClick={onOpenShortcuts}
+				className="pointer-events-auto rounded-lg! px-3! py-2! text-lg! transition-all focus:ring-0 focus:outline-none bg-gray-200! text-slate-700! hover:bg-gray-300! dark:bg-slate-800/90! dark:text-slate-200! dark:hover:bg-slate-800!"
+				aria-label="Show editor shortcuts"
+			>
+				<MdOutlineInfo />
 			</Button>
 		</div>
 	)

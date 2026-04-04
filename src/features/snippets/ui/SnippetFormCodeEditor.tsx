@@ -31,6 +31,7 @@ type SnippetFormCodeEditorProps = {
 	onLanguageDetected: (detected: EditorLanguage) => void
 	isSaving: boolean
 	isFormatting: boolean
+	onSave?: () => void
 }
 
 export function SnippetFormCodeEditor({
@@ -42,6 +43,7 @@ export function SnippetFormCodeEditor({
 	onLanguageDetected,
 	isSaving,
 	isFormatting,
+	onSave,
 }: SnippetFormCodeEditorProps) {
 	const codeEditorRef = useRef<{ format: () => void }>(null)
 	const [detectionState, setDetectionState] = useState(false)
@@ -146,6 +148,7 @@ export function SnippetFormCodeEditor({
 				language={formatterLanguage}
 				onLanguageDetected={onLanguageDetected}
 				onDetectingChange={setDetectionState}
+				onSave={onSave}
 				placeholder="Paste your code here..."
 				readOnly={isSaving}
 				minHeight="300px"

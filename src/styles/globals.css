@@ -100,3 +100,13 @@ body {
 .border-default {
 	border-color: rgb(var(--border));
 }
+
+/* ================================
+   Disable Tooltips on Mobile
+================================ */
+
+@media (max-width: 639px) {
+	.react-tooltip {
+		display: none !important;
+	}
+}

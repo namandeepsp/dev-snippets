@@ -37,7 +37,12 @@ export default async function EditSnippetPage({ params }: Props) {
 	return (
 		<RequireAuth fallback={<SnippetFormSkeleton maxWidth="max-w-4xl" />}>
 			<div className="mx-auto max-w-4xl px-4 py-8">
-				<h1 className="mb-6 text-3xl font-bold">Edit Snippet</h1>
+				<h1 className="mb-6 text-3xl font-bold">
+					Edit Snippet
+					<span className="ml-2 hidden text-sm font-normal text-slate-500 sm:inline dark:text-slate-400">
+						(Ctrl/Cmd+S to save)
+					</span>
+				</h1>
 				<SnippetForm mode="edit" snippet={snippet} />
 			</div>
 		</RequireAuth>

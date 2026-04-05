@@ -96,7 +96,13 @@ export function useCodeEditorActions({
 				const result = await formatWithStatusForEditor(text, resolvedLanguage)
 				const formattedText = result.error ? text : result.formattedCode
 				if (editorView) {
-					editorView.dispatch(editorView.state.replaceSelection(formattedText))
+					editorView.dispatch({
+						changes: {
+							from: 0,
+							to: editorView.state.doc.length,
+							insert: formattedText,
+						},
+					})
 					onChange(editorView.state.doc.toString())
 				} else {
 					onChange(formattedText)

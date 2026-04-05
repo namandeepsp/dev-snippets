@@ -110,7 +110,9 @@ export function useCodeEditorActions({
 
 				if (result.error) {
 					toast.warning('Pasted from clipboard (formatting failed)')
+					handleFormattingError(result.error)
 				} else {
+					clearFormattingErrors()
 					toast.success('Pasted from clipboard')
 				}
 			}

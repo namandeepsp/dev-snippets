@@ -10,7 +10,6 @@ import { TECHNOLOGY_COLORS } from '../snippets/core/snippet.colors'
 import type { SnippetTechnology } from '../snippets/core/snippet.types'
 import { LANGUAGE_TO_PRIMARY_TECHNOLOGY } from '../technologies/technologies.config'
 import { TechnologyIcon } from '../technologies/technology-icons'
-import { CodeEditorSkeleton } from './code-editor/CodeEditorSkeleton'
 import { CodeEditorToolbar } from './code-editor/CodeEditorToolbar'
 import { EditorShortcutsModal } from './code-editor/EditorShortcutsModal'
 import { ErrorAccordion } from './code-editor/ErrorAccordion'
@@ -91,6 +90,7 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			value,
 			language,
 			readOnly,
+			editorView,
 			onLanguageDetected,
 			onChange,
 			handleFormattingError: (error: string) => {
@@ -238,73 +238,95 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 							/>
 						</div>
 					</div>
-					<div className="bg-[#303841] dark:bg-[#1E1E1E]">
+					<div className="relative bg-[#303841] dark:bg-[#1E1E1E]">
+						<div className="overflow-auto" style={{ maxHeight }}>
+							<CodeMirror
+								value={value}
+								onChange={onChange}
+								onCreateEditor={(view) => {
+									setEditorView(view)
+									updateHistoryState(view.state)
+								}}
+								onUpdate={(viewUpdate) => {
+									updateHistoryState(viewUpdate.state)
+								}}
+								theme={themeExtension ?? undefined}
+								extensions={[
+									...(languageExtension ? [languageExtension] : []),
+									createPasteHandler(),
+									keymap.of([
+										{
+											key: 'Shift-Alt-f',
+											run: () => {
+												handleFormat()
+												return true
+											},
+										},
+										...(onSave
+											? [
+													{
+														key: 'Mod-s',
+														run: () => {
+															if (!readOnly) {
+																onSave()
+															}
+															return true
+														},
+													},
+												]
+											: []),
+										{
+											key: 'Mod-Shift-/',
+											run: () => {
+												setIsShortcutsOpen(true)
+												return true
+											},
+										},
+									]),
+								]}
+								placeholder={placeholder}
+								readOnly={readOnly}
+								basicSetup={basicSetup}
+								style={{
+									fontSize: '14px',
+									minHeight,
+								}}
+							/>
+						</div>
 						{isApiFormatting ? (
-							<CodeEditorSkeleton />
-						) : (
-							<>
-								<div className="overflow-auto" style={{ maxHeight }}>
-									<CodeMirror
-										value={value}
-										onChange={onChange}
-										onCreateEditor={(view) => {
-											setEditorView(view)
-											updateHistoryState(view.state)
-										}}
-										onUpdate={(viewUpdate) => {
-											updateHistoryState(viewUpdate.state)
-										}}
-										theme={themeExtension ?? undefined}
-										extensions={[
-											...(languageExtension ? [languageExtension] : []),
-											createPasteHandler(),
-											keymap.of([
-												{
-													key: 'Shift-Alt-f',
-													run: () => {
-														handleFormat()
-														return true
-													},
-												},
-												...(onSave
-													? [
-															{
-																key: 'Mod-s',
-																run: () => {
-																	if (!readOnly) {
-																		onSave()
-																	}
-																	return true
-																},
-															},
-														]
-													: []),
-												{
-													key: 'Mod-Shift-/',
-													run: () => {
-														setIsShortcutsOpen(true)
-														return true
-													},
-												},
-											]),
-										]}
-										placeholder={placeholder}
-										readOnly={readOnly}
-										basicSetup={basicSetup}
-										style={{
-											fontSize: '14px',
-											minHeight,
-										}}
-									/>
+							<div className="absolute inset-0 z-10 flex items-center justify-center bg-[#303841]/80 backdrop-blur-[1px] dark:bg-[#1E1E1E]/80">
+								<div className="flex items-center gap-2 rounded-lg bg-black/30 px-3 py-2 text-xs font-semibold text-slate-100 ring-1 ring-white/10">
+									<svg
+										className="h-4 w-4 animate-spin"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										aria-hidden="true"
+									>
+										<circle
+											className="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											strokeWidth="4"
+										/>
+										<path
+											className="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+										/>
+									</svg>
+									Formatting...
 								</div>
-								<EditorShortcutsModal
-									isOpen={isShortcutsOpen}
-									onClose={() => setIsShortcutsOpen(false)}
-									shortcuts={shortcuts}
-								/>
-							</>
-						)}
+							</div>
+						) : null}
 					</div>
+					<EditorShortcutsModal
+						isOpen={isShortcutsOpen}
+						onClose={() => setIsShortcutsOpen(false)}
+						shortcuts={shortcuts}
+					/>
 				</div>
 
 				{/* Error Accordion */}

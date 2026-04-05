@@ -101,7 +101,7 @@ export function CodeEditorToolbar({
 				>
 					<MdOutlineInfo />
 				</Button>
-				<div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#303841] to-transparent sm:hidden dark:from-[#1E1E1E]" />
+				<div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-linear-to-l from-[#303841] to-transparent sm:hidden dark:from-[#1E1E1E]" />
 			</div>
 			<div className="flex items-center gap-1.5 sm:gap-2">
 				<Button

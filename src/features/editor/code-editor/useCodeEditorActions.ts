@@ -1,5 +1,6 @@
 import { toast } from '@/shared/ui/design-system'
 import { logger } from '@/shared/utils/logger'
+import type { EditorView } from '@codemirror/view'
 import type { EditorLanguage } from '../editor.config'
 import { resolvePasteLanguage } from './languageDetection'
 
@@ -7,6 +8,7 @@ interface UseCodeEditorActionsProps {
 	value: string
 	language: EditorLanguage
 	readOnly: boolean
+	editorView?: EditorView | null
 	onLanguageDetected?: (language: EditorLanguage) => void
 	onChange: (value: string) => void
 	handleFormattingError: (error: string) => void
@@ -25,6 +27,7 @@ export function useCodeEditorActions({
 	value,
 	language,
 	readOnly,
+	editorView,
 	onLanguageDetected,
 	onChange,
 	handleFormattingError,
@@ -42,7 +45,21 @@ export function useCodeEditorActions({
 			}
 			// Clear errors on successful format
 			clearFormattingErrors()
-			onChange(result.formattedCode)
+			if (editorView) {
+				const current = editorView.state.doc.toString()
+				if (current !== result.formattedCode) {
+					editorView.dispatch({
+						changes: {
+							from: 0,
+							to: editorView.state.doc.length,
+							insert: result.formattedCode,
+						},
+					})
+				}
+				onChange(editorView.state.doc.toString())
+			} else {
+				onChange(result.formattedCode)
+			}
 		} catch (err) {
 			logger.error('Editor format action failed', err)
 			const errorMsg =
@@ -78,7 +95,12 @@ export function useCodeEditorActions({
 				)
 				const result = await formatWithStatusForEditor(text, resolvedLanguage)
 				const formattedText = result.error ? text : result.formattedCode
-				onChange(formattedText)
+				if (editorView) {
+					editorView.dispatch(editorView.state.replaceSelection(formattedText))
+					onChange(editorView.state.doc.toString())
+				} else {
+					onChange(formattedText)
+				}
 
 				if (result.error) {
 					toast.warning('Pasted from clipboard (formatting failed)')

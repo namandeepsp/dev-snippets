@@ -70,6 +70,7 @@ export function useCodeEditorActions({
 			logger.info('📋 handlePaste called')
 			const text = await navigator.clipboard.readText()
 			if (typeof text === 'string') {
+				if (text.trim().length === 0) return
 				const resolvedLanguage = await resolvePasteLanguage(
 					text,
 					language,

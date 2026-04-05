@@ -1,5 +1,8 @@
 import { useTheme } from '@/shared/hooks/useTheme'
 import { toast } from '@/shared/ui/design-system'
+import { redo, redoDepth, undo, undoDepth } from '@codemirror/commands'
+import type { EditorState } from '@codemirror/state'
+import type { EditorView } from '@codemirror/view'
 import { keymap } from '@codemirror/view'
 import dynamic from 'next/dynamic'
 import React from 'react'
@@ -63,6 +66,9 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 		ref,
 	) {
 		const [isShortcutsOpen, setIsShortcutsOpen] = React.useState(false)
+		const [editorView, setEditorView] = React.useState<EditorView | null>(null)
+		const [canUndo, setCanUndo] = React.useState(false)
+		const [canRedo, setCanRedo] = React.useState(false)
 		const { resolvedTheme } = useTheme()
 		const { languageExtension, themeExtension } = useCodeMirrorExtensions(
 			language,
@@ -115,6 +121,11 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 		React.useImperativeHandle(ref, () => ({
 			format: handleFormat,
 		}))
+
+		const updateHistoryState = React.useCallback((state: EditorState) => {
+			setCanUndo(undoDepth(state) > 0)
+			setCanRedo(redoDepth(state) > 0)
+		}, [])
 
 		const basicSetup = {
 			lineNumbers: true,
@@ -171,14 +182,15 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			languageConfig.formatter === 'none'
 				? 'No formatter'
 				: `Formatter: ${languageConfig.formatter}`
+		const isEditorEmpty = value.trim().length === 0
 
 		return (
 			<div className="space-y-2">
 				<div
 					ref={state.editorRef}
-					className="rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden"
+					className="overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700"
 				>
-					<div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-linear-to-r from-gray-50 via-white to-gray-50 px-3 py-2 dark:border-gray-700 dark:from-slate-900/60 dark:via-slate-900/40 dark:to-slate-900/60">
+					<div className="flex flex-col gap-3 border-b border-white/10 bg-[#303841] px-3 py-2 text-slate-100 sm:flex-row sm:items-center sm:justify-between sm:gap-2 dark:bg-[#1E1E1E]">
 						<div className="flex items-center gap-3">
 							<div
 								className={`flex h-8 w-8 items-center justify-center rounded-[25%] ${headerColorClass} text-base shadow-sm`}
@@ -190,28 +202,41 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 								/>
 							</div>
 							<div className="flex flex-col">
-								<span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+								<span className="text-sm font-semibold text-slate-100">
 									{languageConfig.label} Editor
 								</span>
-								<span className="text-xs text-slate-500 dark:text-slate-400">
-									{formatterLabel}
-								</span>
+								<span className="text-xs text-slate-300">{formatterLabel}</span>
 							</div>
 						</div>
-						<CodeEditorToolbar
-							copied={state.copied}
-							readOnly={readOnly}
-							formattingErrors={state.formattingErrors}
-							onToggleErrorAccordion={state.handleErrorButtonClick}
-							onCopy={async () => {
-								await handleCopy()
-								state.setCopied(true)
-								setTimeout(() => state.setCopied(false), 2000)
-							}}
-							onPaste={handlePaste}
-							onOpenShortcuts={() => setIsShortcutsOpen(true)}
-							shortcutsHint="Show shortcuts (Ctrl+Shift+/ or Cmd+Shift+/)"
-						/>
+						<div className="relative mt-1 w-full border-t border-white/10 pt-2 sm:mt-0 sm:w-auto sm:border-0 sm:pt-0">
+							<CodeEditorToolbar
+								copied={state.copied}
+								readOnly={readOnly}
+								canUndo={canUndo}
+								canRedo={canRedo}
+								isEditorEmpty={isEditorEmpty}
+								formattingErrors={state.formattingErrors}
+								onToggleErrorAccordion={state.handleErrorButtonClick}
+								onUndo={() => {
+									if (editorView && !readOnly) {
+										undo(editorView)
+									}
+								}}
+								onRedo={() => {
+									if (editorView && !readOnly) {
+										redo(editorView)
+									}
+								}}
+								onCopy={async () => {
+									await handleCopy()
+									state.setCopied(true)
+									setTimeout(() => state.setCopied(false), 2000)
+								}}
+								onPaste={handlePaste}
+								onOpenShortcuts={() => setIsShortcutsOpen(true)}
+								shortcutsHint="Show shortcuts (Ctrl+Shift+/ or Cmd+Shift+/)"
+							/>
+						</div>
 					</div>
 					<div className="bg-[#303841] dark:bg-[#1E1E1E]">
 						{isApiFormatting ? (
@@ -222,6 +247,13 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 									<CodeMirror
 										value={value}
 										onChange={onChange}
+										onCreateEditor={(view) => {
+											setEditorView(view)
+											updateHistoryState(view.state)
+										}}
+										onUpdate={(viewUpdate) => {
+											updateHistoryState(viewUpdate.state)
+										}}
 										theme={themeExtension ?? undefined}
 										extensions={[
 											...(languageExtension ? [languageExtension] : []),

@@ -10,35 +10,13 @@ import type { SnippetPort } from '../core/snippet.port'
 import type { Snippet } from '../core/snippet.types'
 import type { SnippetAPIClient } from '../infra/client/snippet-api.client'
 
-/**
- * ============================================================================
- * SNIPPET PORT ADAPTER
- * ============================================================================
- *
- * Adapts the API client and repository to the port interface.
- *
- * This is the glue between:
- * - Client components (via API client)
- * - Server components (via repository)
- * - The service layer (via port interface)
- *
- * The adapter decides which implementation to use based on context:
- * - Write operations → API client (go through server actions)
- * - Read operations → Repository (direct database access)
- */
-
 export class SnippetPortAdapter implements SnippetPort {
 	constructor(
 		private readonly apiClient: SnippetAPIClient,
 		private readonly repository: SnippetRepository,
 	) {}
 
-	/* ----------------------------------------------------------------------- */
-	/* WRITE OPERATIONS - Use API Client (server actions)
-    /* ----------------------------------------------------------------------- */
-
 	async create(input: CreateSnippetInput): Promise<Snippet> {
-		// Convert repository input to service input for client
 		const {
 			ownerId,
 			ownerName,
@@ -61,14 +39,9 @@ export class SnippetPortAdapter implements SnippetPort {
 		return this.apiClient.delete(id)
 	}
 
-	// ✅ MOVED: incrementViews is a WRITE operation
 	async incrementViews(id: string): Promise<void> {
 		return this.apiClient.incrementViews(id)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* READ OPERATIONS - Use Repository (direct database access)
-    /* ----------------------------------------------------------------------- */
 
 	async getById(id: string): Promise<Snippet | null> {
 		return this.repository.getById(id)
@@ -91,8 +64,4 @@ export class SnippetPortAdapter implements SnippetPort {
 	): Promise<Snippet[]> {
 		return this.repository.listByVisibility(visibility, userId)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* UTILITY OPERATIONS - All moved to appropriate sections above
-    /* ----------------------------------------------------------------------- */
 }

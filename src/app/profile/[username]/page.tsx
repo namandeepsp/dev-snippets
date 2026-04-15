@@ -14,19 +14,6 @@ type Props = {
 
 const PROFILE_PAGE_SIZE = 6
 
-/**
- * ============================================================================
- * PROFILE PAGE
- * ============================================================================
- *
- * Server Component that displays a user's public profile and their snippets.
- *
- * Why Server Component?
- * - Public data - No client state needed
- * - SEO - Profile pages should be indexable
- * - Performance - Direct database access, no API round trip
- */
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { username } = await params
 	const user = await userService.getPublicProfile(username)
@@ -60,7 +47,6 @@ export default async function ProfilePage({ params }: Props) {
 	try {
 		currentUser = await getCurrentServerUser()
 	} catch {
-		// Continue as guest when session is invalid/missing
 		logger.warn('No valid session found, rendering profile as guest')
 	}
 
@@ -83,9 +69,7 @@ export default async function ProfilePage({ params }: Props) {
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-8">
-			{/* Profile Header */}
 			<div className="mb-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-				{/* Avatar */}
 				<div className="shrink-0">
 					{user.avatarUrl ? (
 						<img
@@ -102,7 +86,6 @@ export default async function ProfilePage({ params }: Props) {
 					)}
 				</div>
 
-				{/* Profile Info */}
 				<div className="flex-1">
 					<div className="flex flex-col gap-2">
 						<h1 className="text-3xl font-bold tracking-tight">{user.name}</h1>
@@ -116,7 +99,6 @@ export default async function ProfilePage({ params }: Props) {
 						)}
 					</div>
 
-					{/* Stats */}
 					<div className="mt-4 flex gap-6">
 						<div className="flex items-center gap-2">
 							<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -128,7 +110,6 @@ export default async function ProfilePage({ params }: Props) {
 				</div>
 			</div>
 
-			{/* User's Snippets */}
 			<div>
 				<div className="mb-6 flex items-center justify-between">
 					<h2 className="text-2xl font-bold tracking-tight">Snippets</h2>

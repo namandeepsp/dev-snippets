@@ -12,17 +12,6 @@ import type {
 	FormatResult,
 } from './formatter.types'
 
-/**
- * ============================================================================
- * BLACK FORMATTER
- * ============================================================================
- *
- * Python code formatter using Black.
- *
- * Note: This is a server-side formatter because Black requires Python.
- * The client sends code to the /api/format/python endpoint.
- */
-
 const blackFormatter: CodeFormatter = {
 	name: 'black',
 
@@ -37,7 +26,6 @@ const blackFormatter: CodeFormatter = {
 				language: normalizePythonLanguage(request.language),
 			}
 
-			// Client-side: Call server endpoint
 			const response = await fetch('/api/format/python', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -65,7 +53,6 @@ const blackFormatter: CodeFormatter = {
 		} catch (error) {
 			logger.error('Black formatting failed', error)
 
-			// Fallback: Return original code
 			return {
 				formattedCode: request.code,
 				error:
@@ -77,7 +64,6 @@ const blackFormatter: CodeFormatter = {
 	},
 }
 
-// Auto-register on import
 formatterRegistry.register(blackFormatter)
 
 export default blackFormatter

@@ -8,7 +8,6 @@ import { useEffect } from 'react'
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
-		// Initialize language detection capabilities
 		formatterRegistry.initializeLanguageDetection().catch((error) => {
 			logger.warn('Failed to initialize language detection:', error)
 		})

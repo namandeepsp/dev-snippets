@@ -8,10 +8,6 @@ interface ErrorAccordionProps {
 	ref?: React.RefObject<HTMLDivElement>
 }
 
-/**
- * Error accordion component for displaying formatting errors.
- * Shows errors in a collapsible accordion with smooth scrolling.
- */
 export const ErrorAccordion = React.forwardRef<
 	HTMLDivElement,
 	ErrorAccordionProps

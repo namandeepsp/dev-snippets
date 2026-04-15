@@ -19,10 +19,6 @@ interface UseCodeEditorActionsProps {
 	) => Promise<{ formattedCode: string; error?: string }>
 }
 
-/**
- * Action handlers for CodeEditor.
- * Handles: format, copy, paste operations.
- */
 export function useCodeEditorActions({
 	value,
 	language,
@@ -43,7 +39,6 @@ export function useCodeEditorActions({
 				handleFormattingError(result.error)
 				return
 			}
-			// Clear errors on successful format
 			clearFormattingErrors()
 			if (editorView) {
 				const current = editorView.state.doc.toString()

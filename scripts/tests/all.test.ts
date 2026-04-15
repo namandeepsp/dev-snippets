@@ -8,7 +8,6 @@ import { AuthScript } from '../features/auth.script';
 
 describe('All Features', () => {
   beforeAll(async () => {
-    // Setup: Clear and seed database
     await new ClearScript().run();
     await new SeedScript().run();
   });

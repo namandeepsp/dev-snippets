@@ -4,14 +4,6 @@ import { formatDate } from '@/shared/utils/date'
 import Link from 'next/link'
 import { LuHeart } from 'react-icons/lu'
 
-/**
- * ============================================================================
- * SNIPPET VIEWER METADATA
- * ============================================================================
- *
- * Displays author info, stats (views/likes), and timestamps.
- */
-
 interface Author {
 	id: string
 	username: string
@@ -43,7 +35,6 @@ export function SnippetViewerMetadata({
 	return (
 		<div className="space-y-3 border-y border-default py-4">
 			<div className="flex items-start justify-between gap-3">
-				{/* Author */}
 				<Link
 					href={`/profile/${author.username}`}
 					className="flex min-w-0 items-center gap-3 transition hover:opacity-80"
@@ -67,7 +58,6 @@ export function SnippetViewerMetadata({
 					</div>
 				</Link>
 
-				{/* Stats */}
 				<div className="flex shrink-0 items-center gap-4 text-sm text-gray-500">
 					<span
 						className="flex items-center gap-1"
@@ -88,7 +78,6 @@ export function SnippetViewerMetadata({
 				</div>
 			</div>
 
-			{/* Dates */}
 			<div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 sm:justify-end">
 				<time
 					dateTime={new Date(createdAt).toISOString()}

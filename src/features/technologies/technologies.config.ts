@@ -147,7 +147,6 @@ export const CATEGORIES: SnippetCategory[] = [
 	'microservices',
 ]
 
-// Map technologies to their categories
 export const TECHNOLOGY_CATEGORY_MAP: Record<
 	SnippetTechnology,
 	SnippetCategory[]

@@ -32,16 +32,23 @@ Server Action / Route / Script
 
 ```
 core/
-  auth.port.ts
-  auth.types.ts
+  auth.port.ts                     # AuthPort interface
+  auth.types.ts                    # Auth domain types
 infra/client/
-  firebase-auth.client.ts          # browser auth implementation
-  firebase-admin-auth.client.ts    # server auth implementation
+  firebase-auth.client.ts          # Browser auth implementation
+  firebase-admin-auth.client.ts    # Server auth implementation
+  auth-api.client.ts               # API client interface
+  auth-api.factory.ts              # Factory for API client selection
+  firebase-auth-errors.utils.ts    # Error handling utilities
+  firebase-auth-providers.utils.ts # OAuth provider utilities
+  firebase-auth-session.utils.ts   # Session management utilities
 ui/
-  store/auth.store.tsx
-auth.client.container.ts           # exports authPort for client code
-auth.server.container.ts           # exports authServerPort for server code
-auth.container.ts                  # backward-compatible client alias
+  store/auth.store.tsx             # Auth state management
+  RequireAuth.tsx                  # Auth guard component
+auth.client.container.ts           # Client-side DI container
+auth.server.container.ts           # Server-side DI container
+auth.container.ts                  # Backward-compatible alias
+auth.actions.ts                    # Server actions for auth flows
 ```
 
 ### User (`src/features/user`)
@@ -65,22 +72,53 @@ user.container.ts                  # wires UserService + FirebaseUserRepository
 
 ```
 core/
-  snippet.types.ts
-  snippet.port.ts
-  snippet.service.ts
-  repositories/snippet.repository.ts
+  snippet.types.ts                 # Domain types
+  snippet.port.ts                  # SnippetPort interface
+  snippet.service.ts               # Main service orchestrator
+  snippet.read-service.ts          # Read operations (queries)
+  snippet.sharing-service.ts       # Sharing logic
+  snippet.version-service.ts       # Version management
+  snippet.validator.ts             # Input validation
+  snippet.model.ts                 # Domain model helpers
+  snippet.colors.ts                # Technology color mappings
+  repositories/
+    snippet.repository.ts           # Repository port interface
 infra/repositories/
-  firebase-snippet.repository.ts
+  firebase-snippet.repository.ts   # Main repository implementation
+  firebase-snippet.repository.read.ts
+  firebase-snippet.repository.read-paginated.ts
+  firebase-snippet.repository.write.ts
+  firebase-snippet.repository.meta.ts
+  firebase-snippet.batch.ts        # Batch operations
+  firebase-snippet.mapper.ts       # Firestore ↔ Domain mapping
+  firebase-snippet.sort.ts         # Sorting utilities
 infra/client/
-  snippet-api.client.ts
-  snippet-api.factory.ts
-  server-action.client.ts
+  snippet-api.client.ts            # API client interface
+  snippet-api.factory.ts           # Factory for API mode selection
+  server-action.client.ts          # Server action wrapper
 adapters/
-  snippet-port.adapter.ts
-snippet.actions.ts
-snippet.client.container.ts
-snippet.server.container.ts
-snippet.container.ts               # backward-compatible server alias
+  snippet-port.adapter.ts          # Routes reads to repo, writes to actions
+ui/
+  code/
+    CodeBlock.tsx                  # Code display component
+    CodeBlockHeader.tsx
+    CodeBlockFooter.tsx
+    codemirror-extensions.ts
+    code-block-actions.ts
+  SnippetCard.tsx                  # Snippet preview card
+  SnippetForm.tsx                  # Create/edit form
+  SnippetViewer.tsx                # Full snippet view
+  SnippetVersionHistory.tsx        # Version management UI
+  SnippetFormCodeEditor.tsx        # Code editor integration
+  useSnippetForm.ts                # Form state hook
+  useSnippetFormSubmission.ts      # Form submission logic
+  useSnippetFormValidation.ts      # Form validation hook
+snippet.actions.ts                 # Server actions
+snippet.client.container.ts        # Client-side DI
+snippet.server.container.ts        # Server-side DI
+snippet.container.ts               # Backward-compatible alias
+snippet.auth-helpers.ts            # Auth utilities
+snippet.search-utils.ts            # Search/filter utilities
 ```
 
 ## Hexagonal Boundaries
@@ -315,6 +353,18 @@ describe('Snippet Feature', () => {
 - Abstract API layer
 - Interface-based repositories
 - Environment-based configuration
+
+### 6. Error Handling
+- Centralize error types in `shared/errors/`
+- Use feature-specific error utilities (e.g., `firebase-auth-errors.utils.ts`)
+- Provide meaningful error messages
+- Log errors with context
+
+### 7. Service Composition
+- Main service orchestrates domain logic
+- Delegate specialized operations to sub-services
+- Keep each service focused and testable
+- Example: `SnippetService` delegates to `SnippetReadService`, `SnippetVersionService`, `SnippetSharingService`
 
 ---
 

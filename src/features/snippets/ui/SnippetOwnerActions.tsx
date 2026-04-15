@@ -3,14 +3,6 @@
 import { Button } from '@/shared/ui/design-system'
 import Link from 'next/link'
 
-/**
- * ============================================================================
- * SNIPPET OWNER ACTIONS
- * ============================================================================
- *
- * Edit and delete buttons for snippet owner.
- */
-
 interface SnippetOwnerActionsProps {
 	snippetId: string
 	isDeleting: boolean

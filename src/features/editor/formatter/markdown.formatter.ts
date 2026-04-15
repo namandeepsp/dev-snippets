@@ -9,15 +9,6 @@ import type {
 	FormatResult,
 } from './formatter.types'
 
-/**
- * ============================================================================
- * MARKDOWN FORMATTER
- * ============================================================================
- *
- * Markdown code formatter using Prettier.
- * Runs entirely in the browser.
- */
-
 const markdownFormatter: CodeFormatter = {
 	name: 'markdown',
 
@@ -49,7 +40,6 @@ const markdownFormatter: CodeFormatter = {
 	},
 }
 
-// Auto-register on import
 formatterRegistry.register(markdownFormatter)
 
 export default markdownFormatter

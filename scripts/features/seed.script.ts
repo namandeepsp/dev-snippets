@@ -16,7 +16,7 @@ import { expressSnippets } from '../data/expressSnippets.templates';
 import { REACT_SNIPPET_TEMPLATES } from '../data/reactSnippets.templates';
 import { USER_TEMPLATES } from '../data/user.templates';
 
-const DEFAULT_SEED_SNIPPET_COUNT = -1; // -1 means use all available templates
+const DEFAULT_SEED_SNIPPET_COUNT = -1;
 
 type SeedOwner = {
   id: string;
@@ -51,7 +51,6 @@ export class SeedScript extends BaseScript {
     await this.ensureReady();
     this.log('Seeding snippets...');
 
-    // Get all users from Firestore that match our template emails
     const templateEmails = USER_TEMPLATES.map(t => t.email);
     const usersSnapshot = await adminDb.collection('users')
       .where('email', 'in', templateEmails)
@@ -71,7 +70,6 @@ export class SeedScript extends BaseScript {
 
     const snippets = this.getSampleSnippets(this.getSeedCount(), owners);
     
-    // Randomly shuffle snippets before inserting
     const shuffledSnippets = this.shuffleArray(snippets);
 
     for (const snippet of shuffledSnippets) {
@@ -86,7 +84,6 @@ export class SeedScript extends BaseScript {
     if (Number.isInteger(parsed) && parsed > 0) {
       return parsed;
     }
-    // Return -1 to use all available templates
     return DEFAULT_SEED_SNIPPET_COUNT;
   }
 
@@ -104,7 +101,6 @@ export class SeedScript extends BaseScript {
     const totalTemplates = USEFUL_SNIPPET_TEMPLATES.length;
     const snippets: Omit<FirestoreSnippet, 'id'>[] = [];
 
-    // If count is -1, use all templates; otherwise use the specified count
     const actualCount = count === -1 ? totalTemplates : Math.min(count, totalTemplates);
     
     for (let index = 0; index < actualCount; index++) {
@@ -112,9 +108,8 @@ export class SeedScript extends BaseScript {
       const owner = owners[index % owners.length];
       const createdAt = now - index * 60_000;
 
-      // Random private count between 2-5 per 20 snippets
       const cyclePosition = index % 20;
-      const privateCount = Math.floor(Math.random() * 4) + 2; // 2-5
+      const privateCount = Math.floor(Math.random() * 4) + 2;
       const isPrivate = cyclePosition >= (20 - privateCount);
       const visibility = isPrivate ? 'private' : 'public';
 

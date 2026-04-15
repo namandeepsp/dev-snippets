@@ -24,7 +24,7 @@ export function ContactForm({ recipientEmail }: ContactFormProps) {
 	}, [hasPrefilledEmail, user?.email])
 
 	const canSubmit = useMemo(() => {
-		return Boolean(email.trim() && subject.trim() && description.trim()) // Limit subject to 100 chars for better email formatting
+		return Boolean(email.trim() && subject.trim() && description.trim())
 	}, [email, subject, description])
 
 	function handleSubmit(e: SubmitEvent<HTMLFormElement>) {

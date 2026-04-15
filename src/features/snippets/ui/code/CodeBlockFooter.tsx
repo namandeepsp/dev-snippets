@@ -2,14 +2,6 @@
 
 import { LuFileText } from 'react-icons/lu'
 
-/**
- * ============================================================================
- * CODE BLOCK FOOTER
- * ============================================================================
- *
- * Footer component displaying code statistics (lines, characters, language).
- */
-
 interface CodeBlockFooterProps {
 	lineCount: number
 	code: string

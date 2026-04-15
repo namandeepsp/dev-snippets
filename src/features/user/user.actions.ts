@@ -9,20 +9,6 @@ import type { PublicUser, UpdateUserDTO } from './core/user.types'
 import type { ApiResponse } from './infra/client/user-api.client'
 import { userService } from './user.container'
 
-/**
- * ============================================================================
- * SERVER ACTIONS
- * ============================================================================
- *
- * These are the actual implementations called by ServerActionUserClient.
- * They are NOT imported directly by UI components.
- * UI components go through UserApiClient interface.
- */
-
-/* ----------------------------------------------------------------------- */
-/* AUTHENTICATION HELPER
-/* ----------------------------------------------------------------------- */
-
 async function requireAuth() {
 	const auth = getServerFirebaseAuth()
 	const cookieStore = await cookies()
@@ -39,10 +25,6 @@ async function requireAuth() {
 		throw new Error('Invalid or expired session')
 	}
 }
-
-/* ----------------------------------------------------------------------- */
-/* READ ACTIONS
-/* ----------------------------------------------------------------------- */
 
 export async function getUserProfile(
 	username: string,
@@ -73,10 +55,6 @@ export async function getUsersByIds(
 		}
 	}
 }
-
-/* ----------------------------------------------------------------------- */
-/* WRITE ACTIONS
-/* ----------------------------------------------------------------------- */
 
 export async function updateUserProfile(
 	input: UpdateUserDTO,
@@ -115,10 +93,8 @@ export async function deleteUserAccount(): Promise<ApiResponse> {
 		const userId = decodedUser.uid
 		const auth = getServerFirebaseAuth()
 
-		// Remove all snippet-related data tied to this user.
 		await snippetService.cleanupUserData(userId)
 
-		// Delete profile and auth account.
 		await userService.deleteUser(userId, userId)
 		await auth.deleteUser(userId)
 

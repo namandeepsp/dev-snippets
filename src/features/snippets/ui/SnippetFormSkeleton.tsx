@@ -89,7 +89,6 @@ function EditorLikeSkeleton({
 			<div className={`${heightClassName} px-4 py-4`}>
 				<div className="space-y-3">
 					{Array.from({ length: lineCount }).map((_, idx) => (
-						// Mirror editor active-line highlight for loading state.
 						<Skeleton
 							key={idx}
 							className={`h-3 ${lineWidths[idx % lineWidths.length]} rounded-sm ${

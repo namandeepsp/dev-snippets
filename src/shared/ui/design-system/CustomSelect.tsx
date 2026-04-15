@@ -39,7 +39,6 @@ export function CustomSelect({
 	const wrapperRef = useRef<HTMLDivElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
 
-	// Sync internal value with prop value when value changes
 	useEffect(() => {
 		if (value !== internalValue) {
 			setInternalValue(value)

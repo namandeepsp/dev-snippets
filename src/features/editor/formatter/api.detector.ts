@@ -3,10 +3,6 @@ import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
 import { SUPPORTED_LANGUAGES } from '../editor.config'
 
-/**
- * Backend API integration for language detection.
- * Handles API calls to detect language and fetch supported languages.
- */
 export class ApiDetector {
 	private apiBackedLanguages: EditorLanguage[] = []
 
@@ -22,7 +18,6 @@ export class ApiDetector {
 
 			const data = await response.json()
 
-			// Check if API returned success
 			if (!data?.success) {
 				throw new Error(data?.error || 'API returned success: false')
 			}
@@ -68,13 +63,11 @@ export class ApiDetector {
 			const data = await response.json()
 			logger.info('🔍 API detect response:', data)
 
-			// Check success flag
 			if (!data?.success) {
 				logger.info('🔍 API detect failed: success flag false')
 				return null
 			}
 
-			// Extract language from nested data: data.data.language
 			const detected =
 				typeof data?.data?.language === 'string'
 					? data.data.language.toLowerCase()

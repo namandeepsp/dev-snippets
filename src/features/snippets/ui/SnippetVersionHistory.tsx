@@ -4,14 +4,6 @@ import { Button } from '@/shared/ui/design-system'
 import { formatDate } from '@/shared/utils/date'
 import type { SnippetVersion } from '../core/snippet.types'
 
-/**
- * ============================================================================
- * SNIPPET VERSION HISTORY
- * ============================================================================
- *
- * Displays version history with last 3 versions and "view all" link.
- */
-
 interface SnippetVersionHistoryProps {
 	versions: SnippetVersion[]
 	authorName: string

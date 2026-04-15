@@ -4,17 +4,6 @@ import { ApiDetector } from './api.detector'
 import { HeuristicsDetector } from './heuristics.detector'
 import { HighlightDetector } from './highlight.detector'
 
-/**
- * ============================================================================
- * LANGUAGE DETECTION ORCHESTRATOR
- * ============================================================================
- *
- * Coordinates multiple detection strategies:
- * 1. Heuristics (regex patterns) - fast, no dependencies
- * 2. Highlight.js - accurate for common languages
- * 3. Backend API - most accurate for API-backed languages
- */
-
 export class LanguageDetector {
 	private heuristicsDetector = new HeuristicsDetector()
 	private highlightDetector = new HighlightDetector()
@@ -54,13 +43,11 @@ export class LanguageDetector {
 			const apiDetected = await this.apiDetector.detectFromApi(code)
 			logger.info('🔍 API-backed language, API detected:', apiDetected)
 
-			// If API detected a different language, use it
 			if (apiDetected && apiDetected !== currentLanguage) {
 				onLanguageDetected?.(apiDetected)
 				return apiDetected
 			}
 
-			// If API detected same language or nothing, try client-side detection as fallback
 			if (!apiDetected) {
 				logger.info(
 					'🔍 API detection failed, trying client-side detection as fallback',
@@ -69,8 +56,6 @@ export class LanguageDetector {
 				logger.info('🔍 Client-side fallback detected:', clientDetected)
 
 				if (clientDetected && clientDetected !== currentLanguage) {
-					// Only accept client detection if it's NOT an API-backed language
-					// (to avoid false positives for API-backed languages)
 					if (!this.isApiBackedLanguage(clientDetected)) {
 						logger.info('🔍 Accepting client-side fallback:', clientDetected)
 						onLanguageDetected?.(clientDetected)
@@ -113,11 +98,8 @@ export class LanguageDetector {
 	}
 
 	private shouldAcceptClientDetection(_language: EditorLanguage): boolean {
-		// For now, accept all client detections
-		// Could be enhanced to track detection source and apply rules
 		return true
 	}
 }
 
-// Singleton instance
 export const languageDetector = new LanguageDetector()

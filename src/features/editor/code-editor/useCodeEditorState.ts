@@ -1,9 +1,4 @@
 import { useRef, useState } from 'react'
-
-/**
- * State management for CodeEditor component.
- * Handles: copied status, formatting errors, error accordion.
- */
 export function useCodeEditorState() {
 	const [copied, setCopied] = useState(false)
 	const [formattingErrors, setFormattingErrors] = useState<string[]>([])
@@ -23,7 +18,6 @@ export function useCodeEditorState() {
 
 	const handleErrorButtonClick = () => {
 		setIsErrorAccordionOpen(true)
-		// Scroll to the error accordion
 		setTimeout(() => {
 			errorAccordionRef.current?.scrollIntoView({
 				behavior: 'smooth',
@@ -33,17 +27,14 @@ export function useCodeEditorState() {
 	}
 
 	return {
-		// State
 		copied,
 		formattingErrors,
 		isErrorAccordionOpen,
 		errorAccordionRef,
 		editorRef,
-		// Setters
 		setCopied,
 		setFormattingErrors,
 		setIsErrorAccordionOpen,
-		// Handlers
 		handleFormattingError,
 		clearFormattingErrors,
 		handleErrorButtonClick,

@@ -1,9 +1,5 @@
 import type { IBaseService } from './base-service.interface'
 
-/**
- * Base Repository Interface
- * Repository layer that the base service depends on
- */
 export interface IBaseRepository<T, CreateInput, UpdateInput> {
 	create(input: CreateInput): Promise<T>
 	getById(id: string): Promise<T | null>
@@ -11,11 +7,6 @@ export interface IBaseRepository<T, CreateInput, UpdateInput> {
 	delete(id: string): Promise<void>
 }
 
-/**
- * Abstract Base Service
- * Implements common CRUD operations
- * Extend this class for feature-specific services
- */
 export abstract class BaseService<T, CreateInput, UpdateInput>
 	implements IBaseService<T, CreateInput, UpdateInput>
 {

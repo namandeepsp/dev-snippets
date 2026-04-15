@@ -21,9 +21,7 @@ export async function getProfileSnippetsPage({
 
 	try {
 		currentUser = await getCurrentServerUser()
-	} catch {
-		// Continue as guest when session is invalid/missing
-	}
+	} catch {}
 
 	return snippetService.listProfileByUsernamePaginated(
 		username,

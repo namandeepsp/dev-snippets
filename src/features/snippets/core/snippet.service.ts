@@ -11,22 +11,6 @@ import type { Snippet } from './snippet.types'
 import { SnippetValidator } from './snippet.validator'
 import { SnippetVersionService } from './snippet.version-service'
 
-/**
- * ============================================================================
- * SNIPPET SERVICE
- * ============================================================================
- *
- * Orchestrates snippet-related operations with business logic.
- *
- * Key responsibilities:
- * 1. Validate business rules
- * 2. Enrich data with ownership metadata
- * 3. Handle versioning
- * 4. Authorization checks
- *
- * This is the PUBLIC API for server components.
- */
-
 export class SnippetService {
 	private readService: SnippetReadService
 	private versionService: SnippetVersionService
@@ -41,18 +25,6 @@ export class SnippetService {
 		this.sharingService = new SnippetSharingService(snippetRepository)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* CREATE
-	/* ----------------------------------------------------------------------- */
-
-	/**
-	 * Create a new snippet.
-	 *
-	 * Business rules:
-	 * 1. User must be authenticated
-	 * 2. Title and code are required
-	 * 3. Creates initial version
-	 */
 	async createSnippet(
 		input: CreateSnippetServiceInput,
 		userId: string,
@@ -82,10 +54,6 @@ export class SnippetService {
 
 		return this.snippetPort.create(createInput)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* READ - Delegated to SnippetReadService
-	/* ----------------------------------------------------------------------- */
 
 	getById(id: string) {
 		return this.readService.getById(id)
@@ -153,17 +121,6 @@ export class SnippetService {
 		return this.readService.listByVisibility(visibility, userId)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* UPDATE
-	/* ----------------------------------------------------------------------- */
-
-	/**
-	 * Update a snippet.
-	 *
-	 * Business rules:
-	 * 1. User must be the owner
-	 * 2. Creates new version if code changes
-	 */
 	async updateSnippet(
 		snippetId: string,
 		input: any,
@@ -185,7 +142,6 @@ export class SnippetService {
 			updatedAt: Date.now(),
 		}
 
-		// If code is being updated, create a new version
 		if (input.code && input.code !== snippet.code) {
 			const { createNextVersion } = await import('./snippet.model')
 			const newVersion = createNextVersion(snippet, input.code, userId)
@@ -195,16 +151,6 @@ export class SnippetService {
 		await this.snippetRepository.update(snippetId, updateInput)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* DELETE
-	/* ----------------------------------------------------------------------- */
-
-	/**
-	 * Delete a snippet (soft delete).
-	 *
-	 * Business rules:
-	 * 1. User must be the owner
-	 */
 	async deleteSnippet(snippetId: string, userId: string): Promise<void> {
 		const snippet = await this.snippetRepository.getById(snippetId)
 
@@ -219,17 +165,9 @@ export class SnippetService {
 		await this.snippetRepository.delete(snippetId)
 	}
 
-	/**
-	 * Permanently clean up all snippet-related data for a user.
-	 * Used during account deletion.
-	 */
 	async cleanupUserData(userId: string): Promise<void> {
 		await this.snippetRepository.cleanupUserData(userId)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* VERSION CONTROL - Delegated to SnippetVersionService
-	/* ----------------------------------------------------------------------- */
 
 	restoreVersion(snippetId: string, versionNumber: number, userId: string) {
 		return this.versionService.restoreVersion(snippetId, versionNumber, userId)
@@ -238,10 +176,6 @@ export class SnippetService {
 	getVersionHistory(snippetId: string, userId?: string) {
 		return this.versionService.getVersionHistory(snippetId, userId)
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* SHARING - Delegated to SnippetSharingService
-	/* ----------------------------------------------------------------------- */
 
 	shareWithUsers(
 		snippetId: string,
@@ -267,14 +201,6 @@ export class SnippetService {
 		)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* UTILITIES
-	/* ----------------------------------------------------------------------- */
-
-	/**
-	 * Increment view count.
-	 * Fire-and-forget, doesn't throw.
-	 */
 	async incrementViews(snippetId: string): Promise<void> {
 		try {
 			await this.snippetRepository.incrementViews(snippetId)
@@ -285,24 +211,14 @@ export class SnippetService {
 		}
 	}
 
-	/**
-	 * Toggle like on a snippet.
-	 * Returns true if liked, false if unliked.
-	 */
 	async toggleLike(snippetId: string, userId: string): Promise<boolean> {
 		return this.snippetRepository.toggleLike(snippetId, userId)
 	}
 
-	/**
-	 * Check if a user has liked a snippet.
-	 */
 	async checkLikeStatus(snippetId: string, userId: string): Promise<boolean> {
 		return this.snippetRepository.checkLikeStatus(snippetId, userId)
 	}
 
-	/**
-	 * Get all snippet IDs that a user has liked.
-	 */
 	async getLikedSnippetIds(userId: string): Promise<string[]> {
 		return this.snippetRepository.getLikedSnippetIds(userId)
 	}

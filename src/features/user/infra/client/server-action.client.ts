@@ -1,24 +1,11 @@
 import type { PublicUser, UpdateUserDTO } from '../../core/user.types'
-import type { UserApiClient } from './user-api.client'
-
-/**
- * ============================================================================
- * SERVER ACTION IMPLEMENTATION
- * ============================================================================
- *
- * Implements UserApiClient using Next.js Server Actions.
- *
- * This is the DEFAULT implementation for serverless deployments.
- * Each method calls a corresponding server action and handles the response.
- */
-
-// Import server actions
 import {
 	deleteUserAccount,
 	getUserProfile,
 	getUsersByIds,
 	updateUserProfile,
 } from '../../user.actions'
+import type { UserApiClient } from './user-api.client'
 
 export class ServerActionUserClient implements UserApiClient {
 	async getProfile(username: string): Promise<PublicUser | null> {

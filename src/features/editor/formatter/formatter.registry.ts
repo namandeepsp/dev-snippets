@@ -3,22 +3,9 @@ import type { EditorLanguage } from '../editor.config'
 import type { CodeFormatter, FormatRequest } from './formatter.types'
 import { languageDetector } from './languageDetector'
 
-/**
- * ============================================================================
- * FORMATTER REGISTRY
- * ============================================================================
- *
- * Central registry for all code formatters.
- * Language detection is handled by the separate LanguageDetector utility.
- */
-
 class FormatterRegistry {
 	private formatters: Map<EditorLanguage, CodeFormatter> = new Map()
 	private fallbackFormatters: CodeFormatter[] = []
-
-	/* ----------------------------------------------------------------------- */
-	/* REGISTRATION
-	/* ----------------------------------------------------------------------- */
 
 	register(formatter: CodeFormatter): void {
 		const languages = this.getSupportedLanguages(formatter)
@@ -35,10 +22,6 @@ class FormatterRegistry {
 	registerAll(formatters: CodeFormatter[]): void {
 		formatters.forEach((formatter) => this.register(formatter))
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* FORMATTING
-	/* ----------------------------------------------------------------------- */
 
 	getFormatter(language: EditorLanguage): CodeFormatter | null {
 		return this.formatters.get(language) || null
@@ -107,10 +90,6 @@ class FormatterRegistry {
 		return code
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* LANGUAGE DETECTION
-	/* ----------------------------------------------------------------------- */
-
 	async initializeLanguageDetection(): Promise<void> {
 		await languageDetector.initialize()
 	}
@@ -135,10 +114,6 @@ class FormatterRegistry {
 		)
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* UTILITIES
-	/* ----------------------------------------------------------------------- */
-
 	hasFormatter(language: EditorLanguage): boolean {
 		return this.formatters.has(language)
 	}
@@ -147,10 +122,6 @@ class FormatterRegistry {
 		this.formatters.clear()
 		this.fallbackFormatters = []
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* PRIVATE
-	/* ----------------------------------------------------------------------- */
 
 	private getSupportedLanguages(formatter: CodeFormatter): EditorLanguage[] {
 		const languages: EditorLanguage[] = []
@@ -208,7 +179,6 @@ class FormatterRegistry {
 	}
 }
 
-// Singleton instance
 export const formatterRegistry = new FormatterRegistry()
 
 let formattersLoaded: Promise<void> | null = null
@@ -220,10 +190,6 @@ async function ensureFormattersLoaded(): Promise<void> {
 	return formattersLoaded
 }
 
-/**
- * Convenience function for formatting code.
- * Use this in components instead of accessing the registry directly.
- */
 export async function formatCode(
 	code: string,
 	language: EditorLanguage,

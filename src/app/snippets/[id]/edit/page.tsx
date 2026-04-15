@@ -12,25 +12,20 @@ type Props = {
 export default async function EditSnippetPage({ params }: Props) {
 	const { id } = await params
 
-	// 1. Check authentication
 	let currentUser = null
 	try {
 		currentUser = await getCurrentServerUser()
 	} catch {
-		// Not authenticated - redirect to login
 		redirect(`/login?redirect=/snippets/${id}/edit`)
 	}
 
-	// 2. Fetch snippet
 	const snippet = await snippetService.getById(id)
 
 	if (!snippet) {
 		notFound()
 	}
 
-	// 3. Check ownership
 	if (snippet.ownerId !== currentUser?.id) {
-		// Not the owner - redirect to view page
 		redirect(`/snippets/${id}`)
 	}
 

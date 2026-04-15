@@ -52,7 +52,6 @@ export function useSnippetFormSubmission({
 		try {
 			const formatResult = await formatCodeWithStatus(code, formatterLanguage)
 
-			// Prevent saving if code formatting failed
 			if (formatResult.error) {
 				toast.error('Code formatting failed', {
 					description: formatResult.error,

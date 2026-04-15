@@ -4,7 +4,6 @@ import { Skeleton } from '@/shared/ui/design-system'
 export default function ProfileLoading() {
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-8">
-			{/* Profile Header Skeleton */}
 			<div className="mb-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
 				<Skeleton className="h-24 w-24 rounded-full" />
 
@@ -20,12 +19,10 @@ export default function ProfileLoading() {
 				</div>
 			</div>
 
-			{/* Section Header Skeleton */}
 			<div className="mb-6 flex items-center justify-between">
 				<Skeleton className="h-8 w-28" />
 			</div>
 
-			{/* Snippet Cards Skeleton */}
 			<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: 6 }).map((_, index) => (
 					<SnippetCardSkeleton key={index} isPrivate />

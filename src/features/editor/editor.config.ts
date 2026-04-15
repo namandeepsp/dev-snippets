@@ -1,12 +1,3 @@
-/**
- * ============================================================================
- * EDITOR CONFIGURATION
- * ============================================================================
- *
- * Central configuration for the code editor feature.
- * Defines supported languages, formatter mappings, and display settings.
- */
-
 export type EditorLanguage =
 	| 'javascript'
 	| 'typescript'
@@ -30,11 +21,8 @@ export type EditorLanguage =
 export type EditorTheme = 'light' | 'dark' | 'system'
 
 export type EditorConfig = {
-	/** Display name of the language */
 	label: string
-	/** Icon/emoji for the language */
 	icon: string
-	/** Default formatter to use */
 	formatter:
 		| 'prettier'
 		| 'gofmt'
@@ -43,11 +31,8 @@ export type EditorConfig = {
 		| 'markdown'
 		| 'google-java-format'
 		| 'none'
-	/** Monaco editor language ID */
 	monacoLanguage: string
-	/** Color for syntax highlighting theme */
 	color: string
-	/** File extensions associated with this language */
 	extensions: string[]
 }
 
@@ -202,21 +187,12 @@ export const SUPPORTED_LANGUAGES = Object.keys(
 	EDITOR_LANGUAGES,
 ) as EditorLanguage[]
 
-/**
- * Get language configuration by language ID
- */
 export function getLanguageConfig(language: EditorLanguage): EditorConfig {
 	return EDITOR_LANGUAGES[language]
 }
 
-/**
- * Check if a language has a formatter
- */
 export function hasFormatter(language: EditorLanguage): boolean {
 	return EDITOR_LANGUAGES[language]?.formatter !== 'none'
 }
 
-/**
- * Get default language (JavaScript)
- */
 export const DEFAULT_LANGUAGE: EditorLanguage = 'javascript'

@@ -74,10 +74,8 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			resolvedTheme,
 		)
 
-		// State management
 		const state = useCodeEditorState()
 
-		// Formatting logic
 		const {
 			formatWithStatusForEditor,
 			isApiFormatting,
@@ -85,7 +83,6 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			setIsDetecting,
 		} = useCodeEditorFormatting()
 
-		// Action handlers
 		const { handleFormat, handleCopy, handlePaste } = useCodeEditorActions({
 			value,
 			language,
@@ -101,7 +98,6 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			formatWithStatusForEditor,
 		})
 
-		// Paste handler
 		const { createPasteHandler } = usePasteHandler({
 			language,
 			onLanguageDetected,
@@ -112,12 +108,10 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			setIsDetecting,
 		})
 
-		// Notify parent of detection state changes
 		React.useEffect(() => {
 			onDetectingChange?.(isDetecting)
 		}, [isDetecting, onDetectingChange])
 
-		// Expose format function to parent components
 		React.useImperativeHandle(ref, () => ({
 			format: handleFormat,
 		}))
@@ -329,7 +323,6 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 					/>
 				</div>
 
-				{/* Error Accordion */}
 				<ErrorAccordion
 					ref={state.errorAccordionRef}
 					errors={state.formattingErrors}

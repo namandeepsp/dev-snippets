@@ -1,14 +1,6 @@
 import type { EditorLanguage } from '@/features/editor/editor.config'
 import type { Extension } from '@codemirror/state'
 
-/**
- * ============================================================================
- * CODEMIRROR EXTENSIONS LOADER
- * ============================================================================
- *
- * Dynamically loads CodeMirror language and theme extensions.
- */
-
 export const loadLanguageExtension = async (
 	lang: EditorLanguage,
 ): Promise<Extension> => {

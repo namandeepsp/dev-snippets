@@ -1,10 +1,6 @@
 import { logger } from '@/shared/utils/logger'
 import type { EditorLanguage } from '../editor.config'
 
-/**
- * Highlight.js integration for language detection.
- * Handles dynamic language module loading and detection.
- */
 export class HighlightDetector {
 	private highlightApi: any = null
 

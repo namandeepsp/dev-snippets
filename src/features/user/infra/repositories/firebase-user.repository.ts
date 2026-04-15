@@ -10,23 +10,6 @@ import type {
 
 const COLLECTION_NAME = 'users'
 
-/**
- * ============================================================================
- * FIREBASE USER REPOSITORY
- * ============================================================================
- *
- * Firebase/Firestore implementation of the UserPort port.
- *
- * Key responsibilities:
- * 1. Map Firebase uid → Firestore document ID
- * 2. Convert between Firestore data shape and our domain shape
- * 3. Handle Firestore-specific error cases
- * 4. No business logic - just persistence
- *
- * This is the ONLY place where Firestore-specific code should exist
- * for user operations.
- */
-
 export class FirebaseUserPort implements UserPort {
 	private getCollection() {
 		return adminDb.collection(COLLECTION_NAME)
@@ -38,13 +21,8 @@ export class FirebaseUserPort implements UserPort {
 		) as T
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* CREATE / UPSERT
-	/* ----------------------------------------------------------------------- */
-
 	async create(input: CreateUserDTO): Promise<User> {
 		try {
-			// Check for duplicate email
 			const existingByEmail = await this.findByEmail(input.email)
 			if (existingByEmail) {
 				throw new UserPortError(
@@ -53,7 +31,6 @@ export class FirebaseUserPort implements UserPort {
 				)
 			}
 
-			// Check for duplicate username
 			const existingByUsername = await this.findByUsername(input.username)
 			if (existingByUsername) {
 				throw new UserPortError(
@@ -64,7 +41,6 @@ export class FirebaseUserPort implements UserPort {
 
 			const now = Date.now()
 
-			// UserDBModel shape - keep avatarUrl explicit for schema consistency.
 			const userData = this.removeUndefined({
 				username: input.username,
 				name: input.name,
@@ -75,11 +51,9 @@ export class FirebaseUserPort implements UserPort {
 				updatedAt: now,
 			})
 
-			// Use Firebase UID as the document ID
 			const docRef = this.getCollection().doc(input.uid)
 			await docRef.set(userData)
 
-			// Return domain User shape (DB model + id)
 			return {
 				id: docRef.id,
 				...userData,
@@ -118,10 +92,6 @@ export class FirebaseUserPort implements UserPort {
 			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* READ
-	/* ----------------------------------------------------------------------- */
 
 	async findById(id: string): Promise<User | null> {
 		try {
@@ -191,7 +161,6 @@ export class FirebaseUserPort implements UserPort {
 			const doc = snapshot.docs[0]
 			const data = doc.data()
 
-			// Return PublicUser - email intentionally excluded
 			return {
 				id: doc.id,
 				username: data.username,
@@ -210,8 +179,6 @@ export class FirebaseUserPort implements UserPort {
 		try {
 			if (ids.length === 0) return []
 
-			// Firestore can only handle up to 10 items in 'in' query
-			// For simplicity, we'll do one query. In production, you'd batch this.
 			const snapshot = await this.getCollection()
 				.where('__name__', 'in', ids.slice(0, 10))
 				.get()
@@ -233,10 +200,6 @@ export class FirebaseUserPort implements UserPort {
 			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* UPDATE
-	/* ----------------------------------------------------------------------- */
 
 	async update(id: string, input: UpdateUserDTO): Promise<void> {
 		try {
@@ -261,10 +224,6 @@ export class FirebaseUserPort implements UserPort {
 			throw new UserPortError(ErrorMessages.DATABASE_ERROR, 'DATABASE_ERROR')
 		}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* DELETE
-	/* ----------------------------------------------------------------------- */
 
 	async delete(id: string): Promise<void> {
 		try {

@@ -19,11 +19,9 @@ export async function createUserProfileAction(): Promise<void> {
 		throw new Error('Unauthorized')
 	}
 
-	// Check if user already exists
 	const existingUser = await userRepo.findById(decodedUser.uid)
 	if (existingUser) return
 
-	// Create user profile
 	const userInput = createUserDTOFromAuth(
 		decodedUser.uid,
 		decodedUser.email || '',

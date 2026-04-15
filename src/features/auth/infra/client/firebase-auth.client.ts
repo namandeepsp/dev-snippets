@@ -35,23 +35,6 @@ import {
 
 const auth = getAuth(firebaseApp)
 
-/**
- * ============================================================================
- * FIREBASE AUTH CLIENT
- * ============================================================================
- *
- * Firebase implementation of AuthPort for the BROWSER environment.
- *
- * Key responsibilities:
- * 1. Authenticate with Firebase Auth (email/password, Google)
- * 2. Create HTTP-only session cookies via API routes
- * 3. Sync user profiles with UserService
- * 4. Manage client-side auth state
- *
- * This is NOT used in Node.js environments (tests, scripts, server components).
- * See FirebaseAdminAuthClient for server-side implementation.
- */
-
 export class FirebaseAuthClient implements AuthPort {
 	async signInWithEmailAndPassword(
 		credentials: EmailCredentials,

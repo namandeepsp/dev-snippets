@@ -44,7 +44,6 @@ export async function getPublicSnippetsPage({
 }: GetPublicSnippetsPageInput = {}) {
 	const currentUser = await getCurrentServerUser()
 
-	// If liked only filter is active, only fetch liked snippets
 	if (likedOnly && currentUser) {
 		const likedSnippetIds = await snippetService.getLikedSnippetIds(
 			currentUser.id,
@@ -54,7 +53,6 @@ export async function getPublicSnippetsPage({
 			return { items: [], nextCursor: null }
 		}
 
-		// Fetch liked snippets (no pagination for now, can be added later)
 		const likedSnippets = await Promise.all(
 			likedSnippetIds.map((id) => snippetService.getById(id)),
 		)
@@ -77,11 +75,10 @@ export async function getPublicSnippetsPage({
 					avatarUrl: null,
 				},
 			})),
-			nextCursor: null, // No pagination for liked snippets
+			nextCursor: null,
 		}
 	}
 
-	// Normal flow: fetch public snippets with pagination
 	const { items, nextCursor } = await snippetService.listPublicPaginated(
 		sortBy,
 		limit,
@@ -89,7 +86,6 @@ export async function getPublicSnippetsPage({
 		technologies,
 	)
 
-	// Get liked snippet IDs for current user
 	const likedSnippetIds = currentUser
 		? new Set(await snippetService.getLikedSnippetIds(currentUser.id))
 		: new Set<string>()

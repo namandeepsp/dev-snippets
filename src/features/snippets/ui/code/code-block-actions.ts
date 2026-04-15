@@ -1,14 +1,6 @@
 import { toast } from '@/shared/ui/design-system'
 import { logger } from '@/shared/utils/logger'
 
-/**
- * ============================================================================
- * CODE BLOCK ACTIONS
- * ============================================================================
- *
- * Utility functions for copy and share operations.
- */
-
 export async function copyToClipboard(
 	code: string,
 	onSuccess: () => void,

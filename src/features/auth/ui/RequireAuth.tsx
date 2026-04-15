@@ -8,21 +8,6 @@ type Props = {
 	redirectTo?: string
 	fallback?: ReactNode
 }
-
-/**
- * ============================================================================
- * REQUIRE AUTH
- * ============================================================================
- *
- * Protects routes that require authentication.
- *
- * @example
- * ```tsx
- * <RequireAuth redirectTo="/login" fallback={<LoadingSkeleton />}>
- *   <SettingsPage />
- * </RequireAuth>
- * ```
- */
 export function RequireAuth({
 	children,
 	redirectTo = '/login',

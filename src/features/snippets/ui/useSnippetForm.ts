@@ -22,7 +22,6 @@ export function useSnippetFormState({
 	mode,
 	snippet,
 }: UseSnippetFormStateProps) {
-	// Form state
 	const [title, setTitle] = useState(snippet?.title ?? '')
 	const [description, setDescription] = useState(snippet?.description ?? '')
 	const [code, setCode] = useState(snippet?.code ?? '')
@@ -40,7 +39,6 @@ export function useSnippetFormState({
 	)
 	const [techToAdd, setTechToAdd] = useState('')
 
-	// UI state
 	const [isFormatting, setIsFormatting] = useState(false)
 
 	const handleDetectedLanguage = (detected: EditorLanguage) => {
@@ -68,7 +66,6 @@ export function useSnippetFormState({
 		})
 	}
 
-	// Set default technology/categories based on language in create mode
 	useEffect(() => {
 		if (mode === 'create' && technologies.length === 0) {
 			const primaryTech = LANGUAGE_TO_PRIMARY_TECHNOLOGY[language]
@@ -82,10 +79,8 @@ export function useSnippetFormState({
 		}
 	}, [language, mode])
 
-	// Helper: Get primary (first) selected technology
 	const primaryTechnology = technologies[0] as SnippetTechnology | undefined
 
-	// Auto-sync categories when primary technology changes
 	useEffect(() => {
 		if (primaryTechnology && TECHNOLOGY_CATEGORY_MAP[primaryTechnology]) {
 			const mappedCats = TECHNOLOGY_CATEGORY_MAP[primaryTechnology]
@@ -96,13 +91,11 @@ export function useSnippetFormState({
 		}
 	}, [primaryTechnology])
 
-	// Helper: Derive formatter language from selected technology
 	const formatterLanguage = primaryTechnology
 		? TECHNOLOGY_TO_EDITOR_LANGUAGE[primaryTechnology] ||
 			(primaryTechnology as EditorLanguage)
 		: language
 
-	// Log formatter language changes
 	useEffect(() => {
 		logger.info('📤 formatterLanguage updated to:', formatterLanguage)
 		logger.info('📤 primaryTechnology:', primaryTechnology)
@@ -122,7 +115,6 @@ export function useSnippetFormState({
 		} else {
 			setTechnologies((prev) => [...prev, tech])
 
-			// Auto-add categories based on technology
 			const cats = TECHNOLOGY_CATEGORY_MAP[tech]
 			if (cats) {
 				setCategories((prev) => {
@@ -139,7 +131,6 @@ export function useSnippetFormState({
 	}
 
 	return {
-		// State
 		title,
 		setTitle,
 		description,
@@ -158,11 +149,9 @@ export function useSnippetFormState({
 		isFormatting,
 		setIsFormatting,
 
-		// Computed values
 		primaryTechnology,
 		formatterLanguage,
 
-		// Handlers
 		handleDetectedLanguage,
 		toggleCategory,
 		handleAddTechnology,

@@ -55,7 +55,6 @@ function SettingsContent() {
 			setInitialBio(normalizedBio)
 
 			setSuccess(true)
-			// Reset success message after 3 seconds
 			setTimeout(() => setSuccess(false), 3000)
 		} catch (error) {
 			setError(
@@ -82,9 +81,7 @@ function SettingsContent() {
 			await userApiClient.deleteAccount()
 			try {
 				await logout()
-			} catch {
-				// Best effort: account is already deleted server-side.
-			}
+			} catch {}
 			router.replace('/')
 		} catch (error) {
 			setError(

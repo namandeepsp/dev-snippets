@@ -6,7 +6,6 @@ describe.sequential('User Feature', () => {
   let script: UserScript;
 
   beforeAll(async () => {
-    // Clear data before tests
     await new ClearScript().run();
     script = new UserScript();
   });

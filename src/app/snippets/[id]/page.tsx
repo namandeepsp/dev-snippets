@@ -14,22 +14,6 @@ type Props = {
 	}>
 }
 
-/**
- * ============================================================================
- * SNIPPET DETAIL PAGE
- * ============================================================================
- *
- * Server Component that displays a single snippet with full details.
- *
- * Handles:
- * - Public snippets - Anyone can view
- * - Private snippets - Only owner can view
- * - Shared snippets - Not yet implemented
- * - View counting - Incremented on each view
- * - Author enrichment - Full author profile
- */
-
-// Cache the snippet fetch within the same request
 const getSnippet = cache(async (id: string) => {
 	return snippetService.getById(id)
 })
@@ -66,17 +50,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function checkAuthorization(snippet: any, userId?: string) {
-	// Public snippets - anyone can view
 	if (snippet.visibility === 'public') {
 		return true
 	}
 
-	// Private snippets - only owner
 	if (snippet.visibility === 'private') {
 		return userId === snippet.ownerId
 	}
 
-	// Shared snippets - TODO: implement shared list
 	if (snippet.visibility === 'shared') {
 		return (
 			userId === snippet.ownerId ||
@@ -90,42 +71,33 @@ async function checkAuthorization(snippet: any, userId?: string) {
 export default async function SnippetPage({ params }: Props) {
 	const { id } = await params
 
-	// 1. Fetch snippet
 	const snippet = await getSnippet(id)
 
 	if (!snippet) {
 		notFound()
 	}
 
-	// 2. Check authentication for private snippets
 	let currentUser = null
 
 	try {
 		currentUser = await getCurrentServerUser()
-	} catch {
-		// Invalid session, continue as guest
-	}
+	} catch {}
 
-	// 3. Authorize access
 	const isAuthorized = await checkAuthorization(snippet, currentUser?.id)
 
 	if (!isAuthorized) {
 		if (!currentUser) {
-			// Not logged in - redirect to login
 			redirect(`/login?redirect=/snippets/${id}`)
 		}
-		// Logged in but not authorized - show not found
 		notFound()
 	}
 
-	// 4. Increment view count (fire-and-forget, don't await)
 	snippetService.incrementViews(id).catch((err) =>
 		logger.error('Failed to increment views', {
 			error: err instanceof Error ? err.message : 'Unknown error',
 		}),
 	)
 
-	// 5. Fetch author profile and like status
 	const [author, isLikedByUser] = await Promise.all([
 		userService.getUserById(snippet.ownerId),
 		currentUser?.id
@@ -133,7 +105,6 @@ export default async function SnippetPage({ params }: Props) {
 			: Promise.resolve(false),
 	])
 
-	// 6. Enrich snippet with author data
 	const enrichedSnippet: EnrichedSnippet = {
 		...snippet,
 		author: author || {
@@ -147,7 +118,6 @@ export default async function SnippetPage({ params }: Props) {
 
 	return (
 		<div className="mx-auto max-w-5xl px-4 py-8">
-			{/* Breadcrumbs */}
 			<nav className="mb-6 text-sm">
 				<ol className="flex items-center gap-2">
 					<li>
@@ -160,7 +130,6 @@ export default async function SnippetPage({ params }: Props) {
 				</ol>
 			</nav>
 
-			{/* Snippet Viewer */}
 			<SnippetViewer snippet={enrichedSnippet} />
 		</div>
 	)

@@ -46,12 +46,10 @@ class Logger {
 	}
 
 	private shouldLog(type: LogType) {
-		// Errors are noisy in production - keep them only for local debugging.
 		if (type === 'error') {
 			return this.mode === 'development'
 		}
 
-		// Warnings/info/suggestions can remain visible across environments.
 		return true
 	}
 }

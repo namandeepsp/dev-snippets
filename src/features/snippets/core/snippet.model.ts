@@ -5,23 +5,6 @@ import type {
 	SnippetVersion,
 } from './snippet.types'
 
-/**
- * ============================================================================
- * SNIPPET MODEL
- * ============================================================================
- *
- * Factory functions and domain logic for Snippet entities.
- *
- * These functions are PURE - they don't interact with databases or APIs.
- * They just transform data according to business rules.
- */
-
-/**
- * Create a new snippet from user input.
- *
- * This is a factory function - it creates the initial snippet state
- * before it's saved to the database.
- */
 export function createSnippet(
 	input: SnippetContent & SnippetOwnership,
 ): Omit<Snippet, 'id'> {
@@ -46,12 +29,6 @@ export function createSnippet(
 	}
 }
 
-/**
- * Create a new version entry when code changes.
- *
- * This preserves the OLD code as a version before updating
- * to the new code.
- */
 export function createNextVersion(
 	snippet: Snippet,
 	_newCode: string,
@@ -59,35 +36,26 @@ export function createNextVersion(
 ): SnippetVersion {
 	return {
 		version: snippet.versions.length + 1,
-		code: snippet.code, // Store the CURRENT code as the version
+		code: snippet.code,
 		createdAt: Date.now(),
 		createdBy: userId,
 	}
 }
 
-/**
- * Check if a user can edit a snippet.
- */
 export function canEdit(snippet: Snippet, userId?: string): boolean {
 	if (!userId) return false
 	return snippet.ownerId === userId
 }
 
-/**
- * Check if a user can view a snippet.
- */
 export function canView(snippet: Snippet, userId?: string): boolean {
-	// Public snippets: anyone can view
 	if (snippet.visibility === 'public') {
 		return true
 	}
 
-	// Private snippets: only owner
 	if (snippet.visibility === 'private') {
 		return snippet.ownerId === userId
 	}
 
-	// Shared snippets: owner + shared users
 	if (snippet.visibility === 'shared') {
 		return (
 			snippet.ownerId === userId ||
@@ -100,16 +68,10 @@ export function canView(snippet: Snippet, userId?: string): boolean {
 	return false
 }
 
-/**
- * Get the latest version of a snippet.
- */
 export function getLatestVersion(snippet: Snippet): SnippetVersion {
 	return snippet.versions[snippet.versions.length - 1]
 }
 
-/**
- * Get a specific version of a snippet.
- */
 export function getVersion(
 	snippet: Snippet,
 	versionNumber: number,
@@ -117,10 +79,6 @@ export function getVersion(
 	return snippet.versions.find((v) => v.version === versionNumber)
 }
 
-/**
- * Summarize snippet for listings.
- * Removes heavy fields like versions and full code preview.
- */
 export function summarizeSnippet(snippet: Snippet): Omit<
 	Snippet,
 	'versions' | 'code'

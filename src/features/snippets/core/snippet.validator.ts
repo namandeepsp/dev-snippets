@@ -4,14 +4,6 @@ import type {
 } from './repositories/snippet.repository'
 import { SNIPPET_TITLE_MAX_LENGTH } from './snippet.types'
 
-/**
- * ============================================================================
- * SNIPPET VALIDATOR
- * ============================================================================
- *
- * Validates snippet input data against business rules.
- */
-
 export class SnippetValidator {
 	static validateCreateInput(input: CreateSnippetServiceInput): void {
 		if (!input.title.trim()) {

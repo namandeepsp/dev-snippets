@@ -4,10 +4,6 @@ import { toast } from '@/shared/ui/design-system'
 import type { AuthPort } from './core/auth.port'
 import { FirebaseAuthClient } from './infra/client/firebase-auth.client'
 
-/**
- * Client-side auth dependency container.
- * This module must only be imported from client components/hooks.
- */
 export const authPort: AuthPort = new FirebaseAuthClient()
 
 export { useAuth } from './ui/store/auth.store'

@@ -4,9 +4,24 @@ This project uses Firebase Auth + Firestore in both runtime and script-based tes
 
 ## Config Files
 
-- `firebase.json`
-- `firebase-config/firestore.rules`
-- `firebase-config/firestore.indexes.json`
+- `firebase.json` - Firebase CLI configuration
+- `firebase-config/firestore.rules` - Firestore security rules
+- `firebase-config/firestore.indexes.json` - Firestore composite indexes
+- `.firebaserc` - Firebase project aliases
+
+## Firebase Projects
+
+The project uses two Firebase projects:
+
+- **dev-snippets-dev** - Development environment (used for testing and local development)
+- **dev-snippets-prod** - Production environment
+
+Switch between projects using:
+
+```bash
+firebase use dev
+firebase use prod
+```
 
 ## Required Runtime Variables
 
@@ -58,20 +73,74 @@ pnpm firebase:deploy:prod
 
 Core collections used by current features:
 
-- `users`
-- `snippets`
+### Users Collection
 
-### Users
+```typescript
+interface User {
+  uid: string;              // Firebase Auth UID (document ID)
+  email: string;            // User email
+  username: string;         // Unique username (3-20 alphanumeric)
+  displayName?: string;     // Display name
+  photoURL?: string;        // Profile picture URL
+  bio?: string;             // User bio
+  createdAt: number;        // Timestamp
+  updatedAt: number;        // Timestamp
+}
+```
 
-- Created/updated by `FirebaseUserRepository`
-- Uses auth `uid` as Firestore document ID
-- Username must satisfy service validation: `^[a-zA-Z0-9_]{3,20}$`
+**Validation Rules:**
+- Username: `^[a-zA-Z0-9_]{3,20}$`
+- Email: Valid email format
+- Username must be unique
 
-### Snippets
+### Snippets Collection
 
-- Created/updated by `FirebaseSnippetRepository`
-- Supports `visibility`, `isDeleted`, and `updatedAt`-based queries
-- Uses soft delete via `isDeleted: true`
+```typescript
+interface Snippet {
+  id: string;               // Document ID
+  title: string;            // Snippet title
+  description?: string;     // Optional description
+  code: string;             // Code content
+  language: string;         // Programming language
+  technology: string;       // Technology category
+  ownerId: string;          // User ID of creator
+  ownerName: string;        // Username of creator
+  visibility: 'public' | 'private' | 'shared';  // Visibility level
+  sharedWith?: string[];    // Array of user IDs with access
+  categories?: string[];    // Optional categories
+  tags?: string[];          // Optional tags
+  versions: SnippetVersion[];  // Version history
+  likesCount: number;       // Number of likes
+  viewsCount: number;       // Number of views
+  isDeleted: boolean;       // Soft delete flag
+  createdAt: number;        // Timestamp
+  updatedAt: number;        // Timestamp
+}
+
+interface SnippetVersion {
+  version: number;          // Sequential version number
+  code: string;             // Code at this version
+  createdAt: number;        // Timestamp
+  createdBy: string;        // User ID who created version
+}
+```
+
+**Indexes Required:**
+- `snippets: (visibility, isDeleted, createdAt)`
+- `snippets: (ownerId, isDeleted, createdAt)`
+- `snippets: (visibility, isDeleted, viewsCount)`
+- `snippets: (technology, visibility, isDeleted)`
+
+### Likes Sub-collection
+
+Each snippet has a `likes` sub-collection:
+
+```typescript
+interface Like {
+  userId: string;           // Document ID (user ID)
+  createdAt: number;        // Timestamp
+}
+```
 
 ## Script and Test Commands
 
@@ -108,6 +177,8 @@ check:
 1. Network connectivity from the machine running tests.
 2. Firebase Admin credentials in environment.
 3. `FIREBASE_PROJECT_ID` points to the expected project.
+4. Firestore is enabled in Firebase Console.
+5. Firestore location is set correctly.
 
 ### Project guard failure
 
@@ -120,3 +191,45 @@ set:
 ```bash
 export FIREBASE_PROJECT_ID=dev-snippets-dev
 ```
+
+### Authentication errors
+
+**Invalid credentials:**
+- Verify `FIREBASE_PRIVATE_KEY` is properly formatted (with escaped newlines)
+- Check `FIREBASE_CLIENT_EMAIL` matches the service account
+- Ensure service account has Firestore read/write permissions
+
+**Permission denied:**
+- Check Firestore security rules allow the operation
+- Verify user has appropriate permissions
+- Check if document exists before updating
+
+### Firestore Rules Issues
+
+If you see permission errors:
+
+1. Review `firebase-config/firestore.rules`
+2. Test rules in Firebase Console
+3. Deploy updated rules: `pnpm firebase:deploy:rules`
+4. Check user authentication status
+
+### Index Creation
+
+If you see index creation errors:
+
+1. Check `firebase-config/firestore.indexes.json`
+2. Deploy indexes: `pnpm firebase:deploy:indexes`
+3. Wait for index creation (can take several minutes)
+4. Verify index status in Firebase Console
+
+## Security Rules
+
+The project uses Firestore security rules to enforce:
+
+- Users can only read/write their own documents
+- Public snippets are readable by all authenticated users
+- Private snippets are only accessible to owner
+- Shared snippets are accessible to owner and shared users
+- Soft-deleted snippets are hidden from queries
+
+Review and update rules in `firebase-config/firestore.rules` as needed.

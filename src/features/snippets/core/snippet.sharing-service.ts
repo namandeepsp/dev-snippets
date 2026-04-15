@@ -1,13 +1,5 @@
 import type { SnippetRepository } from './repositories/snippet.repository'
 
-/**
- * ============================================================================
- * SNIPPET SHARING SERVICE
- * ============================================================================
- *
- * Handles snippet sharing and access control operations.
- */
-
 export class SnippetSharingService {
 	constructor(private readonly snippetRepository: SnippetRepository) {}
 

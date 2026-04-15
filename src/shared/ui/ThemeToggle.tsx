@@ -35,7 +35,6 @@ export function ThemeToggle() {
 
 	return (
 		<>
-			{/* Desktop: Three-way toggle */}
 			<div className="inline-flex rounded-full border border-white/30 bg-white/55 p-1 shadow-sm backdrop-blur-xl dark:border-white/15 dark:bg-slate-900/55 max-[850px]:hidden">
 				{items.map((item) => {
 					const active = theme === item.id
@@ -62,7 +61,6 @@ export function ThemeToggle() {
 				})}
 			</div>
 
-			{/* Mobile: Single circular toggle */}
 			<Button
 				type="button"
 				onClick={cycleTheme}

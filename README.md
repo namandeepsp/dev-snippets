@@ -58,10 +58,12 @@ pnpm tools:snippet
 
 ## Documentation
 
-- `docs/ARCHITECTURE_PATTERN.md`
-- `docs/API_MIGRATION.md`
-- `docs/FIREBASE_CONFIG.md`
-- `scripts/README.md`
+- `docs/ARCHITECTURE_PATTERN.md` - Detailed hexagonal architecture patterns and layer responsibilities
+- `docs/FIREBASE_CONFIG.md` - Firebase setup, environment variables, and troubleshooting
+- `docs/FEATURE_GUIDE.md` - Guide for creating new features following the architecture
+- `docs/SNIPPET_FEATURE.md` - Deep dive into the Snippet feature (versioning, sharing, soft delete)
+- `docs/ERROR_HANDLING.md` - Error handling patterns and standardization
+- `scripts/README.md` - Script architecture and test execution model
 
 ## Environment Variables
 

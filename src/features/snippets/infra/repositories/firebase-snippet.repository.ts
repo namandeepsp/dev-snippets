@@ -43,9 +43,6 @@ import {
 
 const COLLECTION_NAME = 'snippets'
 
-/**
- * Firebase/Firestore implementation of the SnippetRepository port.
- */
 export class FirebaseSnippetRepository implements SnippetRepository {
 	getCollection() {
 		return adminDb.collection(COLLECTION_NAME)

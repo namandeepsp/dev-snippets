@@ -16,23 +16,20 @@ export class SeedUsersScript extends BaseScript {
 
     for (const template of USER_TEMPLATES) {
       try {
-        // Check if user already exists in Auth
         let userRecord;
         try {
           userRecord = await auth.getUserByEmail(template.email);
           this.log(`User already exists in Auth: ${template.email}`);
         } catch {
-          // Create in Firebase Auth
           userRecord = await auth.createUser({
             email: template.email,
-            password: 'Test@123456', // Default password for seed users
+            password: 'Test@123456',
             displayName: template.name,
             photoURL: template.avatarUrl,
           });
           this.log(`Created Auth user: ${template.email}`);
         }
 
-        // Check if user exists in Firestore
         const userDoc = await adminDb.collection('users').doc(userRecord.uid).get();
 
         if (userDoc.exists) {
@@ -41,7 +38,6 @@ export class SeedUsersScript extends BaseScript {
           continue;
         }
 
-        // Create in Firestore
         const now = Date.now();
         await adminDb.collection('users').doc(userRecord.uid).set({
           username: template.username,

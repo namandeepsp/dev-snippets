@@ -92,7 +92,6 @@ export function useSnippetsPagination(
 		}
 	}, [cursor, hasMore, sortBy, showLikedOnly, selectedTechnologies])
 
-	// Load first page only when URL params change
 	useEffect(() => {
 		const currentParams = `${sortBy}::${showLikedOnly}::${selectedTechnologies.join(',')}`
 
@@ -107,7 +106,6 @@ export function useSnippetsPagination(
 		}
 	}, [sortBy, showLikedOnly, selectedTechnologies, loadFirstPage])
 
-	// Intersection observer for infinite scroll
 	useEffect(() => {
 		const node = sentinelRef.current
 		if (!node) return

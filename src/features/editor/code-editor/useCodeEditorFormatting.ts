@@ -4,10 +4,6 @@ import type { EditorLanguage } from '../editor.config'
 import { getLanguageConfig } from '../editor.config'
 import { formatCodeWithStatus } from '../formatter/formatter.registry'
 
-/**
- * Formatting logic for CodeEditor.
- * Handles: API-backed formatter detection, formatting with status tracking.
- */
 export function useCodeEditorFormatting() {
 	const [pendingApiFormatOps, setPendingApiFormatOps] = useState(0)
 	const [isDetecting, setIsDetecting] = useState(false)

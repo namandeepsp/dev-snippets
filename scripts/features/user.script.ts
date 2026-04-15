@@ -53,7 +53,6 @@ export class UserScript extends BaseScript {
 	}
 
 	private buildValidUsername(timestamp: number): string {
-		// Keep username within service validation rule: [a-zA-Z0-9_]{3,20}
 		return `u_${timestamp.toString().slice(-10)}`
 	}
 

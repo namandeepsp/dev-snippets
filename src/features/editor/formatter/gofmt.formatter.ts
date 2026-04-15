@@ -12,14 +12,6 @@ import type {
 	FormatResult,
 } from './formatter.types'
 
-/**
- * ============================================================================
- * GOFMT FORMATTER
- * ============================================================================
- *
- * Go formatter implementation via server-side formatting endpoint.
- */
-
 const gofmtFormatter: CodeFormatter = {
 	name: 'gofmt',
 
@@ -69,7 +61,6 @@ const gofmtFormatter: CodeFormatter = {
 	},
 }
 
-// Auto-register on import
 formatterRegistry.register(gofmtFormatter)
 
 export default gofmtFormatter

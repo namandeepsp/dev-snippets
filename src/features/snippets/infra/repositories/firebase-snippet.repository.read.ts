@@ -90,7 +90,6 @@ export async function listByVisibility(
 
 	if (visibility === 'shared') {
 		if (!userId) return []
-		// future sharedWith query is pending
 	}
 
 	const snapshot = await query.orderBy('updatedAt', 'desc').get()

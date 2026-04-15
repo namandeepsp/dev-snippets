@@ -5,33 +5,14 @@ import type {
 import type { Snippet } from '../../core/snippet.types'
 import type { SnippetAPIClient } from './snippet-api.client'
 
-// Import server actions
 import {
 	createSnippetAction,
 	deleteSnippetAction,
-	incrementViewsAction, // Add this import
+	incrementViewsAction,
 	updateSnippetAction,
 } from '../../snippet.actions'
 
-/**
- * ============================================================================
- * SERVER ACTION SNIPPET CLIENT
- * ============================================================================
- *
- * Server Actions implementation of SnippetAPIClient.
- *
- * This client is designed to be used ONLY in client components.
- * It calls server actions which run on the server.
- *
- * Read operations (getById, listPublic, listByUser) are NOT implemented here
- * because they should be called directly from Server Components using the service.
- */
-
 export class ServerActionSnippetClient implements SnippetAPIClient {
-	/* ----------------------------------------------------------------------- */
-	/* WRITE OPERATIONS - Supported in client components
-	/* ----------------------------------------------------------------------- */
-
 	async create(input: CreateSnippetServiceInput): Promise<Snippet> {
 		const response = await createSnippetAction(input)
 		if (!response.success) {
@@ -66,10 +47,6 @@ export class ServerActionSnippetClient implements SnippetAPIClient {
 			throw new Error(response.error || 'Failed to increment views')
 		}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* READ OPERATIONS - NOT supported in client components
-	/* ----------------------------------------------------------------------- */
 
 	async getById(_id: string): Promise<Snippet | null> {
 		throw new Error(

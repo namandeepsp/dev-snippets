@@ -15,20 +15,6 @@ import type {
 	PrettierFormatter,
 } from './formatter.types'
 
-/**
- * ============================================================================
- * PRETTIER FORMATTER
- * ============================================================================
- *
- * Prettier implementation for JavaScript/TypeScript/JSON/HTML/CSS/YAML.
- *
- * Features:
- * - Runs entirely in the browser (no server roundtrip)
- * - Supports all major web languages
- * - Configurable options
- * - Graceful fallback on error
- */
-
 const SUPPORTED_LANGUAGES: EditorLanguage[] = [
 	'javascript',
 	'typescript',
@@ -46,7 +32,6 @@ function looksLikeYaml(code: string): boolean {
 
 	if (lines.length < 2) return false
 
-	// Simple heuristic: enough key/value or list items, with no strong JS/TS signals.
 	const yamlLikeCount = lines.filter(
 		(line) =>
 			/^[A-Za-z0-9_-]+:\s*(.*)$/.test(line) ||
@@ -81,7 +66,6 @@ const prettierFormatter: PrettierFormatter = {
 	async format(request: FormatRequest): Promise<FormatResult> {
 		try {
 			logger.info('✨ Prettier formatter called for:', request.language)
-			// Map our language to Prettier parser
 			const parser = this.getParser(request.language)
 			logger.info('✨ Using parser:', parser)
 			const options = {
@@ -93,7 +77,6 @@ const prettierFormatter: PrettierFormatter = {
 					postcssPlugin,
 					yamlPlugin,
 				],
-				// Default options
 				semi: true,
 				singleQuote: true,
 				trailingComma: 'es5' as const,
@@ -127,7 +110,6 @@ const prettierFormatter: PrettierFormatter = {
 				formattedCode: formattedCode.trimEnd() + '\n',
 			}
 		} catch (error) {
-			// Parse failures are common during paste/typing; avoid noisy console logs.
 			if (!isPrettierParseError(error)) {
 				logger.error('Prettier formatting failed', error)
 			}
@@ -152,7 +134,6 @@ const prettierFormatter: PrettierFormatter = {
 	},
 }
 
-// Auto-register on import
 formatterRegistry.register(prettierFormatter)
 
 export default prettierFormatter

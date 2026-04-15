@@ -19,10 +19,6 @@ interface UsePasteHandlerProps {
 	setIsDetecting?: (isDetecting: boolean) => void
 }
 
-/**
- * Paste handler for CodeEditor.
- * Creates CodeMirror extension that handles paste events with language detection and formatting.
- */
 export function usePasteHandler({
 	language,
 	onLanguageDetected,
@@ -41,7 +37,6 @@ export function usePasteHandler({
 				event.preventDefault()
 				logger.info('📋 Paste handler triggered, current language:', language)
 
-				// Check conditions for triggering language detection
 				const state = view.state
 				const selection = state.selection
 				const isAllSelected =
@@ -54,13 +49,11 @@ export function usePasteHandler({
 				const shouldDetectLanguage = isAllSelected || isEditorEmptyOrWhitespace
 				logger.info('📋 Should detect language:', shouldDetectLanguage)
 
-				// Handle async operations without blocking the event handler
 				const handlePasteAsync = async () => {
 					let resolvedLanguage = language
 					if (shouldDetectLanguage) {
 						setIsDetecting?.(true)
 						try {
-							// Trigger language detection only when completely replacing code or editor is empty/whitespace
 							resolvedLanguage = await resolvePasteLanguage(
 								text,
 								language,
@@ -72,7 +65,6 @@ export function usePasteHandler({
 						}
 					}
 
-					// Format the pasted text
 					let formattedText = text
 					let pasteError: string | null = null
 					if (formatWithStatusForEditor) {
@@ -83,7 +75,7 @@ export function usePasteHandler({
 						)
 						if (result.error) {
 							pasteError = result.error
-							formattedText = text // Keep original text if formatting failed
+							formattedText = text
 							logger.info('📋 Formatting error:', result.error)
 						} else {
 							formattedText = result.formattedCode
@@ -94,16 +86,13 @@ export function usePasteHandler({
 						}
 					}
 
-					// Insert at cursor position or replace selection
 					logger.info('📋 Inserting formatted text into editor')
 					view.dispatch(view.state.replaceSelection(formattedText), {
 						annotations: pasteAnnotation.of(true),
 					})
 
-					// Notify parent component of the change
 					onChange?.(view.state.doc.toString())
 
-					// Handle paste errors or clear them on success
 					if (pasteError) {
 						onFormattingError?.(pasteError)
 					} else {
@@ -111,7 +100,6 @@ export function usePasteHandler({
 					}
 				}
 
-				// Start the async operation
 				handlePasteAsync().catch((err) => {
 					logger.error('Paste handling failed:', err)
 				})

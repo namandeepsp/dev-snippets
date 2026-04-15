@@ -1,13 +1,5 @@
 'use client'
 
-/**
- * ============================================================================
- * SNIPPET VIEWER HEADER
- * ============================================================================
- *
- * Displays snippet title and visibility badge.
- */
-
 interface SnippetViewerHeaderProps {
 	title: string
 	visibility: 'public' | 'private' | 'shared'

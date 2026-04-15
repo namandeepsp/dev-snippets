@@ -17,33 +17,9 @@ import type {
 	SignUpCredentials,
 } from '../../core/auth.types'
 
-/**
- * ============================================================================
- * FIREBASE ADMIN AUTH CLIENT
- * ============================================================================
- *
- * ⚠️ IMPORTANT: This file is ONLY imported on the server!
- * Import this via auth.server.container.ts only.
- *
- * Used in:
- * - Server Components
- * - API Routes
- * - Tests and Scripts
- */
-
 export class FirebaseAdminAuthClient implements AuthPort {
-	/* ----------------------------------------------------------------------- */
-	/* SESSION - Now uses dynamic imports for next/headers
-    /* ----------------------------------------------------------------------- */
-
-	/**
-	 * Get current session from cookie.
-	 * This method dynamically imports next/headers ONLY when called,
-	 * and ONLY on the server.
-	 */
 	async getCurrentSession(): Promise<Session | null> {
 		try {
-			// Dynamic import - only runs when method is called
 			const { cookies } = await import('next/headers')
 			const cookieStore = await cookies()
 			const sessionCookie = cookieStore.get('__session')?.value
@@ -82,10 +58,6 @@ export class FirebaseAdminAuthClient implements AuthPort {
 		return this.getCurrentUser()
 	}
 
-	/* ----------------------------------------------------------------------- */
-	/* SIGN OUT
-    /* ----------------------------------------------------------------------- */
-
 	async signOut(): Promise<void> {
 		try {
 			const { cookies } = await import('next/headers')
@@ -96,16 +68,11 @@ export class FirebaseAdminAuthClient implements AuthPort {
 				error instanceof Error &&
 				error.message.includes('outside a request scope')
 			) {
-				// Expected when called from scripts/tests without Next request context.
 				return
 			}
 			logger.error('Failed to sign out', error)
 		}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* OTHER METHODS (unchanged)
-    /* ----------------------------------------------------------------------- */
 
 	async signInWithEmailAndPassword(
 		credentials: EmailCredentials,
@@ -198,10 +165,6 @@ export class FirebaseAdminAuthClient implements AuthPort {
 
 		return () => {}
 	}
-
-	/* ----------------------------------------------------------------------- */
-	/* PRIVATE HELPERS
-    /* ----------------------------------------------------------------------- */
 
 	private mapFirebaseError(error: any): AuthError {
 		const code = error.code as string

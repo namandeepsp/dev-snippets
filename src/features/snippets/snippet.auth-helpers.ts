@@ -4,14 +4,6 @@ import { getServerFirebaseAuth } from '@/services/firebase/firebase.server'
 import { logger } from '@/shared/utils/logger'
 import { cookies } from 'next/headers'
 
-/**
- * ============================================================================
- * SNIPPET AUTH HELPERS
- * ============================================================================
- *
- * Authentication and authorization utilities for snippet actions.
- */
-
 export async function requireAuth(): Promise<User> {
 	const auth = getServerFirebaseAuth()
 	const cookieStore = await cookies()

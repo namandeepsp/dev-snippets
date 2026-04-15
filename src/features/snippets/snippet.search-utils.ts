@@ -2,14 +2,6 @@ import { EDITOR_LANGUAGES } from '@/features/editor/editor.config'
 import type { SnippetSortBy } from './core/repositories/snippet.repository'
 import type { Snippet, SnippetTechnology } from './core/snippet.types'
 
-/**
- * ============================================================================
- * SNIPPET SEARCH UTILITIES
- * ============================================================================
- *
- * Search, filtering, and sorting utilities for snippets.
- */
-
 export function sortSnippets(
 	snippets: Snippet[],
 	sortBy: SnippetSortBy,

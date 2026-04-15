@@ -8,22 +8,6 @@ import type {
 	FormatResult,
 } from './formatter.types'
 
-/**
- * ============================================================================
- * SQL FORMATTER
- * ============================================================================
- *
- * SQL code formatter using sql-formatter library.
- * Runs entirely in the browser.
- *
- * Supports:
- * - Standard SQL
- * - PostgreSQL
- * - MySQL
- * - BigQuery
- * - And more...
- */
-
 const sqlFormatterClient: CodeFormatter = {
 	name: 'sql-formatter',
 
@@ -33,7 +17,6 @@ const sqlFormatterClient: CodeFormatter = {
 
 	async format(request: FormatRequest): Promise<FormatResult> {
 		try {
-			// Detect dialect from options or default to standard SQL
 			const dialect = (request.options?.dialect as any) || 'sql'
 			const formatConfig = {
 				language: dialect,
@@ -55,7 +38,6 @@ const sqlFormatterClient: CodeFormatter = {
 	},
 }
 
-// Auto-register on import
 formatterRegistry.register(sqlFormatterClient)
 
 export default sqlFormatterClient

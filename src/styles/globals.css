@@ -2,20 +2,16 @@
 @config "../../tailwind.config.ts";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ================================
-   CSS Variables for Themes
-================================ */
-
 :root {
 	--background: 255 255 255;
-	--foreground: 17 24 39; /* slate-900 */
+	--foreground: 17 24 39;
 
 	--card: 248 250 252;
 	--border: 226 232 240;
 }
 
 .dark {
-	--background: 2 6 23; /* slate-950 */
+	--background: 2 6 23;
 	--foreground: 226 232 240;
 
 	--card: 15 23 42;
@@ -26,10 +22,6 @@
 	--color-background: rgb(var(--background));
 	--color-foreground: rgb(var(--foreground));
 }
-
-/* ================================
-   Base Styles
-================================ */
 
 html,
 body {
@@ -42,10 +34,6 @@ body {
 	font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial,
 		"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
-
-/* ================================
-   Minimal WebKit Scrollbar
-================================ */
 
 *::-webkit-scrollbar {
 	width: 10px;
@@ -81,10 +69,6 @@ body {
 	background-color: rgba(148, 163, 184, 0.62);
 }
 
-/* ================================
-   Utility Theme Classes
-================================ */
-
 .bg-background {
 	background-color: rgb(var(--background));
 }
@@ -100,10 +84,6 @@ body {
 .border-default {
 	border-color: rgb(var(--border));
 }
-
-/* ================================
-   Disable Tooltips on Mobile
-================================ */
 
 @media (max-width: 639px) {
 	.react-tooltip {

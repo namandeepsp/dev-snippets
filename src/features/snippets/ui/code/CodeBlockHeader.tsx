@@ -5,14 +5,6 @@ import { BiError } from 'react-icons/bi'
 import { LuCheck, LuShare2 } from 'react-icons/lu'
 import { MdOutlineContentCopy } from 'react-icons/md'
 
-/**
- * ============================================================================
- * CODE BLOCK HEADER
- * ============================================================================
- *
- * Header component displaying language badge, title, and action buttons.
- */
-
 interface CodeBlockHeaderProps {
 	language: string
 	title?: string

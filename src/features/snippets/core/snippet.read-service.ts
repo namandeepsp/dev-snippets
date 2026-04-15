@@ -7,14 +7,6 @@ import type {
 } from './repositories/snippet.repository'
 import type { Snippet, SnippetVisibility } from './snippet.types'
 
-/**
- * ============================================================================
- * SNIPPET READ SERVICE
- * ============================================================================
- *
- * Handles all read operations for snippets.
- */
-
 export class SnippetReadService {
 	constructor(private readonly snippetRepository: SnippetRepository) {}
 

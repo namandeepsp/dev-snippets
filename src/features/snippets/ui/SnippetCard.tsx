@@ -8,29 +8,10 @@ import type { Snippet } from '../core/snippet.types'
 import { TechnologyBadge } from './TechnologyBadge'
 
 type Props = {
-	/** The snippet to display */
 	snippet: Snippet & { author?: PublicUser }
-	/** Whether to show author information */
 	showAuthor?: boolean
-	/** Whether to show compact version (for grids) */
 	compact?: boolean
 }
-
-/**
- * ============================================================================
- * SNIPPET CARD
- * ============================================================================
- *
- * Displays a snippet preview in a card format.
- * Used in grids, lists, and profile pages.
- *
- * Features:
- * - Title and description
- * - Technology badges
- * - Author info (optional)
- * - View and like counts
- * - Publish/update date
- */
 
 export function SnippetCard({
 	snippet,
@@ -60,7 +41,6 @@ export function SnippetCard({
       `}
 			aria-label={`View snippet: ${snippet.title}`}
 		>
-			{/* Header */}
 			<div className="mb-3 flex items-start justify-between gap-2">
 				<h3
 					className={`
@@ -72,7 +52,6 @@ export function SnippetCard({
 					{snippet.title}
 				</h3>
 
-				{/* Visibility indicator - only for owner view */}
 				{snippet.visibility !== 'public' && (
 					<span
 						className="text-xs text-gray-500 capitalize"
@@ -83,14 +62,12 @@ export function SnippetCard({
 				)}
 			</div>
 
-			{/* Description */}
 			{snippet.description && !compact && (
 				<p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
 					{snippet.description}
 				</p>
 			)}
 
-			{/* Technologies */}
 			{snippet.technologies.length > 0 && (
 				<div className="flex flex-wrap gap-1.5 mb-3">
 					{snippet.technologies.slice(0, compact ? 2 : 3).map((tech) => (
@@ -108,9 +85,7 @@ export function SnippetCard({
 				</div>
 			)}
 
-			{/* Footer */}
 			<div className="mt-auto flex flex-col gap-2 text-xs text-gray-500">
-				{/* Author */}
 				{showAuthor && (
 					<div
 						className="flex items-center gap-1.5"
@@ -142,16 +117,13 @@ export function SnippetCard({
 					</div>
 				)}
 
-				{/* Metadata */}
 				<div className="flex items-center justify-between gap-3">
-					{/* Date - only on non-compact */}
 					{!compact && (
 						<time dateTime={new Date(date).toISOString()} className="truncate">
 							{dateLabel} {formatDate(date)}
 						</time>
 					)}
 
-					{/* Stats */}
 					<div className="flex items-center gap-2">
 						<span
 							className="flex items-center gap-1"

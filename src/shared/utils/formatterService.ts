@@ -40,13 +40,11 @@ export class FormatterService {
 			const parsed = new URL(url)
 			const hostname = parsed.hostname
 
-			// Allow localhost only in development
 			const isDevelopment = process.env.NODE_ENV === 'development'
 			if (isDevelopment && hostname === 'localhost') {
 				return
 			}
 
-			// Block private IP ranges and localhost in production
 			const blockedPatterns = [
 				/^localhost$/i,
 				/^127\./,
@@ -65,7 +63,6 @@ export class FormatterService {
 					)
 				}
 			}
-			// Only allow http and https protocols
 			if (!['http:', 'https:'].includes(parsed.protocol)) {
 				throw new Error(`Invalid protocol: ${parsed.protocol}`)
 			}

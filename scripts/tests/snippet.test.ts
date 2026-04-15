@@ -7,7 +7,6 @@ describe.sequential('Snippet Feature', () => {
   let script: SnippetScript;
 
   beforeAll(async () => {
-    // Clear and seed data before tests
     await new ClearScript().run();
     await new SeedScript().run();
     script = new SnippetScript();

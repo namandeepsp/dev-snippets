@@ -32,7 +32,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 		visibility: formState.visibility,
 		technologies: formState.technologies,
 		categories: formState.categories,
-		isSaving: false, // Will be provided by submission hook
+		isSaving: false,
 	})
 
 	const submission = useSnippetFormSubmission({

@@ -28,10 +28,6 @@ type SearchSnippetsInput = {
 	limit?: number
 }
 
-/* ----------------------------------------------------------------------- */
-/* CREATE
-/* ----------------------------------------------------------------------- */
-
 export async function createSnippetAction(
 	input: CreateSnippetServiceInput,
 ): Promise<ApiResponse<Snippet>> {
@@ -58,10 +54,6 @@ export async function createSnippetAction(
 		}
 	}
 }
-
-/* ----------------------------------------------------------------------- */
-/* UPDATE
-/* ----------------------------------------------------------------------- */
 
 export async function updateSnippetAction(
 	snippetId: string,
@@ -95,10 +87,6 @@ export async function updateSnippetAction(
 	}
 }
 
-/* ----------------------------------------------------------------------- */
-/* DELETE
-/* ----------------------------------------------------------------------- */
-
 export async function deleteSnippetAction(
 	snippetId: string,
 ): Promise<ApiResponse> {
@@ -130,10 +118,6 @@ export async function deleteSnippetAction(
 	}
 }
 
-/* ----------------------------------------------------------------------- */
-/* VIEW COUNT
-/* ----------------------------------------------------------------------- */
-
 export async function incrementViewsAction(
 	snippetId: string,
 ): Promise<ApiResponse> {
@@ -148,10 +132,6 @@ export async function incrementViewsAction(
 		}
 	}
 }
-
-/* ----------------------------------------------------------------------- */
-/* LIKE
-/* ----------------------------------------------------------------------- */
 
 export async function toggleLikeAction(
 	snippetId: string,
@@ -168,10 +148,6 @@ export async function toggleLikeAction(
 		}
 	}
 }
-
-/* ----------------------------------------------------------------------- */
-/* VERSION CONTROL
-/* ----------------------------------------------------------------------- */
 
 export async function restoreSnippetVersionAction(
 	snippetId: string,
@@ -193,10 +169,6 @@ export async function restoreSnippetVersionAction(
 	}
 }
 
-/* ----------------------------------------------------------------------- */
-/* SHARING
-/* ----------------------------------------------------------------------- */
-
 export async function shareSnippetAction(
 	snippetId: string,
 	userIds: string[],
@@ -215,10 +187,6 @@ export async function shareSnippetAction(
 		}
 	}
 }
-
-/* ----------------------------------------------------------------------- */
-/* SEARCH
-/* ----------------------------------------------------------------------- */
 
 export async function searchSnippetsAction({
 	query = '',

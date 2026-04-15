@@ -2,14 +2,6 @@
 
 import { Button } from '@/shared/ui/design-system'
 
-/**
- * ============================================================================
- * DELETE CONFIRMATION MODAL
- * ============================================================================
- *
- * Modal for confirming snippet deletion.
- */
-
 interface DeleteConfirmationModalProps {
 	isOpen: boolean
 	snippetTitle: string

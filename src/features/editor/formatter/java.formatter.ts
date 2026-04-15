@@ -12,14 +12,6 @@ import type {
 	FormatResult,
 } from './formatter.types'
 
-/**
- * ============================================================================
- * JAVA FORMATTER
- * ============================================================================
- *
- * Java formatter implementation via server-side formatting endpoint.
- */
-
 const javaFormatter: CodeFormatter = {
 	name: 'google-java-format',
 
@@ -69,7 +61,6 @@ const javaFormatter: CodeFormatter = {
 	},
 }
 
-// Auto-register on import
 formatterRegistry.register(javaFormatter)
 
 export default javaFormatter

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 export class ClearScript extends BaseScript {
   name = 'Clear Data';
   private collections = ['users', 'snippets', 'snippet_likes'];
-  private clearAuthorizedUsers = true; // Set to true to also clear Firebase Auth users
+  private clearAuthorizedUsers = true;
 
   async run(): Promise<void> {
     await this.ensureReady();
@@ -13,13 +13,11 @@ export class ClearScript extends BaseScript {
 
     let totalDeleted = 0;
 
-    // Clear Firestore collections
     for (const collection of this.collections) {
       const deleted = await this.clearCollection(collection);
       totalDeleted += deleted;
     }
 
-    // Optionally clear Firebase Auth users
     if (this.clearAuthorizedUsers) {
       const authDeleted = await this.clearAuthUsers();
       this.log(`Deleted ${authDeleted} Firebase Auth users`);

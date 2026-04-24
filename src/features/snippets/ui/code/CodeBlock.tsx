@@ -16,7 +16,35 @@ import {
 const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), {
 	ssr: false,
 	loading: () => (
-		<div className="min-h-30 rounded-xl border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]" />
+		<div className="flex flex-col gap-2 overflow-hidden rounded-xl border-b border-[#D4D4D4] bg-[#4F565E] px-4 py-2 dark:border-gray-700 dark:bg-[#333333]">
+			<div className="flex items-center justify-between gap-2 pb-2">
+				<div className="h-5 w-24 animate-pulse rounded bg-[#303841] dark:bg-[#1E1E1E]" />
+				<div className="flex gap-2">
+					<div className="h-8 w-16 animate-pulse rounded-[10px] bg-[#303841] dark:bg-[#4F565E]" />
+					<div className="h-8 w-16 animate-pulse rounded-[10px] bg-[#303841] dark:bg-[#4F565E]" />
+				</div>
+			</div>
+			<div className="flex flex-col">
+				<div
+					className="relative overflow-auto bg-[#303841] dark:bg-[#1E1E1E]"
+					style={{ maxHeight: '500px' }}
+				>
+					<div className="space-y-2 p-4">
+						{[...Array(8)].map((_, i) => (
+							<div key={i} className="flex gap-3">
+								<div className="h-4 w-6 animate-pulse rounded bg-gray-600 dark:bg-gray-700" />
+								<div className="flex-1 space-y-1">
+									<div className="h-4 w-3/4 animate-pulse rounded bg-gray-600 dark:bg-gray-700" />
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+				<div className="border-t border-[#D4D4D4] bg-[#303841] px-4 py-2 text-xs text-gray-400 dark:border-gray-700 dark:bg-[#1E1E1E]">
+					<div className="h-4 w-20 animate-pulse rounded bg-gray-600 dark:bg-gray-700" />
+				</div>
+			</div>
+		</div>
 	),
 })
 

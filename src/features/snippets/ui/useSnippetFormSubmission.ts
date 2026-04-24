@@ -39,8 +39,9 @@ export function useSnippetFormSubmission({
 }: UseSnippetFormSubmissionProps) {
 	const router = useRouter()
 	const [isSaving, setIsSaving] = useState(false)
+	const [showSharedWarning, setShowSharedWarning] = useState(false)
 
-	const submit = async () => {
+	const performSubmit = async (finalVisibility: SnippetVisibility) => {
 		if (isSaving) return
 		if (!canSubmit) {
 			toast.error('Please complete required fields before saving.')
@@ -69,7 +70,7 @@ export function useSnippetFormSubmission({
 				language: formatterLanguage,
 				technologies,
 				categories,
-				visibility,
+				visibility: finalVisibility,
 			}
 
 			if (mode === 'edit' && snippet) {
@@ -90,6 +91,14 @@ export function useSnippetFormSubmission({
 		}
 	}
 
+	const submit = async () => {
+		if (visibility === 'shared') {
+			setShowSharedWarning(true)
+			return
+		}
+		await performSubmit(visibility)
+	}
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		await submit()
@@ -99,5 +108,8 @@ export function useSnippetFormSubmission({
 		isSaving,
 		submit,
 		handleSubmit,
+		showSharedWarning,
+		setShowSharedWarning,
+		performSubmit,
 	}
 }

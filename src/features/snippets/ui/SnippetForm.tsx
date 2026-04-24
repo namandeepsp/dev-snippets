@@ -1,5 +1,6 @@
 'use client'
 
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal'
 import { useEffect } from 'react'
 import type { Snippet } from '../core/snippet.types'
 import { SnippetFormActions } from './SnippetFormActions'
@@ -133,6 +134,20 @@ export function SnippetForm({ mode, snippet }: Props) {
 				mode={mode}
 				canSubmit={validation.canSubmit}
 				isSaving={submission.isSaving}
+			/>
+
+			<ConfirmationModal
+				open={submission.showSharedWarning}
+				onClose={() => submission.setShowSharedWarning(false)}
+				title="Share Feature Not Available"
+				description="The share feature is not yet available. Would you like to save this snippet as public instead? Anyone will be able to view it."
+				confirmText="Save as Public"
+				cancelText="Cancel"
+				onConfirm={async () => {
+					submission.setShowSharedWarning(false)
+					await submission.performSubmit('public')
+				}}
+				isLoading={submission.isSaving}
 			/>
 		</form>
 	)

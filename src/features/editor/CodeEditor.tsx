@@ -1,11 +1,12 @@
 import { useTheme } from '@/shared/hooks/useTheme'
-import { toast } from '@/shared/ui/design-system'
+import { Button, toast } from '@/shared/ui/design-system'
 import { redo, redoDepth, undo, undoDepth } from '@codemirror/commands'
 import type { EditorState } from '@codemirror/state'
 import type { EditorView } from '@codemirror/view'
 import { keymap } from '@codemirror/view'
 import dynamic from 'next/dynamic'
 import React from 'react'
+import { MdErrorOutline, MdOutlineInfo } from 'react-icons/md'
 import { TECHNOLOGY_COLORS } from '../snippets/core/snippet.colors'
 import type { SnippetTechnology } from '../snippets/core/snippet.types'
 import { LANGUAGE_TO_PRIMARY_TECHNOLOGY } from '../technologies/technologies.config'
@@ -185,24 +186,59 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 					className="overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700"
 				>
 					<div className="flex flex-col gap-3 border-b border-white/10 bg-[#303841] px-3 py-2 text-slate-100 sm:flex-row sm:items-center sm:justify-between sm:gap-2 dark:bg-[#1E1E1E]">
-						<div className="flex items-center gap-3">
-							<div
-								className={`flex h-8 w-8 items-center justify-center rounded-[25%] ${headerColorClass} text-base shadow-sm`}
-								aria-hidden="true"
-							>
-								<TechnologyIcon
-									technology={headerTechnology}
-									className={`h-4 w-4 ${headerIconTextClass}`}
-								/>
+						<div className="flex items-center justify-between gap-3 flex-1 sm:flex-none sm:justify-start">
+							<div className="flex items-center gap-3">
+								<div
+									className={`flex h-8 w-8 items-center justify-center rounded-[25%] ${headerColorClass} text-base shadow-sm`}
+									aria-hidden="true"
+								>
+									<TechnologyIcon
+										technology={headerTechnology}
+										className={`h-4 w-4 ${headerIconTextClass}`}
+									/>
+								</div>
+								<div className="flex flex-col">
+									<span className="text-sm font-semibold text-slate-100">
+										{languageConfig.label} Editor
+									</span>
+									<span className="text-xs text-slate-300">
+										{formatterLabel}
+									</span>
+								</div>
 							</div>
-							<div className="flex flex-col">
-								<span className="text-sm font-semibold text-slate-100">
-									{languageConfig.label} Editor
-								</span>
-								<span className="text-xs text-slate-300">{formatterLabel}</span>
+							<div className="flex items-center gap-1.5">
+								{state.formattingErrors.length > 0 ? (
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={state.handleErrorButtonClick}
+										data-tooltip-id="app-tooltip"
+										data-tooltip-content={`${state.formattingErrors.length} formatting error${state.formattingErrors.length > 1 ? 's' : ''}`}
+										className="pointer-events-auto sm:hidden rounded-lg! px-2! py-1.5! text-base! transition-all focus:outline-none focus:ring-0 bg-red-500/20! text-red-200! hover:bg-red-500/30!"
+										aria-label="Show formatting errors"
+									>
+										<MdErrorOutline />
+										<span className="ml-1 text-sm font-medium">
+											{state.formattingErrors.length}
+										</span>
+									</Button>
+								) : null}
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									onClick={() => setIsShortcutsOpen(true)}
+									data-tooltip-id="app-tooltip"
+									data-tooltip-content="Show shortcuts (Ctrl+Shift+/ or Cmd+Shift+/)"
+									className="pointer-events-auto sm:hidden rounded-lg! px-2! py-1.5! text-base! text-slate-100! transition-all focus:outline-none focus:ring-0 bg-white/10! hover:bg-white/20!"
+									aria-label="Show editor shortcuts"
+								>
+									<MdOutlineInfo />
+								</Button>
 							</div>
 						</div>
-						<div className="relative mt-1 w-full border-t border-white/10 pt-2 sm:mt-0 sm:w-auto sm:border-0 sm:pt-0">
+						<div className="relative mt-1 w-full border-t border-white/10 pt-2 sm:mt-0 sm:w-auto sm:border-0 sm:pt-0 flex items-center gap-2">
 							<CodeEditorToolbar
 								copied={state.copied}
 								readOnly={readOnly}
@@ -227,9 +263,24 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 									setTimeout(() => state.setCopied(false), 2000)
 								}}
 								onPaste={handlePaste}
-								onOpenShortcuts={() => setIsShortcutsOpen(true)}
-								shortcutsHint="Show shortcuts (Ctrl+Shift+/ or Cmd+Shift+/)"
 							/>
+							<Button
+								type="button"
+								variant="ghost"
+								size="lg"
+								onClick={() => setIsShortcutsOpen(true)}
+								data-tooltip-id="app-tooltip"
+								data-tooltip-content="Show shortcuts (Ctrl+Shift+/ or Cmd+Shift+/)"
+								className="hidden sm:flex rounded-lg p-1.5! text-slate-100 transition-all hover:bg-white/10! focus:outline-none focus:ring-0"
+								aria-label="Show editor shortcuts"
+							>
+								<MdOutlineInfo className="h-5 w-5" />
+							</Button>
+							{/* <button
+								type="button"
+							>
+								<MdOutlineInfo className="h-5 w-5" />
+							</button> */}
 						</div>
 					</div>
 					<div className="relative bg-[#303841] dark:bg-[#1E1E1E]">

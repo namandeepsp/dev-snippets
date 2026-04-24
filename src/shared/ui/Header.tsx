@@ -106,13 +106,13 @@ export function Header() {
 
 							<Link
 								href="/snippets"
-								className="text-sm font-medium hover:text-foreground/80 transition"
+								className="text-sm font-medium hover:opacity-60 transition"
 							>
 								Snippets
 							</Link>
 							<Link
 								href="/about"
-								className="text-sm font-medium hover:text-foreground/80 transition"
+								className="text-sm font-medium hover:opacity-60 transition"
 							>
 								About
 							</Link>
@@ -121,14 +121,14 @@ export function Header() {
 								<>
 									<Link
 										href="/snippets/new"
-										className="text-sm font-medium hover:text-foreground/80 transition"
+										className="text-sm font-medium hover:opacity-60 transition"
 									>
 										Create
 									</Link>
 
 									<Link
 										href="/settings"
-										className="text-sm font-medium hover:text-foreground/80 transition"
+										className="text-sm font-medium hover:opacity-60 transition"
 									>
 										Settings
 									</Link>
@@ -136,7 +136,7 @@ export function Header() {
 									<div className="flex items-center gap-3">
 										<Link
 											href={`/profile/${user.username}`}
-											className="flex items-center gap-2 text-sm hover:opacity-80 transition"
+											className="flex items-center gap-2 text-sm hover:opacity-60 transition"
 										>
 											{user.avatarUrl ? (
 												<img
@@ -247,20 +247,20 @@ export function Header() {
 					>
 						<Link
 							href="/snippets"
-							className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-white/45 dark:hover:bg-slate-800/60"
+							className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-slate-100 dark:hover:bg-slate-800/60"
 						>
 							Snippets
 						</Link>
 						<Link
 							href="/about"
-							className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-white/45 dark:hover:bg-slate-800/60"
+							className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-slate-100 dark:hover:bg-slate-800/60"
 						>
 							About
 						</Link>
 						{user && (
 							<Link
 								href="/snippets/new"
-								className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-white/45 dark:hover:bg-slate-800/60"
+								className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-slate-100 dark:hover:bg-slate-800/60"
 							>
 								Create
 							</Link>
@@ -269,13 +269,13 @@ export function Header() {
 							<>
 								<Link
 									href="/settings"
-									className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-white/45 dark:hover:bg-slate-800/60"
+									className="rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-slate-100 dark:hover:bg-slate-800/60"
 								>
 									Settings
 								</Link>
 								<Link
 									href={`/profile/${user.username}`}
-									className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-white/45 dark:hover:bg-slate-800/60"
+									className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-slate-100 dark:hover:bg-slate-800/60"
 								>
 									{user.avatarUrl ? (
 										<img

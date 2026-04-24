@@ -6,7 +6,6 @@ import {
 	MdErrorOutline,
 	MdOutlineContentCopy,
 	MdOutlineContentPaste,
-	MdOutlineInfo,
 	MdOutlineRedo,
 	MdOutlineUndo,
 } from 'react-icons/md'
@@ -22,8 +21,6 @@ type CodeEditorToolbarProps = {
 	onRedo: () => void
 	onCopy: () => void
 	onPaste: () => void
-	onOpenShortcuts: () => void
-	shortcutsHint: string
 }
 
 export function CodeEditorToolbar({
@@ -38,8 +35,6 @@ export function CodeEditorToolbar({
 	onRedo,
 	onCopy,
 	onPaste,
-	onOpenShortcuts,
-	shortcutsHint,
 }: CodeEditorToolbarProps) {
 	const hasErrors = formattingErrors.length > 0
 
@@ -54,7 +49,7 @@ export function CodeEditorToolbar({
 						onClick={onToggleErrorAccordion}
 						data-tooltip-id="app-tooltip"
 						data-tooltip-content={`${formattingErrors.length} formatting error${formattingErrors.length > 1 ? 's' : ''}`}
-						className="pointer-events-auto rounded-lg! px-2! py-1.5! text-base! transition-all focus:outline-none focus:ring-0 bg-red-500/20! text-red-200! hover:bg-red-500/30! sm:px-3! sm:py-2! sm:text-lg!"
+						className="pointer-events-auto hidden sm:flex rounded-lg! px-2! py-1.5! text-base! transition-all focus:outline-none focus:ring-0 bg-red-500/20! text-red-200! hover:bg-red-500/30! sm:px-3! sm:py-2! sm:text-lg!"
 						aria-label="Show formatting errors"
 					>
 						<MdErrorOutline />
@@ -88,18 +83,6 @@ export function CodeEditorToolbar({
 					aria-label={copied ? 'Copied!' : 'Copy code to clipboard'}
 				>
 					{copied ? <IoCheckmark /> : <MdOutlineContentCopy />}
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					data-tooltip-id="app-tooltip"
-					data-tooltip-content={shortcutsHint}
-					onClick={onOpenShortcuts}
-					className="pointer-events-auto rounded-lg! px-2! py-1.5! text-base! text-slate-100! transition-all focus:outline-none focus:ring-0 bg-white/10! hover:bg-white/20! sm:px-3! sm:py-2! sm:text-lg!"
-					aria-label="Show editor shortcuts"
-				>
-					<MdOutlineInfo />
 				</Button>
 				<div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-linear-to-l from-[#303841] to-transparent sm:hidden dark:from-[#1E1E1E]" />
 			</div>

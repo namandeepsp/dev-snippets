@@ -6,7 +6,7 @@ export const TECHNOLOGY_COLORS: Record<SnippetTechnology, string> = {
 
 	react: 'bg-sky-500',
 	redux: 'bg-purple-500',
-	nextjs: 'bg-zinc-300 dark:bg-black',
+	nextjs: 'bg-gray-200 dark:bg-black text-zinc-900 dark:text-white',
 	angular: 'bg-emerald-600 dark:bg-emerald-500',
 
 	node: 'bg-green-600',

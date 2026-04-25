@@ -38,7 +38,6 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 	const [searchError, setSearchError] = useState<string | null>(null)
 	const [recent, setRecent] = useState<RecentSnippet[]>([])
 	const [showFilters, setShowFilters] = useState(false)
-	const [isSearchAreaFocused, setIsSearchAreaFocused] = useState(false)
 	const latestRequestRef = useRef(0)
 	const filtersRef = useRef<HTMLDivElement>(null)
 	const queryRef = useRef<HTMLInputElement>(null)
@@ -53,13 +52,6 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 			scope !== 'public'
 		)
 	}, [query, technology, sortBy, scope])
-	const activeFilterCount = useMemo(() => {
-		let count = 0
-		if (technology !== 'all') count += 1
-		if (sortBy !== 'latest') count += 1
-		if (scope !== 'public') count += 1
-		return count
-	}, [technology, sortBy, scope])
 
 	const loadRecent = useCallback(() => {
 		setRecent(getRecentSnippets())
@@ -73,7 +65,6 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 		if (!open) return
 		queryRef.current?.focus()
 		loadRecent()
-		setIsSearchAreaFocused(true)
 	}, [open, loadRecent])
 
 	useEffect(() => {
@@ -142,9 +133,7 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 	if (!open || !mounted) return null
 
 	const showRecent =
-		isSearchAreaFocused &&
-		query.trim().length === 0 &&
-		(user ? recent : recent.slice(0, 2)).length > 0
+		query.trim().length === 0 && (user ? recent : recent.slice(0, 2)).length > 0
 	const displayedRecent = user ? recent : recent.slice(0, 2)
 
 	function handleDeleteRecent(snippetId: string) {
@@ -185,23 +174,13 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 					</Button>
 				</div>
 
-				<div
-					ref={searchAreaRef}
-					onFocus={() => setIsSearchAreaFocused(true)}
-					onBlur={(event) => {
-						if (!event.currentTarget.contains(event.relatedTarget as Node)) {
-							setIsSearchAreaFocused(false)
-							setShowFilters(false)
-						}
-					}}
-				>
+				<div ref={searchAreaRef}>
 					<SearchModalForm
 						queryRef={queryRef}
 						query={query}
 						loadRecent={loadRecent}
 						setQuery={setQuery}
 						filtersRef={filtersRef}
-						activeFilterCount={activeFilterCount}
 						setShowFilters={setShowFilters}
 						showFilters={showFilters}
 						technology={technology}
@@ -223,16 +202,15 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 							/>
 						)}
 
-						{isSearchAreaFocused && isSearching && <SearchResultsSkeleton />}
+						{isSearching && <SearchResultsSkeleton />}
 
-						{isSearchAreaFocused && searchError && (
+						{searchError && (
 							<p className="py-5 text-center text-sm text-red-500">
 								{searchError}
 							</p>
 						)}
 
-						{isSearchAreaFocused &&
-							!isSearching &&
+						{!isSearching &&
 							!searchError &&
 							shouldSearch &&
 							results.length === 0 && (
@@ -241,12 +219,9 @@ export function HeaderSearchModal({ open, onClose }: Props) {
 								</p>
 							)}
 
-						{isSearchAreaFocused &&
-							!isSearching &&
-							!searchError &&
-							results.length > 0 && (
-								<SearchResults results={results} onClose={onClose} />
-							)}
+						{!isSearching && !searchError && results.length > 0 && (
+							<SearchResults results={results} onClose={onClose} />
+						)}
 					</div>
 				</div>
 			</div>

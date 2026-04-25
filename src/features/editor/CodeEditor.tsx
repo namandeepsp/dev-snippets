@@ -4,7 +4,6 @@ import { redo, redoDepth, undo, undoDepth } from '@codemirror/commands'
 import type { EditorState } from '@codemirror/state'
 import type { EditorView } from '@codemirror/view'
 import { keymap } from '@codemirror/view'
-import dynamic from 'next/dynamic'
 import React from 'react'
 import { MdErrorOutline, MdOutlineInfo } from 'react-icons/md'
 import { TECHNOLOGY_COLORS } from '../snippets/core/snippet.colors'
@@ -14,6 +13,7 @@ import { TechnologyIcon } from '../technologies/technology-icons'
 import { CodeEditorToolbar } from './code-editor/CodeEditorToolbar'
 import { EditorShortcutsModal } from './code-editor/EditorShortcutsModal'
 import { ErrorAccordion } from './code-editor/ErrorAccordion'
+import CodeMirror from './code-editor/LazyLoadedCodeMirror'
 import { buildEditorShortcuts } from './code-editor/editor.shortcuts'
 import { useCodeEditorActions } from './code-editor/useCodeEditorActions'
 import { useCodeEditorFormatting } from './code-editor/useCodeEditorFormatting'
@@ -22,13 +22,6 @@ import { useCodeMirrorExtensions } from './code-editor/useCodeMirrorExtensions'
 import { usePasteHandler } from './code-editor/usePasteHandler'
 import { getLanguageConfig } from './editor.config'
 import type { EditorLanguage } from './editor.config'
-
-const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), {
-	ssr: false,
-	loading: () => (
-		<div className="min-h-50 rounded-xl border-2 border-gray-200 bg-[#303841] dark:border-gray-700 dark:bg-[#1E1E1E]" />
-	),
-})
 
 interface CodeEditorProps {
 	value: string
@@ -284,7 +277,7 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 						</div>
 					</div>
 					<div className="relative bg-[#303841] dark:bg-[#1E1E1E]">
-						<div className="overflow-auto" style={{ maxHeight }}>
+						<div className="overflow-auto" style={{ minHeight, maxHeight }}>
 							<CodeMirror
 								value={value}
 								onChange={onChange}

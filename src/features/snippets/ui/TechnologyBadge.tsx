@@ -29,7 +29,7 @@ export function TechnologyBadge({
 	const baseColor =
 		onClick && !selected
 			? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-			: TECHNOLOGY_COLORS[technology] || 'bg-gray-500'
+			: (TECHNOLOGY_COLORS[technology] || 'bg-gray-500') + ' text-white'
 	const colorClass = baseColor
 
 	const content = (

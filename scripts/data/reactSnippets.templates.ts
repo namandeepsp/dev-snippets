@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const REACT_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-  {
-    title: 'useState Hook Basic',
-    description: 'Basic state management with useState hook. Usage: const [count, setCount] = useState(0)',
-    code: `import { useState } from 'react';
+	{
+		title: 'useState Hook Basic',
+		description:
+			'Basic state management with useState hook. Usage: const [count, setCount] = useState(0)',
+		code: `import { useState } from 'react';
 
 export function Counter() {
   const [count, setCount] = useState(0);
@@ -16,14 +17,15 @@ export function Counter() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'library'],
-  },
-  {
-    title: 'useEffect Hook',
-    description: 'Side effects management with useEffect. Runs after render and cleanup on unmount. Usage: useEffect(() => { /* effect */ }, [dependencies])',
-    code: `import { useState, useEffect } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'library'],
+	},
+	{
+		title: 'useEffect Hook',
+		description:
+			'Side effects management with useEffect. Runs after render and cleanup on unmount. Usage: useEffect(() => { /* effect */ }, [dependencies])',
+		code: `import { useState, useEffect } from 'react';
 
 export function DataFetcher() {
   const [data, setData] = useState(null);
@@ -45,14 +47,15 @@ export function DataFetcher() {
   if (loading) return <div>Loading...</div>;
   return <div>{JSON.stringify(data)}</div>;
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'utilities'],
-  },
-  {
-    title: 'useContext Hook',
-    description: 'Access context values without prop drilling. Usage: const value = useContext(MyContext)',
-    code: `import { createContext, useContext } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'utilities'],
+	},
+	{
+		title: 'useContext Hook',
+		description:
+			'Access context values without prop drilling. Usage: const value = useContext(MyContext)',
+		code: `import { createContext, useContext } from 'react';
 
 const ThemeContext = createContext('light');
 
@@ -73,14 +76,15 @@ export function App() {
     </ThemeContext.Provider>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'library'],
-  },
-  {
-    title: 'useReducer Hook',
-    description: 'Complex state management with useReducer. Usage: const [state, dispatch] = useReducer(reducer, initialState)',
-    code: `import { useReducer } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'library'],
+	},
+	{
+		title: 'useReducer Hook',
+		description:
+			'Complex state management with useReducer. Usage: const [state, dispatch] = useReducer(reducer, initialState)',
+		code: `import { useReducer } from 'react';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -107,14 +111,15 @@ export function Counter() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'library'],
-  },
-  {
-    title: 'useCallback Hook',
-    description: 'Memoize callback functions to prevent unnecessary re-renders in child components. Usage: const memoizedCallback = useCallback(() => {}, [dependencies])',
-    code: `import { useState, useCallback } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'library'],
+	},
+	{
+		title: 'useCallback Hook',
+		description:
+			'Memoize callback functions to prevent unnecessary re-renders in child components. Usage: const memoizedCallback = useCallback(() => {}, [dependencies])',
+		code: `import { useState, useCallback } from 'react';
 
 export function Parent() {
   const [count, setCount] = useState(0);
@@ -135,14 +140,15 @@ function Child({ onClick }) {
   console.log('Child rendered');
   return <button onClick={onClick}>Increment</button>;
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'performance'],
-  },
-  {
-    title: 'useMemo Hook',
-    description: 'Memoize expensive computations to avoid recalculation on every render. Usage: const memoizedValue = useMemo(() => expensiveComputation(), [dependencies])',
-    code: `import { useState, useMemo } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'performance'],
+	},
+	{
+		title: 'useMemo Hook',
+		description:
+			'Memoize expensive computations to avoid recalculation on every render. Usage: const memoizedValue = useMemo(() => expensiveComputation(), [dependencies])',
+		code: `import { useState, useMemo } from 'react';
 
 export function ExpensiveComponent() {
   const [count, setCount] = useState(0);
@@ -161,14 +167,15 @@ export function ExpensiveComponent() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'performance'],
-  },
-  {
-    title: 'useRef Hook',
-    description: 'Access DOM elements directly or store mutable values that persist across renders. Usage: const ref = useRef(null)',
-    code: `import { useRef } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'performance'],
+	},
+	{
+		title: 'useRef Hook',
+		description:
+			'Access DOM elements directly or store mutable values that persist across renders. Usage: const ref = useRef(null)',
+		code: `import { useRef } from 'react';
 
 export function TextInput() {
   const inputRef = useRef(null);
@@ -191,14 +198,15 @@ export function TextInput() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'frontend'],
-  },
-  {
-    title: 'Custom Hook - useLocalStorage',
-    description: 'Custom hook to sync state with localStorage. Usage: const [value, setValue] = useLocalStorage("key", defaultValue)',
-    code: `import { useState, useEffect } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'frontend'],
+	},
+	{
+		title: 'Custom Hook - useLocalStorage',
+		description:
+			'Custom hook to sync state with localStorage. Usage: const [value, setValue] = useLocalStorage("key", defaultValue)',
+		code: `import { useState, useEffect } from 'react';
 
 export function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
@@ -233,14 +241,15 @@ export function App() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'hooks'],
-  },
-  {
-    title: 'Custom Hook - useFetch',
-    description: 'Custom hook for data fetching with loading and error states. Usage: const { data, loading, error } = useFetch(url)',
-    code: `import { useState, useEffect } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'hooks'],
+	},
+	{
+		title: 'Custom Hook - useFetch',
+		description:
+			'Custom hook for data fetching with loading and error states. Usage: const { data, loading, error } = useFetch(url)',
+		code: `import { useState, useEffect } from 'react';
 
 export function useFetch(url) {
   const [data, setData] = useState(null);
@@ -279,14 +288,15 @@ export function UserList() {
   if (error) return <div>Error: {error}</div>;
   return <ul>{data?.map(u => <li key={u.id}>{u.name}</li>)}</ul>;
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'hooks', 'utilities'],
-  },
-  {
-    title: 'Controlled Form Component',
-    description: 'Form with controlled inputs where React state is the single source of truth. Usage: <input value={state} onChange={handleChange} />',
-    code: `import { useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'hooks', 'utilities'],
+	},
+	{
+		title: 'Controlled Form Component',
+		description:
+			'Form with controlled inputs where React state is the single source of truth. Usage: <input value={state} onChange={handleChange} />',
+		code: `import { useState } from 'react';
 
 export function ControlledForm() {
   const [formData, setFormData] = useState({
@@ -318,14 +328,15 @@ export function ControlledForm() {
     </form>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['frontend', 'library'],
-  },
-  {
-    title: 'Conditional Rendering',
-    description: 'Different patterns for conditional rendering in React. Usage: {condition ? <A /> : <B />} or {condition && <A />}',
-    code: `import { useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['frontend', 'library'],
+	},
+	{
+		title: 'Conditional Rendering',
+		description:
+			'Different patterns for conditional rendering in React. Usage: {condition ? <A /> : <B />} or {condition && <A />}',
+		code: `import { useState } from 'react';
 
 export function ConditionalRender() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -357,14 +368,15 @@ export function ConditionalRender() {
 function Dashboard() {
   return <div>Dashboard Content</div>;
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['frontend', 'utilities'],
-  },
-  {
-    title: 'List Rendering with Keys',
-    description: 'Render lists efficiently with proper key usage. Usage: {items.map(item => <Item key={item.id} {...item} />)}',
-    code: `import { useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['frontend', 'utilities'],
+	},
+	{
+		title: 'List Rendering with Keys',
+		description:
+			'Render lists efficiently with proper key usage. Usage: {items.map(item => <Item key={item.id} {...item} />)}',
+		code: `import { useState } from 'react';
 
 export function TodoList() {
   const [todos, setTodos] = useState([
@@ -412,14 +424,15 @@ export function TodoList() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['frontend', 'utilities'],
-  },
-  {
-    title: 'Component Composition',
-    description: 'Build complex UIs by composing smaller components. Usage: <Parent><Child /></Parent>',
-    code: `export function Card({ title, children, footer }) {
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['frontend', 'utilities'],
+	},
+	{
+		title: 'Component Composition',
+		description:
+			'Build complex UIs by composing smaller components. Usage: <Parent><Child /></Parent>',
+		code: `export function Card({ title, children, footer }) {
   return (
     <div className="card">
       <div className="card-header">{title}</div>
@@ -448,14 +461,15 @@ export function App() {
     </Card>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['frontend', 'frontend'],
-  },
-  {
-    title: 'Props Destructuring',
-    description: 'Destructure props for cleaner component code. Usage: function Component({ prop1, prop2, ...rest }) {}',
-    code: `export function UserCard({ id, name, email, avatar, role = 'user', ...rest }) {
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['frontend', 'frontend'],
+	},
+	{
+		title: 'Props Destructuring',
+		description:
+			'Destructure props for cleaner component code. Usage: function Component({ prop1, prop2, ...rest }) {}',
+		code: `export function UserCard({ id, name, email, avatar, role = 'user', ...rest }) {
   return (
     <div className="user-card" {...rest}>
       <img src={avatar} alt={name} />
@@ -479,14 +493,15 @@ export function UserList({ users }) {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['frontend', 'utilities'],
-  },
-  {
-    title: 'Event Handling',
-    description: 'Handle user events like clicks, input changes, and form submissions. Usage: onClick={handleClick}, onChange={handleChange}',
-    code: `import { useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['frontend', 'utilities'],
+	},
+	{
+		title: 'Event Handling',
+		description:
+			'Handle user events like clicks, input changes, and form submissions. Usage: onClick={handleClick}, onChange={handleChange}',
+		code: `import { useState } from 'react';
 
 export function EventDemo() {
   const [count, setCount] = useState(0);
@@ -531,14 +546,15 @@ export function EventDemo() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['events', 'frontend'],
-  },
-  {
-    title: 'Higher Order Component (HOC)',
-    description: 'Reuse component logic by wrapping components with HOC. Usage: const EnhancedComponent = withTheme(MyComponent)',
-    code: `import { useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['events', 'frontend'],
+	},
+	{
+		title: 'Higher Order Component (HOC)',
+		description:
+			'Reuse component logic by wrapping components with HOC. Usage: const EnhancedComponent = withTheme(MyComponent)',
+		code: `import { useState } from 'react';
 
 export function withTheme(Component) {
   return function ThemedComponent(props) {
@@ -569,14 +585,15 @@ function MyComponent({ theme, toggleTheme }) {
 }
 
 export const ThemedComponent = withTheme(MyComponent);`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['design', 'design'],
-  },
-  {
-    title: 'Render Props Pattern',
-    description: 'Share code between components using a function as a child. Usage: <DataProvider render={data => <Component data={data} />} />',
-    code: `import { useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['design', 'design'],
+	},
+	{
+		title: 'Render Props Pattern',
+		description:
+			'Share code between components using a function as a child. Usage: <DataProvider render={data => <Component data={data} />} />',
+		code: `import { useState } from 'react';
 
 export function DataProvider({ render }) {
   const [data, setData] = useState({ count: 0 });
@@ -627,14 +644,15 @@ export function App2() {
     </MouseTracker>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['design', 'design'],
-  },
-  {
-    title: 'Error Boundary',
-    description: 'Catch errors in child components and display fallback UI. Usage: <ErrorBoundary><App /></ErrorBoundary>',
-    code: `import { Component } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['design', 'design'],
+	},
+	{
+		title: 'Error Boundary',
+		description:
+			'Catch errors in child components and display fallback UI. Usage: <ErrorBoundary><App /></ErrorBoundary>',
+		code: `import { Component } from 'react';
 
 export class ErrorBoundary extends Component {
   constructor(props) {
@@ -678,14 +696,15 @@ export function App() {
     </ErrorBoundary>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['utilities', 'design'],
-  },
-  {
-    title: 'Lazy Loading Components',
-    description: 'Code splitting with React.lazy and Suspense for better performance. Usage: const LazyComponent = lazy(() => import("./Component"))',
-    code: `import { lazy, Suspense } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['utilities', 'design'],
+	},
+	{
+		title: 'Lazy Loading Components',
+		description:
+			'Code splitting with React.lazy and Suspense for better performance. Usage: const LazyComponent = lazy(() => import("./Component"))',
+		code: `import { lazy, Suspense } from 'react';
 
 const HeavyComponent = lazy(() => import('./HeavyComponent'));
 const Dashboard = lazy(() => import('./Dashboard'));
@@ -708,14 +727,15 @@ export function App() {
 export default function HeavyComponent() {
   return <div>This is a heavy component loaded lazily</div>;
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['performance', 'performance'],
-  },
-  {
-    title: 'Portal Component',
-    description: 'Render components outside the DOM hierarchy using createPortal. Usage: ReactDOM.createPortal(<Modal />, document.body)',
-    code: `import { createPortal } from 'react-dom';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['performance', 'performance'],
+	},
+	{
+		title: 'Portal Component',
+		description:
+			'Render components outside the DOM hierarchy using createPortal. Usage: ReactDOM.createPortal(<Modal />, document.body)',
+		code: `import { createPortal } from 'react-dom';
 import { useState } from 'react';
 
 export function Modal({ isOpen, onClose, children }) {
@@ -745,14 +765,15 @@ export function App() {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['frontend', 'design'],
-  },
-  {
-    title: 'Debounced Search Input',
-    description: 'Search input with debounced API calls to avoid excessive requests. Usage: <SearchInput onSearch={handleSearch} />',
-    code: `import { useState, useEffect, useRef } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['frontend', 'design'],
+	},
+	{
+		title: 'Debounced Search Input',
+		description:
+			'Search input with debounced API calls to avoid excessive requests. Usage: <SearchInput onSearch={handleSearch} />',
+		code: `import { useState, useEffect, useRef } from 'react';
 
 export function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -806,14 +827,15 @@ export function SearchInput({ onSearch }) {
     </div>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['hooks', 'performance', 'utilities'],
-  },
-  {
-    title: 'Infinite Scroll Component',
-    description: 'Infinite scroll with IntersectionObserver for loading more items as user scrolls. Usage: <InfiniteScroll onLoadMore={handleLoadMore} />',
-    code: `import { useEffect, useRef, useState } from 'react';
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['hooks', 'performance', 'utilities'],
+	},
+	{
+		title: 'Infinite Scroll Component',
+		description:
+			'Infinite scroll with IntersectionObserver for loading more items as user scrolls. Usage: <InfiniteScroll onLoadMore={handleLoadMore} />',
+		code: `import { useEffect, useRef, useState } from 'react';
 
 export function InfiniteScroll({ onLoadMore, hasMore, children }) {
   const observerTarget = useRef(null);
@@ -868,8 +890,8 @@ export function ItemList() {
     </InfiniteScroll>
   );
 }`,
-    language: 'typescript',
-    technologies: ['react'],
-    categories: ['performance', 'design', 'utilities'],
-  },
+		language: 'typescript',
+		technologies: ['react'],
+		categories: ['performance', 'design', 'utilities'],
+	},
 ]

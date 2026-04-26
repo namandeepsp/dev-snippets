@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const JAVA_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-  {
-    title: 'Generic Result Wrapper',
-    description: 'Result wrapper for success/failure flows. Usage: Result<User> userResult = Result.success(user);',
-    code: `public class Result<T> {
+	{
+		title: 'Generic Result Wrapper',
+		description:
+			'Result wrapper for success/failure flows. Usage: Result<User> userResult = Result.success(user);',
+		code: `public class Result<T> {
     private final T data;
     private final String error;
     private final boolean success;
@@ -34,14 +35,15 @@ export const JAVA_SNIPPET_TEMPLATES: SnippetTemplate[] = [
 }
 
 // Usage: Result<User> userResult = Result.success(user);`,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['types', 'utilities'],
-  },
-  {
-    title: 'Try-With-Resources Custom Resource',
-    description: 'Custom AutoCloseable wrapper for DB connections. Usage: try (DatabaseConnection conn = new DatabaseConnection(url, user, pass)) { ... }',
-    code: `public class DatabaseConnection implements AutoCloseable {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['types', 'utilities'],
+	},
+	{
+		title: 'Try-With-Resources Custom Resource',
+		description:
+			'Custom AutoCloseable wrapper for DB connections. Usage: try (DatabaseConnection conn = new DatabaseConnection(url, user, pass)) { ... }',
+		code: `public class DatabaseConnection implements AutoCloseable {
     private Connection connection;
     private boolean closed = false;
 
@@ -66,14 +68,15 @@ export const JAVA_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     // Usage: try (DatabaseConnection conn = new DatabaseConnection(url, user, pass))
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['database', 'utilities'],
-  },
-  {
-    title: 'Singleton with Enum',
-    description: 'Singleton using enum with HikariCP connection pool. Usage: Connection conn = DatabasePool.INSTANCE.getConnection();',
-    code: `public enum DatabasePool {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['database', 'utilities'],
+	},
+	{
+		title: 'Singleton with Enum',
+		description:
+			'Singleton using enum with HikariCP connection pool. Usage: Connection conn = DatabasePool.INSTANCE.getConnection();',
+		code: `public enum DatabasePool {
     INSTANCE;
 
     private final HikariDataSource dataSource;
@@ -91,14 +94,15 @@ export const JAVA_SNIPPET_TEMPLATES: SnippetTemplate[] = [
 }
 
 // Usage: Connection conn = DatabasePool.INSTANCE.getConnection();`,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['architecture', 'backend'],
-  },
-  {
-    title: 'Builder Pattern with Lombok',
-    description: 'Lombok builder with validation. Usage: EmailMessage.builder().from("a").to("b").build().validate().send();',
-    code: `import lombok.Builder;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Builder Pattern with Lombok',
+		description:
+			'Lombok builder with validation. Usage: EmailMessage.builder().from("a").to("b").build().validate().send();',
+		code: `import lombok.Builder;
 import lombok.Singular;
 import java.util.List;
 
@@ -134,14 +138,15 @@ public class EmailMessage {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['utilities', 'architecture'],
-  },
-  {
-    title: 'Custom Annotation for Validation',
-    description: 'Custom annotation and reflection-based validator. Usage: class User { @MinLength(3) String name; }',
-    code: `@Target(ElementType.FIELD)
+		language: 'java',
+		technologies: ['java'],
+		categories: ['utilities', 'architecture'],
+	},
+	{
+		title: 'Custom Annotation for Validation',
+		description:
+			'Custom annotation and reflection-based validator. Usage: class User { @MinLength(3) String name; }',
+		code: `@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MinLength {
     int value() default 1;
@@ -166,14 +171,15 @@ public class Validator {
 
 // Usage:
 // class User { @MinLength(3) String name; }`,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['validation', 'utilities'],
-  },
-  {
-    title: 'CompletableFuture Timeout Pattern',
-    description: 'Apply timeout to CompletableFuture. Usage: withTimeout(future, 5, TimeUnit.SECONDS)',
-    code: `public class AsyncUtils {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['validation', 'utilities'],
+	},
+	{
+		title: 'CompletableFuture Timeout Pattern',
+		description:
+			'Apply timeout to CompletableFuture. Usage: withTimeout(future, 5, TimeUnit.SECONDS)',
+		code: `public class AsyncUtils {
     public static <T> CompletableFuture<T> withTimeout(
             CompletableFuture<T> future,
             long timeout,
@@ -196,14 +202,15 @@ public class Validator {
     // CompletableFuture<String> withTimeout = withTimeout(future, 5, TimeUnit.SECONDS);
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['performance', 'utilities'],
-  },
-  {
-    title: 'Circuit Breaker Pattern',
-    description: 'Simple circuit breaker with CLOSED/OPEN/HALF_OPEN. Usage: breaker.execute(() -> service.call())',
-    code: `public class CircuitBreaker {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['performance', 'utilities'],
+	},
+	{
+		title: 'Circuit Breaker Pattern',
+		description:
+			'Simple circuit breaker with CLOSED/OPEN/HALF_OPEN. Usage: breaker.execute(() -> service.call())',
+		code: `public class CircuitBreaker {
     private final int failureThreshold;
     private final long timeout;
     private int failureCount = 0;
@@ -245,14 +252,15 @@ public class Validator {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['architecture', 'backend'],
-  },
-  {
-    title: 'Thread Pool with Virtual Threads (Java 21+)',
-    description: 'Virtual thread executor for high concurrency. Usage: pool.submit(() -> doWork())',
-    code: `import java.util.concurrent.*;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Thread Pool with Virtual Threads (Java 21+)',
+		description:
+			'Virtual thread executor for high concurrency. Usage: pool.submit(() -> doWork())',
+		code: `import java.util.concurrent.*;
 
 public class VirtualThreadPool {
     private final ExecutorService executor;
@@ -281,14 +289,15 @@ public class VirtualThreadPool {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['performance', 'backend'],
-  },
-  {
-    title: 'Rate Limiter with Semaphore',
-    description: 'Semaphore-based rate limiter. Usage: limiter.tryAcquire() or limiter.acquire()',
-    code: `public class RateLimiter {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['performance', 'backend'],
+	},
+	{
+		title: 'Rate Limiter with Semaphore',
+		description:
+			'Semaphore-based rate limiter. Usage: limiter.tryAcquire() or limiter.acquire()',
+		code: `public class RateLimiter {
     private final Semaphore semaphore;
     private final int maxPermits;
     private final ScheduledExecutorService scheduler;
@@ -316,14 +325,15 @@ public class VirtualThreadPool {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['performance', 'security'],
-  },
-  {
-    title: 'Cache with Expiry',
-    description: 'Concurrent cache with TTL. Usage: cache.getOrCompute(key, computeFn)',
-    code: `public class ExpiringCache<K, V> {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['performance', 'security'],
+	},
+	{
+		title: 'Cache with Expiry',
+		description:
+			'Concurrent cache with TTL. Usage: cache.getOrCompute(key, computeFn)',
+		code: `public class ExpiringCache<K, V> {
     private final Map<K, CacheEntry<V>> cache = new ConcurrentHashMap<>();
     private final long ttlMillis;
 
@@ -361,14 +371,15 @@ public class VirtualThreadPool {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['data', 'performance'],
-  },
-  {
-    title: 'Generic Repository with JPA',
-    description: 'BaseRepository with common JPA helpers. Usage: interface UserRepository extends BaseRepository<User, Long> { ... }',
-    code: `import org.springframework.data.jpa.repository.JpaRepository;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['data', 'performance'],
+	},
+	{
+		title: 'Generic Repository with JPA',
+		description:
+			'BaseRepository with common JPA helpers. Usage: interface UserRepository extends BaseRepository<User, Long> { ... }',
+		code: `import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import java.io.Serializable;
 import java.util.List;
@@ -419,14 +430,15 @@ public interface UserRepository extends BaseRepository<User, Long> {
     Optional<User> findWithRolesById(Long id);
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['database', 'backend'],
-  },
-  {
-    title: 'Event-Driven Architecture with Spring',
-    description: 'Spring events with async and transactional listeners. Usage: publisher.publishUserCreated(userId, email)',
-    code: `import org.springframework.context.ApplicationEvent;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['database', 'backend'],
+	},
+	{
+		title: 'Event-Driven Architecture with Spring',
+		description:
+			'Spring events with async and transactional listeners. Usage: publisher.publishUserCreated(userId, email)',
+		code: `import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import java.time.Instant;
@@ -497,14 +509,15 @@ public class AsyncConfig {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['events', 'backend'],
-  },
-  {
-    title: 'Distributed Lock with Redis',
-    description: 'Redis-based distributed lock with Lua release. Usage: lock.executeWithLock("resource", supplier, 5, TimeUnit.SECONDS)',
-    code: `import org.springframework.data.redis.core.RedisTemplate;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['events', 'backend'],
+	},
+	{
+		title: 'Distributed Lock with Redis',
+		description:
+			'Redis-based distributed lock with Lua release. Usage: lock.executeWithLock("resource", supplier, 5, TimeUnit.SECONDS)',
+		code: `import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import java.util.Collections;
 import java.util.UUID;
@@ -576,14 +589,15 @@ public class DistributedLock {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['infrastructure', 'backend'],
-  },
-  {
-    title: 'Reactive Streams with Project Reactor',
-    description: 'Reactive service with Mono/Flux and retries. Usage: service.enrichUserWithExternalData(id)',
-    code: `import reactor.core.publisher.Flux;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['infrastructure', 'backend'],
+	},
+	{
+		title: 'Reactive Streams with Project Reactor',
+		description:
+			'Reactive service with Mono/Flux and retries. Usage: service.enrichUserWithExternalData(id)',
+		code: `import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
@@ -655,14 +669,15 @@ public class ReactiveUserService {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['performance', 'backend'],
-  },
-  {
-    title: 'CQRS Pattern with Event Sourcing',
-    description: 'CQRS with commands, events, aggregate, and projector. Usage: apply(new UserCreatedEvent(...))',
-    code: `public class CreateUserCommand {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['performance', 'backend'],
+	},
+	{
+		title: 'CQRS Pattern with Event Sourcing',
+		description:
+			'CQRS with commands, events, aggregate, and projector. Usage: apply(new UserCreatedEvent(...))',
+		code: `public class CreateUserCommand {
     private final String email;
     private final String name;
     // Constructor, getters
@@ -747,14 +762,15 @@ public class UserProjector {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['architecture', 'backend'],
-  },
-  {
-    title: 'GraphQL Resolver with DataLoader',
-    description: 'GraphQL resolver and DataLoader batching. Usage: userDataLoader.loadUser(id)',
-    code: `import com.graphqljava.tutorial.bookdetails.*;
+		language: 'java',
+		technologies: ['java'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'GraphQL Resolver with DataLoader',
+		description:
+			'GraphQL resolver and DataLoader batching. Usage: userDataLoader.loadUser(id)',
+		code: `import com.graphqljava.tutorial.bookdetails.*;
 import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
 import org.springframework.stereotype.Component;
@@ -817,14 +833,15 @@ public class UserGraphQLResolver {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['api', 'backend'],
-  },
-  {
-    title: 'Retry Mechanism with Exponential Backoff',
-    description: 'Configurable retry template with exponential backoff. Usage: retryTemplate.execute(() -> restTemplate.getForObject(...))',
-    code: `@Component
+		language: 'java',
+		technologies: ['java'],
+		categories: ['api', 'backend'],
+	},
+	{
+		title: 'Retry Mechanism with Exponential Backoff',
+		description:
+			'Configurable retry template with exponential backoff. Usage: retryTemplate.execute(() -> restTemplate.getForObject(...))',
+		code: `@Component
 public class RetryTemplate {
     private final int maxAttempts;
     private final long initialDelay;
@@ -920,14 +937,15 @@ public class ExternalApiService {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['utilities', 'backend'],
-  },
-  {
-    title: 'Generic Cache with Multiple Eviction Policies',
-    description: 'Cache with LRU/LFU/FIFO/TTL eviction and stats. Usage: cache.getStats()',
-    code: `public class AdvancedCache<K, V> {
+		language: 'java',
+		technologies: ['java'],
+		categories: ['utilities', 'backend'],
+	},
+	{
+		title: 'Generic Cache with Multiple Eviction Policies',
+		description:
+			'Cache with LRU/LFU/FIFO/TTL eviction and stats. Usage: cache.getStats()',
+		code: `public class AdvancedCache<K, V> {
     private final Map<K, CacheEntry<V>> cache;
     private final int maxSize;
     private final EvictionPolicy policy;
@@ -1062,14 +1080,15 @@ public class ExternalApiService {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['data', 'performance'],
-  },
-  {
-    title: 'WebSocket Chat Application with STOMP',
-    description: 'Spring WebSocket chat with STOMP endpoints. Usage: /ws-chat endpoint with /topic and /queue destinations.',
-    code: `@Configuration
+		language: 'java',
+		technologies: ['java'],
+		categories: ['data', 'performance'],
+	},
+	{
+		title: 'WebSocket Chat Application with STOMP',
+		description:
+			'Spring WebSocket chat with STOMP endpoints. Usage: /ws-chat endpoint with /topic and /queue destinations.',
+		code: `@Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
@@ -1192,14 +1211,15 @@ public class ChatRoomService {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['network', 'backend'],
-  },
-  {
-    title: 'Batch Processing with Spring Batch',
-    description: 'Spring Batch job with reader, processor, writer, and REST controller. Usage: POST /api/batch/start',
-    code: `@Configuration
+		language: 'java',
+		technologies: ['java'],
+		categories: ['network', 'backend'],
+	},
+	{
+		title: 'Batch Processing with Spring Batch',
+		description:
+			'Spring Batch job with reader, processor, writer, and REST controller. Usage: POST /api/batch/start',
+		code: `@Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
 
@@ -1366,8 +1386,8 @@ public class BatchController {
     }
 }
 `,
-    language: 'java',
-    technologies: ['java'],
-    categories: ['data', 'infrastructure'],
-  },
+		language: 'java',
+		technologies: ['java'],
+		categories: ['data', 'infrastructure'],
+	},
 ]

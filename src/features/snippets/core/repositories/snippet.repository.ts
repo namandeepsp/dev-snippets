@@ -76,4 +76,10 @@ export interface SnippetRepository
 	cleanupUserData(userId: string): Promise<void>
 
 	listByUser(userId: string, visibility?: SnippetVisibility): Promise<Snippet[]>
+
+	search(query: string): Promise<Snippet[]>
+
+	filterByTechnology(technology: string): Promise<Snippet[]>
+
+	filterByCategory(category: string): Promise<Snippet[]>
 }

@@ -26,10 +26,13 @@ import {
 	toggleLike,
 } from './firebase-snippet.repository.meta'
 import {
+	filterByCategory,
+	filterByTechnology,
 	getSnippetById,
 	listByUser,
 	listByVisibility,
 	listPublicSnippets,
+	searchSnippets,
 } from './firebase-snippet.repository.read'
 import {
 	listByUserPaginated,
@@ -145,5 +148,17 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 
 	async permanentlyDeleteAll(): Promise<void> {
 		return permanentlyDeleteAll()
+	}
+
+	async search(query: string): Promise<Snippet[]> {
+		return searchSnippets(this, query)
+	}
+
+	async filterByTechnology(technology: string): Promise<Snippet[]> {
+		return filterByTechnology(this, technology)
+	}
+
+	async filterByCategory(category: string): Promise<Snippet[]> {
+		return filterByCategory(this, category)
 	}
 }

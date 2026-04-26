@@ -1,15 +1,15 @@
-import type { FirestoreSnippet } from '../../src/features/snippets/core/snippet.types';
+import type { FirestoreSnippet } from '../../src/features/snippets/core/snippet.types'
 
 export type SnippetTemplate = Pick<
-  FirestoreSnippet,
-  'title' | 'description' | 'code' | 'language' | 'technologies' | 'categories'
->;
+	FirestoreSnippet,
+	'title' | 'description' | 'code' | 'language' | 'technologies' | 'categories'
+>
 
 export const SNIPPET_TEMPLATES_PART1: SnippetTemplate[] = [
-  {
-    title: 'Debounced Search Hook',
-    description: 'React hook to debounce input changes and reduce API calls',
-    code: `import { useEffect, useState } from "react";
+	{
+		title: 'Debounced Search Hook',
+		description: 'React hook to debounce input changes and reduce API calls',
+		code: `import { useEffect, useState } from "react";
 
 export function useDebouncedValue<T>(value: T, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -21,14 +21,14 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
 
   return debounced;
 }`,
-    language: 'typescript',
-    technologies: ['react', 'typescript'],
-    categories: ['frontend', 'framework'],
-  },
-  {
-    title: 'Deep Clone Object',
-    description: 'Create a deep copy of nested objects and arrays',
-    code: `function deepClone(obj) {
+		language: 'typescript',
+		technologies: ['react', 'typescript'],
+		categories: ['frontend', 'framework'],
+	},
+	{
+		title: 'Deep Clone Object',
+		description: 'Create a deep copy of nested objects and arrays',
+		code: `function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj);
   if (obj instanceof Array) return obj.map(item => deepClone(item));
@@ -41,14 +41,14 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
   }
   return cloned;
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['language', 'utilities'],
-  },
-  {
-    title: 'Async Retry with Exponential Backoff',
-    description: 'Retry failed async operations with increasing delays',
-    code: `async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['language', 'utilities'],
+	},
+	{
+		title: 'Async Retry with Exponential Backoff',
+		description: 'Retry failed async operations with increasing delays',
+		code: `async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
@@ -59,14 +59,14 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
     }
   }
 }`,
-    language: 'typescript',
-    technologies: ['typescript'],
-    categories: ['language', 'utilities'],
-  },
-  {
-    title: 'Local Storage Hook',
-    description: 'React hook for syncing state with localStorage',
-    code: `import { useState, useEffect } from 'react';
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['language', 'utilities'],
+	},
+	{
+		title: 'Local Storage Hook',
+		description: 'React hook for syncing state with localStorage',
+		code: `import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [value, setValue] = useState<T>(() => {
@@ -80,14 +80,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   return [value, setValue] as const;
 }`,
-    language: 'typescript',
-    technologies: ['react', 'typescript'],
-    categories: ['frontend', 'framework'],
-  },
-  {
-    title: 'Throttle Function',
-    description: 'Limit function execution rate for performance',
-    code: `function throttle(func, limit) {
+		language: 'typescript',
+		technologies: ['react', 'typescript'],
+		categories: ['frontend', 'framework'],
+	},
+	{
+		title: 'Throttle Function',
+		description: 'Limit function execution rate for performance',
+		code: `function throttle(func, limit) {
   let inThrottle;
   return function(...args) {
     if (!inThrottle) {
@@ -97,14 +97,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     }
   };
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['language', 'utilities'],
-  },
-  {
-    title: 'Binary Search Implementation',
-    description: 'Efficient search in sorted arrays with O(log n) complexity',
-    code: `def binary_search(arr, target):
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['language', 'utilities'],
+	},
+	{
+		title: 'Binary Search Implementation',
+		description: 'Efficient search in sorted arrays with O(log n) complexity',
+		code: `def binary_search(arr, target):
     left, right = 0, len(arr) - 1
     
     while left <= right:
@@ -117,14 +117,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
             right = mid - 1
     
     return -1`,
-    language: 'python',
-    technologies: ['python'],
-    categories: ['language', 'algorithms'],
-  },
-  {
-    title: 'Decorator for Function Timing',
-    description: 'Measure execution time of any function',
-    code: `import time
+		language: 'python',
+		technologies: ['python'],
+		categories: ['language', 'algorithms'],
+	},
+	{
+		title: 'Decorator for Function Timing',
+		description: 'Measure execution time of any function',
+		code: `import time
 from functools import wraps
 
 def timer(func):
@@ -136,14 +136,14 @@ def timer(func):
         print(f"{func.__name__} took {end - start:.4f}s")
         return result
     return wrapper`,
-    language: 'python',
-    technologies: ['python'],
-    categories: ['language', 'utilities'],
-  },
-  {
-    title: 'LRU Cache Implementation',
-    description: 'Least Recently Used cache with O(1) operations',
-    code: `from collections import OrderedDict
+		language: 'python',
+		technologies: ['python'],
+		categories: ['language', 'utilities'],
+	},
+	{
+		title: 'LRU Cache Implementation',
+		description: 'Least Recently Used cache with O(1) operations',
+		code: `from collections import OrderedDict
 
 class LRUCache:
     def __init__(self, capacity):
@@ -162,14 +162,14 @@ class LRUCache:
         self.cache[key] = value
         if len(self.cache) > self.capacity:
             self.cache.popitem(last=False)`,
-    language: 'python',
-    technologies: ['python'],
-    categories: ['language', 'data-structures'],
-  },
-  {
-    title: 'Flatten Nested List',
-    description: 'Recursively flatten arbitrarily nested lists',
-    code: `def flatten(nested_list):
+		language: 'python',
+		technologies: ['python'],
+		categories: ['language', 'data-structures'],
+	},
+	{
+		title: 'Flatten Nested List',
+		description: 'Recursively flatten arbitrarily nested lists',
+		code: `def flatten(nested_list):
     result = []
     for item in nested_list:
         if isinstance(item, list):
@@ -177,14 +177,14 @@ class LRUCache:
         else:
             result.append(item)
     return result`,
-    language: 'python',
-    technologies: ['python'],
-    categories: ['language', 'utilities'],
-  },
-  {
-    title: 'Context Manager for File Operations',
-    description: 'Safe file handling with automatic cleanup',
-    code: `class FileManager:
+		language: 'python',
+		technologies: ['python'],
+		categories: ['language', 'utilities'],
+	},
+	{
+		title: 'Context Manager for File Operations',
+		description: 'Safe file handling with automatic cleanup',
+		code: `class FileManager:
     def __init__(self, filename, mode):
         self.filename = filename
         self.mode = mode
@@ -197,14 +197,14 @@ class LRUCache:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.file:
             self.file.close()`,
-    language: 'python',
-    technologies: ['python'],
-    categories: ['language', 'utilities'],
-  },
-  {
-    title: 'HTTP Server with Graceful Shutdown',
-    description: 'Handle shutdown signals properly in Go HTTP servers',
-    code: `package main
+		language: 'python',
+		technologies: ['python'],
+		categories: ['language', 'utilities'],
+	},
+	{
+		title: 'HTTP Server with Graceful Shutdown',
+		description: 'Handle shutdown signals properly in Go HTTP servers',
+		code: `package main
 
 import (
     "context"
@@ -231,14 +231,14 @@ func main() {
     defer cancel()
     srv.Shutdown(ctx)
 }`,
-    language: 'go',
-    technologies: ['golang'],
-    categories: ['language', 'backend'],
-  },
-  {
-    title: 'Worker Pool Pattern',
-    description: 'Concurrent task processing with limited goroutines',
-    code: `package main
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['language', 'backend'],
+	},
+	{
+		title: 'Worker Pool Pattern',
+		description: 'Concurrent task processing with limited goroutines',
+		code: `package main
 
 func worker(id int, jobs <-chan int, results chan<- int) {
     for j := range jobs {
@@ -263,14 +263,14 @@ func main() {
         <-results
     }
 }`,
-    language: 'go',
-    technologies: ['golang'],
-    categories: ['language', 'backend'],
-  },
-  {
-    title: 'Rate Limiter with Token Bucket',
-    description: 'Control request rate using token bucket algorithm',
-    code: `package main
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['language', 'backend'],
+	},
+	{
+		title: 'Rate Limiter with Token Bucket',
+		description: 'Control request rate using token bucket algorithm',
+		code: `package main
 
 import (
     "sync"
@@ -315,14 +315,14 @@ func (rl *RateLimiter) refill() {
         rl.mu.Unlock()
     }
 }`,
-    language: 'go',
-    technologies: ['golang'],
-    categories: ['language', 'backend'],
-  },
-  {
-    title: 'Generic Stack Implementation',
-    description: 'Type-safe stack using Go generics',
-    code: `package main
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['language', 'backend'],
+	},
+	{
+		title: 'Generic Stack Implementation',
+		description: 'Type-safe stack using Go generics',
+		code: `package main
 
 type Stack[T any] struct {
     items []T
@@ -349,14 +349,14 @@ func (s *Stack[T]) Peek() (T, bool) {
     }
     return s.items[len(s.items)-1], true
 }`,
-    language: 'go',
-    technologies: ['golang'],
-    categories: ['language', 'data-structures'],
-  },
-  {
-    title: 'Circuit Breaker Pattern',
-    description: 'Prevent cascading failures in distributed systems',
-    code: `package main
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['language', 'data-structures'],
+	},
+	{
+		title: 'Circuit Breaker Pattern',
+		description: 'Prevent cascading failures in distributed systems',
+		code: `package main
 
 import (
     "errors"
@@ -407,28 +407,28 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
     cb.state = "closed"
     return nil
 }`,
-    language: 'go',
-    technologies: ['golang'],
-    categories: ['language', 'backend'],
-  },
-  {
-    title: 'Upsert with ON CONFLICT',
-    description: 'Insert or update records in PostgreSQL',
-    code: `INSERT INTO user_settings (user_id, theme, timezone, updated_at)
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['language', 'backend'],
+	},
+	{
+		title: 'Upsert with ON CONFLICT',
+		description: 'Insert or update records in PostgreSQL',
+		code: `INSERT INTO user_settings (user_id, theme, timezone, updated_at)
 VALUES ($1, $2, $3, NOW())
 ON CONFLICT (user_id)
 DO UPDATE SET
   theme = EXCLUDED.theme,
   timezone = EXCLUDED.timezone,
   updated_at = NOW();`,
-    language: 'sql',
-    technologies: ['sql', 'postgres-sql'],
-    categories: ['database', 'backend'],
-  },
-  {
-    title: 'Recursive CTE for Hierarchical Data',
-    description: 'Query tree structures like org charts or categories',
-    code: `WITH RECURSIVE category_tree AS (
+		language: 'sql',
+		technologies: ['sql', 'postgres-sql'],
+		categories: ['database', 'backend'],
+	},
+	{
+		title: 'Recursive CTE for Hierarchical Data',
+		description: 'Query tree structures like org charts or categories',
+		code: `WITH RECURSIVE category_tree AS (
   SELECT id, name, parent_id, 1 as level
   FROM categories
   WHERE parent_id IS NULL
@@ -441,14 +441,14 @@ DO UPDATE SET
 )
 SELECT * FROM category_tree
 ORDER BY level, name;`,
-    language: 'sql',
-    technologies: ['sql', 'postgres-sql'],
-    categories: ['database', 'backend'],
-  },
-  {
-    title: 'Window Functions for Running Totals',
-    description: 'Calculate cumulative sums and rankings',
-    code: `SELECT 
+		language: 'sql',
+		technologies: ['sql', 'postgres-sql'],
+		categories: ['database', 'backend'],
+	},
+	{
+		title: 'Window Functions for Running Totals',
+		description: 'Calculate cumulative sums and rankings',
+		code: `SELECT 
   order_date,
   amount,
   SUM(amount) OVER (ORDER BY order_date) as running_total,
@@ -456,14 +456,14 @@ ORDER BY level, name;`,
 FROM orders
 WHERE order_date >= CURRENT_DATE - INTERVAL '30 days'
 ORDER BY order_date;`,
-    language: 'sql',
-    technologies: ['sql', 'postgres-sql'],
-    categories: ['database', 'backend'],
-  },
-  {
-    title: 'Pivot Table with CASE',
-    description: 'Transform rows into columns for reporting',
-    code: `SELECT 
+		language: 'sql',
+		technologies: ['sql', 'postgres-sql'],
+		categories: ['database', 'backend'],
+	},
+	{
+		title: 'Pivot Table with CASE',
+		description: 'Transform rows into columns for reporting',
+		code: `SELECT 
   product_id,
   SUM(CASE WHEN EXTRACT(MONTH FROM order_date) = 1 THEN amount ELSE 0 END) as jan,
   SUM(CASE WHEN EXTRACT(MONTH FROM order_date) = 2 THEN amount ELSE 0 END) as feb,
@@ -471,14 +471,14 @@ ORDER BY order_date;`,
 FROM orders
 WHERE EXTRACT(YEAR FROM order_date) = 2024
 GROUP BY product_id;`,
-    language: 'sql',
-    technologies: ['sql', 'postgres-sql'],
-    categories: ['database', 'backend'],
-  },
-  {
-    title: 'Find Duplicate Records',
-    description: 'Identify and handle duplicate entries',
-    code: `SELECT email, COUNT(*) as count
+		language: 'sql',
+		technologies: ['sql', 'postgres-sql'],
+		categories: ['database', 'backend'],
+	},
+	{
+		title: 'Find Duplicate Records',
+		description: 'Identify and handle duplicate entries',
+		code: `SELECT email, COUNT(*) as count
 FROM users
 GROUP BY email
 HAVING COUNT(*) > 1;
@@ -490,8 +490,8 @@ WHERE id NOT IN (
   FROM users
   GROUP BY email
 );`,
-    language: 'sql',
-    technologies: ['sql', 'postgres-sql'],
-    categories: ['database', 'backend'],
-  },
-];
+		language: 'sql',
+		technologies: ['sql', 'postgres-sql'],
+		categories: ['database', 'backend'],
+	},
+]

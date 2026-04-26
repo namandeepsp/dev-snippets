@@ -1,14 +1,15 @@
-import { BaseScript } from '../core/base.script'
-import { SnippetService } from '../../src/features/snippets/core/snippet.service'
+import { fileURLToPath } from 'node:url'
 import type {
 	CreateSnippetServiceInput,
 	SnippetVisibility,
 	UpdateSnippetServiceInput,
 } from '../../src/features/snippets/core/repositories/snippet.repository'
+import { SnippetService } from '../../src/features/snippets/core/snippet.service'
+import { SnippetVersionService } from '../../src/features/snippets/core/snippet.version-service'
 import { FirebaseSnippetRepository } from '../../src/features/snippets/infra/repositories/firebase-snippet.repository'
-import { fileURLToPath } from 'node:url'
+import { BaseScript } from '../core/base.script'
 
-const DEFAULT_BULK_SNIPPET_COUNT = 100
+const DEFAULT_BULK_SNIPPET_COUNT = 20
 
 type SnippetTemplate = {
 	title: string
@@ -151,10 +152,12 @@ export class SnippetScript extends BaseScript {
 	private snippetId?: string
 	private ownerId = `test-owner-${Date.now()}`
 	private ownerName = 'Script Snippet Owner'
+	private snippetRepository = new FirebaseSnippetRepository()
 	private snippetService = new SnippetService(
-		new FirebaseSnippetRepository(),
-		new FirebaseSnippetRepository(),
+		this.snippetRepository,
+		this.snippetRepository,
 	)
+	private versionService = new SnippetVersionService(this.snippetRepository)
 
 	async run(): Promise<void> {
 		await this.ensureReady()
@@ -166,7 +169,15 @@ export class SnippetScript extends BaseScript {
 		await this.testGetSnippetById()
 		await this.testListByUser()
 		await this.testListByVisibility()
+		await this.testSearchSnippets()
+		await this.testFilterByTechnology()
+		await this.testFilterByCategory()
+		await this.testLikeSnippet()
+		await this.testDislikeSnippet()
+		await this.testGetSeenCount()
 		await this.testUpdateSnippet()
+		await this.testGetVersionHistory()
+		await this.testRestoreVersion()
 		await this.testDeleteSnippet()
 
 		this.logSuccess('All snippet tests passed')
@@ -185,6 +196,8 @@ export class SnippetScript extends BaseScript {
 		}
 
 		this.snippetId = snippet.id
+		// Small delay to ensure Firestore persistence
+		await new Promise((resolve) => setTimeout(resolve, 100))
 		this.log('✓ Create snippet')
 	}
 
@@ -198,7 +211,11 @@ export class SnippetScript extends BaseScript {
 			const snippet = this.buildUsefulRandomSnippet(i + 1)
 			snippet.visibility = visibilities[i % visibilities.length]
 
-			await this.snippetService.createSnippet(snippet, this.ownerId, this.ownerName)
+			await this.snippetService.createSnippet(
+				snippet,
+				this.ownerId,
+				this.ownerName,
+			)
 			created += 1
 		}
 
@@ -249,6 +266,73 @@ export class SnippetScript extends BaseScript {
 		this.log(`✓ List snippets by visibility (${snippets.length} found)`)
 	}
 
+	async testSearchSnippets(): Promise<void> {
+		const snippets = await this.snippetService.search('React')
+
+		if (!Array.isArray(snippets)) {
+			throw new Error('Search snippets failed')
+		}
+
+		this.log(`✓ Search snippets (${snippets.length} found)`)
+	}
+
+	async testFilterByTechnology(): Promise<void> {
+		const snippets = await this.snippetService.filterByTechnology('react')
+
+		if (!Array.isArray(snippets)) {
+			throw new Error('Filter by technology failed')
+		}
+
+		this.log(`✓ Filter by technology (${snippets.length} found)`)
+	}
+
+	async testFilterByCategory(): Promise<void> {
+		const snippets = await this.snippetService.filterByCategory('frontend')
+
+		if (!Array.isArray(snippets)) {
+			throw new Error('Filter by category failed')
+		}
+
+		this.log(`✓ Filter by category (${snippets.length} found)`)
+	}
+
+	async testLikeSnippet(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Like snippet failed (missing test snippet)')
+		}
+
+		const userId = `test-user-${Date.now()}`
+		await this.snippetService.likeSnippet(this.snippetId, userId)
+
+		this.log('✓ Like snippet')
+	}
+
+	async testDislikeSnippet(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Dislike snippet failed (missing test snippet)')
+		}
+
+		const userId = `test-user-${Date.now()}`
+		await this.snippetService.dislikeSnippet(this.snippetId, userId)
+
+		this.log('✓ Dislike snippet')
+	}
+
+	async testGetSeenCount(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Get views count failed (missing test snippet)')
+		}
+
+		const snippet = await this.snippetService.getById(this.snippetId)
+
+		if (!snippet) {
+			throw new Error('Snippet not found')
+		}
+
+		const viewsCount = snippet.viewsCount ?? 0
+		this.log(`✓ Get views count (${viewsCount} views)`)
+	}
+
 	async testUpdateSnippet(): Promise<void> {
 		if (!this.snippetId) {
 			throw new Error('Update snippet failed (missing test snippet)')
@@ -275,6 +359,71 @@ export class SnippetScript extends BaseScript {
 		this.log('✓ Delete snippet')
 	}
 
+	async testGetVersionHistory(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Get version history failed (missing test snippet)')
+		}
+
+		const versions = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (!Array.isArray(versions)) {
+			throw new Error('Get version history failed')
+		}
+
+		if (versions.length === 0) {
+			throw new Error('Version history should have at least one version')
+		}
+
+		this.log(`✓ Get version history (${versions.length} versions found)`)
+	}
+
+	async testRestoreVersion(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Restore version failed (missing test snippet)')
+		}
+
+		await this.snippetService.updateSnippet(
+			this.snippetId,
+			{
+				code: `${Date.now()} // restore version test update`,
+			},
+			this.ownerId,
+		)
+
+		// Get current versions
+		const versions = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (versions.length < 2) {
+			throw new Error('Need at least 2 versions to test restore')
+		}
+
+		// Restore to first version
+		const firstVersion = versions[0]
+		await this.versionService.restoreVersion(
+			this.snippetId,
+			firstVersion.version,
+			this.ownerId,
+		)
+
+		// Verify restoration
+		const updatedSnippet = await this.snippetService.getById(this.snippetId)
+		if (!updatedSnippet) {
+			throw new Error('Snippet not found after restore')
+		}
+
+		if (updatedSnippet.code !== firstVersion.code) {
+			throw new Error('Restored code does not match original version')
+		}
+
+		this.log('✓ Restore version')
+	}
+
 	private buildUsefulRandomSnippet(seed?: number): CreateSnippetServiceInput {
 		const template = this.pickRandom(USEFUL_SNIPPET_TEMPLATES)
 		const suffix = seed ?? Math.floor(Math.random() * 10_000)
@@ -297,10 +446,8 @@ export class SnippetScript extends BaseScript {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	new SnippetScript()
-		.run()
-		.catch((error) => {
-			console.error(error)
-			process.exit(1)
-		})
+	new SnippetScript().run().catch((error) => {
+		console.error(error)
+		process.exit(1)
+	})
 }

@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url'
 import { FirebaseAdminAuthClient } from '../../src/features/auth/infra/client/firebase-admin-auth.client'
 import { BaseScript } from '../core/base.script'
-import { fileURLToPath } from 'node:url'
 
 export class AuthScript extends BaseScript {
 	name = 'Auth Tests'
@@ -41,7 +41,9 @@ export class AuthScript extends BaseScript {
 		}
 
 		this.uid = result.user.id
-		this.log(`✓ Sign up with email/password (username: ${result.user.username})`)
+		this.log(
+			`✓ Sign up with email/password (username: ${result.user.username})`,
+		)
 	}
 
 	async testSignInWithEmailAndPassword() {
@@ -59,7 +61,9 @@ export class AuthScript extends BaseScript {
 			)
 		}
 
-		this.log(`✓ Sign in with email/password (username: ${result.user.username})`)
+		this.log(
+			`✓ Sign in with email/password (username: ${result.user.username})`,
+		)
 	}
 
 	async testGetCurrentUser() {
@@ -103,10 +107,8 @@ export class AuthScript extends BaseScript {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	new AuthScript()
-		.run()
-		.catch((error) => {
-			console.error(error)
-			process.exit(1)
-		})
+	new AuthScript().run().catch((error) => {
+		console.error(error)
+		process.exit(1)
+	})
 }

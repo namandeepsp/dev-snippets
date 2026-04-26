@@ -20,7 +20,7 @@ export async function getSnippetById(
 	if (!snapshot.exists) return null
 
 	const data = snapshot.data() as FirestoreSnippet
-	if (data.isDeleted) return null
+	if (data.isDeleted === true) return null
 
 	return {
 		id: snapshot.id,
@@ -93,5 +93,54 @@ export async function listByVisibility(
 	}
 
 	const snapshot = await query.orderBy('updatedAt', 'desc').get()
+	return snapshot.docs.map(mapDocToSnippet)
+}
+
+export async function searchSnippets(
+	repo: FirebaseSnippetRepositoryContext,
+	query: string,
+): Promise<Snippet[]> {
+	const lowerQuery = query.toLowerCase()
+	const snapshot = await repo
+		.getCollection()
+		.where('visibility', '==', 'public')
+		.where('isDeleted', '==', false)
+		.get()
+
+	return snapshot.docs
+		.map(mapDocToSnippet)
+		.filter(
+			(snippet) =>
+				snippet.title.toLowerCase().includes(lowerQuery) ||
+				(snippet.description?.toLowerCase().includes(lowerQuery) ?? false) ||
+				snippet.code.toLowerCase().includes(lowerQuery),
+		)
+}
+
+export async function filterByTechnology(
+	repo: FirebaseSnippetRepositoryContext,
+	technology: string,
+): Promise<Snippet[]> {
+	const snapshot = await repo
+		.getCollection()
+		.where('visibility', '==', 'public')
+		.where('isDeleted', '==', false)
+		.where('technologies', 'array-contains', technology)
+		.get()
+
+	return snapshot.docs.map(mapDocToSnippet)
+}
+
+export async function filterByCategory(
+	repo: FirebaseSnippetRepositoryContext,
+	category: string,
+): Promise<Snippet[]> {
+	const snapshot = await repo
+		.getCollection()
+		.where('visibility', '==', 'public')
+		.where('isDeleted', '==', false)
+		.where('categories', 'array-contains', category)
+		.get()
+
 	return snapshot.docs.map(mapDocToSnippet)
 }

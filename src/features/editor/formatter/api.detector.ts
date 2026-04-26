@@ -56,15 +56,12 @@ export class ApiDetector {
 			})
 
 			if (!response.ok) {
-				logger.info('🔍 API detect failed: response not ok')
 				return null
 			}
 
 			const data = await response.json()
-			logger.info('🔍 API detect response:', data)
 
 			if (!data?.success) {
-				logger.info('🔍 API detect failed: success flag false')
 				return null
 			}
 
@@ -73,14 +70,11 @@ export class ApiDetector {
 					? data.data.language.toLowerCase()
 					: null
 
-			logger.info('🔍 API detect extracted language:', detected)
-
 			return detected &&
 				SUPPORTED_LANGUAGES.includes(detected as EditorLanguage)
 				? (detected as EditorLanguage)
 				: null
-		} catch (error) {
-			logger.info('🔍 API detect error:', error)
+		} catch {
 			return null
 		}
 	}

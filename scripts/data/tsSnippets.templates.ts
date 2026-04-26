@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const TS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-    {
-        title: 'Generic API Client with Type Safety',
-        description: 'A singleton API client with typed GET/POST responses. Usage: const api = ApiClient.getInstance("https://api"); api.get<User>("/me")',
-        code: `interface ApiResponse<T> {
+	{
+		title: 'Generic API Client with Type Safety',
+		description:
+			'A singleton API client with typed GET/POST responses. Usage: const api = ApiClient.getInstance("https://api"); api.get<User>("/me")',
+		code: `interface ApiResponse<T> {
   data: T;
   status: number;
   message: string;
@@ -39,14 +40,15 @@ class ApiClient {
     return response.json();
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['api', 'utilities'],
-    },
-    {
-        title: 'Type-Safe Event Emitter',
-        description: 'Typed event emitter with on, emit, and off methods. Usage: emitter.on("userLogin", data => data.userId)',
-        code: `type EventMap = Record<string, any>;
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['api', 'utilities'],
+	},
+	{
+		title: 'Type-Safe Event Emitter',
+		description:
+			'Typed event emitter with on, emit, and off methods. Usage: emitter.on("userLogin", data => data.userId)',
+		code: `type EventMap = Record<string, any>;
 
 class TypedEventEmitter<T extends EventMap> {
   private listeners: Map<keyof T, Set<(data: T[keyof T]) => void>> = new Map();
@@ -72,14 +74,15 @@ class TypedEventEmitter<T extends EventMap> {
     }
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['events', 'utilities'],
-    },
-    {
-        title: 'Discriminated Union Result Type',
-        description: 'Result type for success/error outcomes with a type guard. Usage: if (isSuccess(result)) { ... }',
-        code: `type Result<T, E = Error> =
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['events', 'utilities'],
+	},
+	{
+		title: 'Discriminated Union Result Type',
+		description:
+			'Result type for success/error outcomes with a type guard. Usage: if (isSuccess(result)) { ... }',
+		code: `type Result<T, E = Error> =
   | { success: true; data: T }
   | { success: false; error: E };
 
@@ -101,14 +104,15 @@ function handleDivide(result: Result<number>) {
 function isSuccess<T, E>(result: Result<T, E>): result is { success: true; data: T } {
   return result.success === true;
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['types', 'utilities'],
-    },
-    {
-        title: 'Generic Repository Pattern',
-        description: 'A typed repository interface with an in-memory implementation. Usage: const repo = new InMemoryRepository<User>()',
-        code: `interface Entity {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['types', 'utilities'],
+	},
+	{
+		title: 'Generic Repository Pattern',
+		description:
+			'A typed repository interface with an in-memory implementation. Usage: const repo = new InMemoryRepository<User>()',
+		code: `interface Entity {
   id: string | number;
 }
 
@@ -151,14 +155,15 @@ class InMemoryRepository<T extends Entity> implements Repository<T> {
     return this.items.delete(id);
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['data', 'backend'],
-    },
-    {
-        title: 'Conditional Types for API Responses',
-        description: 'Typed response shapes by HTTP status with a unified handler. Usage: const res = createResponse(data, 200)',
-        code: `type ApiResponse<T, Status extends number> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['data', 'backend'],
+	},
+	{
+		title: 'Conditional Types for API Responses',
+		description:
+			'Typed response shapes by HTTP status with a unified handler. Usage: const res = createResponse(data, 200)',
+		code: `type ApiResponse<T, Status extends number> = {
   data: T;
   status: Status;
   timestamp: string;
@@ -181,14 +186,15 @@ function createResponse<T, S extends number>(
     ...(isError && { error: true }),
   } as HandlerResponse<T>;
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['api', 'types'],
-    },
-    {
-        title: 'Generic Form Validator with Type Inference',
-        description: 'Rule-based validator with inferred field types. Usage: validator.validate(formData)',
-        code: `interface ValidationRule<T> {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['api', 'types'],
+	},
+	{
+		title: 'Generic Form Validator with Type Inference',
+		description:
+			'Rule-based validator with inferred field types. Usage: validator.validate(formData)',
+		code: `interface ValidationRule<T> {
   validate: (value: T) => boolean;
   message: string;
 }
@@ -226,14 +232,15 @@ class FormValidator<T extends Record<string, any>> {
     return this.errors;
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['validation', 'utilities'],
-    },
-    {
-        title: 'Type-Safe Local Storage',
-        description: 'Typed localStorage wrapper. Usage: storage.set("theme", "dark")',
-        code: `class TypedStorage<T extends Record<string, any>> {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['validation', 'utilities'],
+	},
+	{
+		title: 'Type-Safe Local Storage',
+		description:
+			'Typed localStorage wrapper. Usage: storage.set("theme", "dark")',
+		code: `class TypedStorage<T extends Record<string, any>> {
   constructor(private storage: Storage = localStorage) {}
 
   set<K extends keyof T>(key: K, value: T[K]): void {
@@ -253,14 +260,15 @@ class FormValidator<T extends Record<string, any>> {
     this.storage.clear();
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['storage', 'frontend'],
-    },
-    {
-        title: 'Generic Debounce with Type Preservation',
-        description: 'Debounce while preserving parameter and this types. Usage: const debounced = debounce(fn, 300)',
-        code: `function debounce<T extends (...args: any[]) => any>(
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['storage', 'frontend'],
+	},
+	{
+		title: 'Generic Debounce with Type Preservation',
+		description:
+			'Debounce while preserving parameter and this types. Usage: const debounced = debounce(fn, 300)',
+		code: `function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -279,14 +287,15 @@ class FormValidator<T extends Record<string, any>> {
     }, wait);
   };
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['performance', 'utilities'],
-    },
-    {
-        title: 'Dependency Injection Container',
-        description: 'Lightweight DI container with factories and singleton support. Usage: container.registerClass(UserService, UserService, true)',
-        code: `type Token<T> = string | symbol | { new (...args: any[]): T };
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['performance', 'utilities'],
+	},
+	{
+		title: 'Dependency Injection Container',
+		description:
+			'Lightweight DI container with factories and singleton support. Usage: container.registerClass(UserService, UserService, true)',
+		code: `type Token<T> = string | symbol | { new (...args: any[]): T };
 
 interface Factory<T> {
   (container: Container): T;
@@ -334,14 +343,15 @@ class Container {
     return new Class(...dependencies);
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['architecture', 'backend'],
-    },
-    {
-        title: 'Type-Safe Redux-like State Manager',
-        description: 'Typed store with reducers, dispatch, and selectors. Usage: store.addReducer("USER_LOGIN", reducer)',
-        code: `type Action<T = any> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Type-Safe Redux-like State Manager',
+		description:
+			'Typed store with reducers, dispatch, and selectors. Usage: store.addReducer("USER_LOGIN", reducer)',
+		code: `type Action<T = any> = {
   type: string;
   payload?: T;
 };
@@ -401,14 +411,15 @@ class Store<T extends Record<string, any>> {
     this.subscribers.forEach(cb => cb(this.state));
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['state', 'frontend'],
-    },
-    {
-        title: 'Advanced Generic Mapper',
-        description: 'Define mappings between source and target types. Usage: ObjectMapper.createMap<UserEntity, UserDTO>(...)',
-        code: `type Mapper<TSource, TTarget> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['state', 'frontend'],
+	},
+	{
+		title: 'Advanced Generic Mapper',
+		description:
+			'Define mappings between source and target types. Usage: ObjectMapper.createMap<UserEntity, UserDTO>(...)',
+		code: `type Mapper<TSource, TTarget> = {
   [K in keyof TTarget]: (source: TSource) => TTarget[K];
 };
 
@@ -446,14 +457,15 @@ class ObjectMapper {
     return sources.map(source => this.map(source, sourceType, targetType));
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['data', 'utilities'],
-    },
-    {
-        title: 'Type-Safe Event Bus with Middleware',
-        description: 'Typed event bus with middleware and async handling. Usage: eventBus.on("userLoggedIn", handler, { async: true })',
-        code: `type EventHandler<T = any> = (event: T) => void | Promise<void>;
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['data', 'utilities'],
+	},
+	{
+		title: 'Type-Safe Event Bus with Middleware',
+		description:
+			'Typed event bus with middleware and async handling. Usage: eventBus.on("userLoggedIn", handler, { async: true })',
+		code: `type EventHandler<T = any> = (event: T) => void | Promise<void>;
 type Middleware<T = any> = (event: T, next: () => void) => void;
 
 interface EventBusConfig {
@@ -538,14 +550,15 @@ class TypedEventBus<T extends Record<string, any>> {
     this.config.clear();
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['events', 'architecture'],
-    },
-    {
-        title: 'Generic State Machine',
-        description: 'A typed finite state machine with transitions. Usage: machine.send("process")',
-        code: `type StateMachineConfig<TState extends string, TEvent extends string> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['events', 'architecture'],
+	},
+	{
+		title: 'Generic State Machine',
+		description:
+			'A typed finite state machine with transitions. Usage: machine.send("process")',
+		code: `type StateMachineConfig<TState extends string, TEvent extends string> = {
   initialState: TState;
   states: {
     [K in TState]: {
@@ -609,14 +622,15 @@ class StateMachine<TState extends string, TEvent extends string> {
     return () => this.listeners.delete(listener);
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['state', 'architecture'],
-    },
-    {
-        title: 'Advanced Type Predicates with Custom Guards',
-        description: 'Utility type guards for safe runtime checks. Usage: if (TypeGuards.isJSON(value)) { ... }',
-        code: `type Primitive = string | number | boolean | null | undefined;
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['state', 'architecture'],
+	},
+	{
+		title: 'Advanced Type Predicates with Custom Guards',
+		description:
+			'Utility type guards for safe runtime checks. Usage: if (TypeGuards.isJSON(value)) { ... }',
+		code: `type Primitive = string | number | boolean | null | undefined;
 type JSONValue = Primitive | JSONValue[] | { [key: string]: JSONValue };
 
 class TypeGuards {
@@ -687,14 +701,15 @@ class TypeGuards {
     return typeGuard(value);
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['types', 'utilities'],
-    },
-    {
-        title: 'Generic Cache with TTL and Invalidation',
-        description: 'In-memory cache with TTL, size limit, and eviction policies. Usage: cache.getOrSet("user:1", () => user)',
-        code: `interface CacheEntry<T> {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['types', 'utilities'],
+	},
+	{
+		title: 'Generic Cache with TTL and Invalidation',
+		description:
+			'In-memory cache with TTL, size limit, and eviction policies. Usage: cache.getOrSet("user:1", () => user)',
+		code: `interface CacheEntry<T> {
   value: T;
   expiresAt: number;
   createdAt: number;
@@ -847,14 +862,15 @@ class TypedCache<K, V> {
     };
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['performance', 'data'],
-    },
-    {
-        title: 'Type-Safe Event Sourcing',
-        description: 'Event sourcing core with aggregates and in-memory store. Usage: account.openAccount("acc-123")',
-        code: `type DomainEvent<T = any> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['performance', 'data'],
+	},
+	{
+		title: 'Type-Safe Event Sourcing',
+		description:
+			'Event sourcing core with aggregates and in-memory store. Usage: account.openAccount("acc-123")',
+		code: `type DomainEvent<T = any> = {
   type: string;
   data: T;
   timestamp: Date;
@@ -1001,14 +1017,15 @@ class Repository<T extends AggregateRoot<any>> {
     return aggregate;
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['architecture', 'backend'],
-    },
-    {
-        title: 'Generic Data Pipeline with Type Transformations',
-        description: 'Composable pipeline with typed steps and error handling. Usage: pipeline.addStep(...).execute(input)',
-        code: `type PipelineStep<TInput, TOutput> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Generic Data Pipeline with Type Transformations',
+		description:
+			'Composable pipeline with typed steps and error handling. Usage: pipeline.addStep(...).execute(input)',
+		code: `type PipelineStep<TInput, TOutput> = {
   process: (input: TInput) => TOutput | Promise<TOutput>;
   name?: string;
 };
@@ -1088,14 +1105,15 @@ class DataPipeline<TInput, TOutput> {
     };
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['data', 'architecture'],
-    },
-    {
-        title: 'Advanced Builder Pattern with Type Constraints',
-        description: 'SQL and Mongo query builders with typed methods. Usage: new SQLQueryBuilder().select(...).from("users")',
-        code: `interface QueryBuilder<T> {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['data', 'architecture'],
+	},
+	{
+		title: 'Advanced Builder Pattern with Type Constraints',
+		description:
+			'SQL and Mongo query builders with typed methods. Usage: new SQLQueryBuilder().select(...).from("users")',
+		code: `interface QueryBuilder<T> {
   build(): T;
 }
 
@@ -1299,14 +1317,15 @@ class MongoQueryBuilder<T extends Record<string, any>> implements QueryBuilder<M
     };
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['data', 'utilities'],
-    },
-    {
-        title: 'Reactive Observable with Operators',
-        description: 'Minimal Observable with map, filter, debounceTime, and take. Usage: Observable.from([1,2,3]).map(...)',
-        code: `type Observer<T> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['data', 'utilities'],
+	},
+	{
+		title: 'Reactive Observable with Operators',
+		description:
+			'Minimal Observable with map, filter, debounceTime, and take. Usage: Observable.from([1,2,3]).map(...)',
+		code: `type Observer<T> = {
   next: (value: T) => void;
   error?: (error: Error) => void;
   complete?: () => void;
@@ -1465,14 +1484,15 @@ class Observable<T> {
     });
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['utilities', 'frontend'],
-    },
-    {
-        title: 'Type-Safe WebSocket Client',
-        description: 'Typed WebSocket client with reconnect, heartbeat, and request/response. Usage: client.send<Req, Res>("type", data)',
-        code: `type WebSocketMessage<T = any> = {
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['utilities', 'frontend'],
+	},
+	{
+		title: 'Type-Safe WebSocket Client',
+		description:
+			'Typed WebSocket client with reconnect, heartbeat, and request/response. Usage: client.send<Req, Res>("type", data)',
+		code: `type WebSocketMessage<T = any> = {
   type: string;
   id: string;
   data: T;
@@ -1655,8 +1675,8 @@ class TypedWebSocketClient {
     return \`\${Date.now()}-\${Math.random().toString(36).substr(2, 9)}\`;
   }
 }`,
-        language: 'typescript',
-        technologies: ['typescript'],
-        categories: ['network', 'backend'],
-    },
+		language: 'typescript',
+		technologies: ['typescript'],
+		categories: ['network', 'backend'],
+	},
 ]

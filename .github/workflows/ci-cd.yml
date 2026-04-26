@@ -9,7 +9,6 @@ on:
 env:
   NODE_VERSION: '18'
   PNPM_VERSION: '8'
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # Stage 1: Lint and Type Check
@@ -26,7 +25,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
       
@@ -68,7 +67,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
       
@@ -114,7 +113,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
       
@@ -191,7 +190,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
       

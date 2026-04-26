@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, dev]
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev]
 
 env:
   NODE_VERSION: '18'
@@ -103,12 +103,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Integration Tests
     needs: unit-tests
-    if: >-
-      secrets.FORMATTER_SERVICE_URL != '' &&
-      secrets.FORMATTER_SERVICE_API_KEY != '' &&
-      secrets.FIREBASE_PROJECT_ID != '' &&
-      secrets.FIREBASE_CLIENT_EMAIL != '' &&
-      secrets.FIREBASE_PRIVATE_KEY != ''
     
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +138,12 @@ jobs:
         env:
           FORMATTER_SERVICE_URL: ${{ secrets.FORMATTER_SERVICE_URL }}
           FORMATTER_SERVICE_API_KEY: ${{ secrets.FORMATTER_SERVICE_API_KEY }}
-        run: pnpm test:formatter:integration
+        run: |
+          if [ -z "$FORMATTER_SERVICE_URL" ] || [ -z "$FORMATTER_SERVICE_API_KEY" ]; then
+            echo "Skipping formatter integration tests - secrets not configured"
+            exit 0
+          fi
+          pnpm test:formatter:integration
       
       - name: Run Firebase integration tests
         env:
@@ -159,7 +158,12 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-        run: pnpm test:firebase
+        run: |
+          if [ -z "$FIREBASE_PROJECT_ID" ] || [ -z "$FIREBASE_CLIENT_EMAIL" ] || [ -z "$FIREBASE_PRIVATE_KEY" ]; then
+            echo "Skipping Firebase integration tests - secrets not configured"
+            exit 0
+          fi
+          pnpm test:firebase
 
       - name: Upload integration test results
         if: always()
@@ -175,10 +179,7 @@ jobs:
     needs:
       - unit-tests
       - integration-tests
-    if: >-
-      always() &&
-      needs.unit-tests.result == 'success' &&
-      (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'skipped')
+    if: ${{ always() && needs.unit-tests.result == 'success' && (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'skipped') }}
     
     steps:
       - uses: actions/checkout@v4
@@ -230,9 +231,8 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Deploy to Vercel
-        uses: vercel/action@master
+        uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          production: true

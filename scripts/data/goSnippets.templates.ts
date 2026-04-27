@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const GO_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-    {
-        title: 'Worker Pool Pattern',
-        description: 'Fixed-size worker pool for concurrent job processing. Usage: pool := NewPool(5); pool.Add(func() { fmt.Println("working") })',
-        code: `package workerpool
+	{
+		title: 'Worker Pool Pattern',
+		description:
+			'Fixed-size worker pool for concurrent job processing. Usage: pool := NewPool(5); pool.Add(func() { fmt.Println("working") })',
+		code: `package workerpool
 
 type Job func()
 type Pool struct {
@@ -40,14 +41,15 @@ func (p *Pool) Stop() {
     }
 }
 // Usage: pool := NewPool(5); pool.Add(func() { fmt.Println("working") })`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['performance', 'backend'],
-    },
-    {
-        title: 'Generic Filter Function',
-        description: 'Generic filter and map helpers using Go generics. Usage: adults := Filter(users, func(u User) bool { return u.Age >= 18 })',
-        code: `package slicesutil
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['performance', 'backend'],
+	},
+	{
+		title: 'Generic Filter Function',
+		description:
+			'Generic filter and map helpers using Go generics. Usage: adults := Filter(users, func(u User) bool { return u.Age >= 18 })',
+		code: `package slicesutil
 
 func Filter[T any](slice []T, predicate func(T) bool) []T {
     result := make([]T, 0, len(slice))
@@ -68,14 +70,15 @@ func Map[T, U any](slice []T, transform func(T) U) []U {
 }
 
 // Usage: adults := Filter(users, func(u User) bool { return u.Age >= 18 })`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['utilities', 'data'],
-    },
-    {
-        title: 'Rate Limiter',
-        description: 'Token-based rate limiter using time.Ticker. Usage: limiter := NewLimiter(10, time.Second)',
-        code: `package ratelimit
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['utilities', 'data'],
+	},
+	{
+		title: 'Rate Limiter',
+		description:
+			'Token-based rate limiter using time.Ticker. Usage: limiter := NewLimiter(10, time.Second)',
+		code: `package ratelimit
 
 import "time"
 
@@ -107,14 +110,15 @@ func (l *Limiter) Stop() {
     close(l.limit)
 }
 // Usage: limiter := NewLimiter(10, time.Second)`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['security', 'performance'],
-    },
-    {
-        title: 'Context-Aware HTTP Client',
-        description: 'HTTP client with request context support. Usage: resp, err := client.Get(ctx, "https://api.example.com")',
-        code: `package httpclient
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['security', 'performance'],
+	},
+	{
+		title: 'Context-Aware HTTP Client',
+		description:
+			'HTTP client with request context support. Usage: resp, err := client.Get(ctx, "https://api.example.com")',
+		code: `package httpclient
 
 import (
     "context"
@@ -145,14 +149,15 @@ func (c *Client) Get(ctx context.Context, url string) (*http.Response, error) {
 }
 
 // Usage: resp, err := client.Get(ctx, "https://api.example.com")`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['network', 'api'],
-    },
-    {
-        title: 'Semaphore Implementation',
-        description: 'Counting semaphore for limiting concurrent work. Usage: sem := NewSemaphore(5); sem.WithSemaphore(func() { /* critical section */ })',
-        code: `package semaphore
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['network', 'api'],
+	},
+	{
+		title: 'Semaphore Implementation',
+		description:
+			'Counting semaphore for limiting concurrent work. Usage: sem := NewSemaphore(5); sem.WithSemaphore(func() { /* critical section */ })',
+		code: `package semaphore
 
 type Semaphore struct {
     tokens chan struct{}
@@ -178,14 +183,15 @@ func (s *Semaphore) WithSemaphore(fn func()) {
     fn()
 }
 // Usage: sem := NewSemaphore(5); sem.WithSemaphore(func() { /* critical section */ })`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['performance', 'utilities'],
-    },
-    {
-        title: 'Database Connection Pool Wrapper',
-        description: 'sql.DB wrapper with pool configuration and transactions. Usage: pool, _ := NewPool("pgx", dsn, 10, 5)',
-        code: `package db
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['performance', 'utilities'],
+	},
+	{
+		title: 'Database Connection Pool Wrapper',
+		description:
+			'sql.DB wrapper with pool configuration and transactions. Usage: pool, _ := NewPool("pgx", dsn, 10, 5)',
+		code: `package db
 
 import (
     "database/sql"
@@ -225,14 +231,15 @@ func (p *Pool) WithTx(fn func(*sql.Tx) error) error {
     return tx.Commit()
 }
 `,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['database', 'backend'],
-    },
-    {
-        title: 'JWT Authentication Middleware',
-        description: 'HTTP middleware that validates JWT bearer tokens. Usage: http.Handle("/", middleware.Handler(next))',
-        code: `package auth
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['database', 'backend'],
+	},
+	{
+		title: 'JWT Authentication Middleware',
+		description:
+			'HTTP middleware that validates JWT bearer tokens. Usage: http.Handle("/", middleware.Handler(next))',
+		code: `package auth
 
 import (
     "net/http"
@@ -270,14 +277,15 @@ func (m *AuthMiddleware) Handler(next http.Handler) http.Handler {
     })
 }
 `,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['security', 'middleware'],
-    },
-    {
-        title: 'Graceful Shutdown Handler',
-        description: 'Handle SIGINT/SIGTERM and shutdown with timeout. Usage: Graceful(func(ctx) error { return server.Shutdown(ctx) }, 30*time.Second)',
-        code: `package shutdown
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['security', 'middleware'],
+	},
+	{
+		title: 'Graceful Shutdown Handler',
+		description:
+			'Handle SIGINT/SIGTERM and shutdown with timeout. Usage: Graceful(func(ctx) error { return server.Shutdown(ctx) }, 30*time.Second)',
+		code: `package shutdown
 
 import (
     "context"
@@ -302,14 +310,15 @@ func Graceful(shutdownFunc func(ctx context.Context) error, timeout time.Duratio
     os.Exit(0)
 }
 // Usage: Graceful(func(ctx) error { return server.Shutdown(ctx) }, 30*time.Second)`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['infrastructure', 'backend'],
-    },
-    {
-        title: 'Fan-Out/Fan-In Pattern',
-        description: 'Distribute work across workers and merge results. Usage: outputs := FanOut(input, 5); merged := FanIn(outputs...)',
-        code: `package fan
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['infrastructure', 'backend'],
+	},
+	{
+		title: 'Fan-Out/Fan-In Pattern',
+		description:
+			'Distribute work across workers and merge results. Usage: outputs := FanOut(input, 5); merged := FanIn(outputs...)',
+		code: `package fan
 
 func FanOut[T any](input <-chan T, workers int) []<-chan T {
     channels := make([]chan T, workers)
@@ -351,14 +360,15 @@ func FanIn[T any](inputs ...<-chan T) <-chan T {
     return output
 }
 // Usage: outputs := FanOut(input, 5); merged := FanIn(outputs...)`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['performance', 'architecture'],
-    },
-    {
-        title: 'Simple Validator',
-        description: 'Minimal validation helper with error collection. Usage: v := New(); v.Required(req.Email, "email")',
-        code: `package validator
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['performance', 'architecture'],
+	},
+	{
+		title: 'Simple Validator',
+		description:
+			'Minimal validation helper with error collection. Usage: v := New(); v.Required(req.Email, "email")',
+		code: `package validator
 
 type Validator struct {
     Errors map[string]string
@@ -387,14 +397,15 @@ func (v *Validator) MinLength(value string, min int, key string) {
         "minimum length is "+string(rune(min)))
 }
 // Usage: v := New(); v.Required(req.Email, "email")`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['validation', 'utilities'],
-    },
-    {
-        title: 'WebSocket Chat Hub',
-        description: 'Chat hub using Gorilla WebSocket with broadcast and clients. Usage: hub := NewHub(); go hub.Run(); http.HandleFunc("/ws", hub.HandleWebSocket)',
-        code: `package chat
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['validation', 'utilities'],
+	},
+	{
+		title: 'WebSocket Chat Hub',
+		description:
+			'Chat hub using Gorilla WebSocket with broadcast and clients. Usage: hub := NewHub(); go hub.Run(); http.HandleFunc("/ws", hub.HandleWebSocket)',
+		code: `package chat
 
 import (
     "encoding/json"
@@ -516,14 +527,15 @@ func (c *Client) writePump() {
     }
 }
 // Usage: hub := NewHub(); go hub.Run(); http.HandleFunc("/ws", hub.HandleWebSocket)`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['network', 'backend'],
-    },
-    {
-        title: 'Concurrent Pipeline with Stages',
-        description: 'Composable pipeline with concurrent stages. Usage: pipeline := RunPipeline(orders, StartStage, func(ch <-chan Order) <-chan Order { return ProcessStage(ch, 5) })',
-        code: `package pipeline
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['network', 'backend'],
+	},
+	{
+		title: 'Concurrent Pipeline with Stages',
+		description:
+			'Composable pipeline with concurrent stages. Usage: pipeline := RunPipeline(orders, StartStage, func(ch <-chan Order) <-chan Order { return ProcessStage(ch, 5) })',
+		code: `package pipeline
 
 type Stage[I, O any] func(<-chan I) <-chan O
 
@@ -610,14 +622,15 @@ func fanInProcess(inputs []<-chan Order) <-chan Order {
 // pipeline := RunPipeline(orders, StartStage, func(ch <-chan Order) <-chan Order {
 //     return ProcessStage(ch, 5)
 // })`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['architecture', 'performance'],
-    },
-    {
-        title: 'Generic Repository with Caching',
-        description: 'Repository wrapper with in-memory TTL cache. Usage: repo := NewCachedRepository(dbRepo, 5*time.Minute)',
-        code: `package repository
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['architecture', 'performance'],
+	},
+	{
+		title: 'Generic Repository with Caching',
+		description:
+			'Repository wrapper with in-memory TTL cache. Usage: repo := NewCachedRepository(dbRepo, 5*time.Minute)',
+		code: `package repository
 
 import (
     "context"
@@ -713,14 +726,15 @@ func (r *CachedRepository[T]) ClearCache() {
     r.mu.Unlock()
 }
 `,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['data', 'architecture'],
-    },
-    {
-        title: 'Middleware Chain',
-        description: 'Composable middleware chain with logger, recoverer, and request ID. Usage: chain := NewChain(Logger, Recoverer, RequestID)',
-        code: `package middleware
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['data', 'architecture'],
+	},
+	{
+		title: 'Middleware Chain',
+		description:
+			'Composable middleware chain with logger, recoverer, and request ID. Usage: chain := NewChain(Logger, Recoverer, RequestID)',
+		code: `package middleware
 
 import (
     "log"
@@ -796,14 +810,15 @@ func generateRequestID() string {
 
 // Usage: chain := NewChain(Logger, Recoverer, RequestID)
 // http.Handle("/", chain.ThenFunc(myHandler))`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['middleware', 'backend'],
-    },
-    {
-        title: 'Configuration Loader with Environment Support',
-        description: 'Load config from JSON file and override with env vars. Usage: loader := NewLoader(cfg, WithEnvPrefix("APP"), WithConfigFile("config.json"))',
-        code: `package config
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['middleware', 'backend'],
+	},
+	{
+		title: 'Configuration Loader with Environment Support',
+		description:
+			'Load config from JSON file and override with env vars. Usage: loader := NewLoader(cfg, WithEnvPrefix("APP"), WithConfigFile("config.json"))',
+		code: `package config
 
 import (
     "encoding/json"
@@ -941,14 +956,15 @@ func setFieldValue(field reflect.Value, value string) error {
 // cfg := &Config{}
 // loader := NewLoader(cfg, WithEnvPrefix("APP"), WithConfigFile("config.json"))
 // loader.Load()`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['devops', 'utilities'],
-    },
-    {
-        title: 'Generic Cache with TTL',
-        description: 'Thread-safe cache with TTL and cleanup loop. Usage: cache := NewCache[string, User](5*time.Minute, 1*time.Minute)',
-        code: `package cache
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['devops', 'utilities'],
+	},
+	{
+		title: 'Generic Cache with TTL',
+		description:
+			'Thread-safe cache with TTL and cleanup loop. Usage: cache := NewCache[string, User](5*time.Minute, 1*time.Minute)',
+		code: `package cache
 
 import (
     "sync"
@@ -1089,14 +1105,15 @@ func (c *Cache[K, V]) Len() int {
     return len(c.items)
 }
 // Usage: cache := NewCache[string, User](5*time.Minute, 1*time.Minute)`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['data', 'performance'],
-    },
-    {
-        title: 'Circuit Breaker Pattern',
-        description: 'Circuit breaker with closed/open/half-open states. Usage: cb := NewCircuitBreaker(Config{Timeout: 5*time.Second, MaxFailures: 3})',
-        code: `package circuitbreaker
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['data', 'performance'],
+	},
+	{
+		title: 'Circuit Breaker Pattern',
+		description:
+			'Circuit breaker with closed/open/half-open states. Usage: cb := NewCircuitBreaker(Config{Timeout: 5*time.Second, MaxFailures: 3})',
+		code: `package circuitbreaker
 
 import (
     "errors"
@@ -1221,14 +1238,15 @@ func (cb *CircuitBreaker) Reset() {
 
 // Usage: cb := NewCircuitBreaker(Config{Timeout: 5*time.Second, MaxFailures: 3})
 // err := cb.Execute(func() error { return callExternalService() })`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['architecture', 'backend'],
-    },
-    {
-        title: 'Event Bus with Topics',
-        description: 'Topic-based event bus with sync/async dispatch. Usage: bus := NewBus(true); bus.Publish(Event{Type: "user.created", Data: user})',
-        code: `package eventbus
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Event Bus with Topics',
+		description:
+			'Topic-based event bus with sync/async dispatch. Usage: bus := NewBus(true); bus.Publish(Event{Type: "user.created", Data: user})',
+		code: `package eventbus
 
 import (
     "sync"
@@ -1335,14 +1353,15 @@ func (b *Bus) ClearAll() {
 // })
 // defer unsubscribe()
 // bus.Publish(Event{Type: "user.created", Data: user})`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['events', 'architecture'],
-    },
-    {
-        title: 'Database Migration Tool',
-        description: 'SQL migration loader and runner with up/down support. Usage: m := NewMigrator(db, "schema_migrations"); m.LoadFromDirectory("./migrations")',
-        code: `package migration
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['events', 'architecture'],
+	},
+	{
+		title: 'Database Migration Tool',
+		description:
+			'SQL migration loader and runner with up/down support. Usage: m := NewMigrator(db, "schema_migrations"); m.LoadFromDirectory("./migrations")',
+		code: `package migration
 
 import (
     "database/sql"
@@ -1546,14 +1565,15 @@ func (m *Migrator) Down(steps int) error {
 // Usage: m := NewMigrator(db, "schema_migrations")
 // m.LoadFromDirectory("./migrations")
 // m.Up(0) // Apply all`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['database', 'infrastructure'],
-    },
-    {
-        title: 'HTTP Server with Graceful Shutdown and Middleware',
-        description: 'HTTP server wrapper with middleware and graceful shutdown. Usage: server := NewServer(ServerConfig{Port: 8080})',
-        code: `package server
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['database', 'infrastructure'],
+	},
+	{
+		title: 'HTTP Server with Graceful Shutdown and Middleware',
+		description:
+			'HTTP server wrapper with middleware and graceful shutdown. Usage: server := NewServer(ServerConfig{Port: 8080})',
+		code: `package server
 
 import (
     "context"
@@ -1680,8 +1700,8 @@ func CORSMiddleware(next http.Handler) http.Handler {
 // server.Use(RecoveryMiddleware)
 // server.HandleFunc("/api", apiHandler)
 // server.Start()`,
-        language: 'go',
-        technologies: ['golang'],
-        categories: ['network', 'backend'],
-    },
+		language: 'go',
+		technologies: ['golang'],
+		categories: ['network', 'backend'],
+	},
 ]

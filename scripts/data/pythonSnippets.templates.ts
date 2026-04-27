@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const PYTHON_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-    {
-        title: 'Decorator for Timing Functions',
-        description: 'Measure execution time of a function. Usage: @timer on a function definition.',
-        code: `import time
+	{
+		title: 'Decorator for Timing Functions',
+		description:
+			'Measure execution time of a function. Usage: @timer on a function definition.',
+		code: `import time
 from functools import wraps
 from typing import Callable, Any
 
@@ -23,14 +24,15 @@ def slow_function():
     time.sleep(1)
     return "done"
 # Usage: result = slow_function()`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['utilities', 'performance'],
-    },
-    {
-        title: 'Context Manager for Database Connections',
-        description: 'Context manager for safe SQLite connection handling. Usage: with database_connection("test.db") as conn: ...',
-        code: `import sqlite3
+		language: 'python',
+		technologies: ['python'],
+		categories: ['utilities', 'performance'],
+	},
+	{
+		title: 'Context Manager for Database Connections',
+		description:
+			'Context manager for safe SQLite connection handling. Usage: with database_connection("test.db") as conn: ...',
+		code: `import sqlite3
 from contextlib import contextmanager
 from typing import Generator
 
@@ -52,14 +54,15 @@ def database_connection(db_path: str) -> Generator[sqlite3.Connection, None, Non
 # Usage:
 # with database_connection("test.db") as conn:
 #     cursor = conn.execute("SELECT * FROM users")`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['database', 'utilities'],
-    },
-    {
-        title: 'Singleton Pattern with Metaclass',
-        description: 'Singleton implementation using a metaclass. Usage: db1 = DatabaseConnection(); db2 = DatabaseConnection()',
-        code: `class SingletonMeta(type):
+		language: 'python',
+		technologies: ['python'],
+		categories: ['database', 'utilities'],
+	},
+	{
+		title: 'Singleton Pattern with Metaclass',
+		description:
+			'Singleton implementation using a metaclass. Usage: db1 = DatabaseConnection(); db2 = DatabaseConnection()',
+		code: `class SingletonMeta(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
@@ -77,14 +80,15 @@ class DatabaseConnection(metaclass=SingletonMeta):
         return self
 
 # Usage: db1 = DatabaseConnection(); db2 = DatabaseConnection()  # Same instance`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['architecture', 'backend'],
-    },
-    {
-        title: 'Retry Decorator',
-        description: 'Retry function calls with exponential backoff. Usage: @retry(max_attempts=3, delay=0.5)',
-        code: `import time
+		language: 'python',
+		technologies: ['python'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Retry Decorator',
+		description:
+			'Retry function calls with exponential backoff. Usage: @retry(max_attempts=3, delay=0.5)',
+		code: `import time
 from functools import wraps
 from typing import Type, Union, Tuple
 
@@ -108,14 +112,15 @@ def retry(max_attempts: int = 3, delay: float = 1.0,
 def unstable_network_call():
     # Risky operation
     pass`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['utilities', 'network'],
-    },
-    {
-        title: 'Async Rate Limiter',
-        description: 'Async callable rate limiter. Usage: result = await limiter(api_call, "data")',
-        code: `import asyncio
+		language: 'python',
+		technologies: ['python'],
+		categories: ['utilities', 'network'],
+	},
+	{
+		title: 'Async Rate Limiter',
+		description:
+			'Async callable rate limiter. Usage: result = await limiter(api_call, "data")',
+		code: `import asyncio
 import time
 from typing import Callable, Any
 
@@ -140,14 +145,15 @@ class RateLimiter:
 # Usage:
 # limiter = RateLimiter(10, 1.0)
 # result = await limiter(api_call, "data")`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['performance', 'network'],
-    },
-    {
-        title: 'Property Descriptor with Validation',
-        description: 'Descriptor for validated attribute assignments. Usage: person = Person("John", 30)',
-        code: `class ValidatedAttribute:
+		language: 'python',
+		technologies: ['python'],
+		categories: ['performance', 'network'],
+	},
+	{
+		title: 'Property Descriptor with Validation',
+		description:
+			'Descriptor for validated attribute assignments. Usage: person = Person("John", 30)',
+		code: `class ValidatedAttribute:
     def __init__(self, validator):
         self.validator = validator
         self.data = {}
@@ -175,14 +181,15 @@ class Person:
         self.age = age
 
 # Usage: person = Person("John", 30)`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['types', 'validation'],
-    },
-    {
-        title: 'Pipeline Pattern with Generators',
-        description: 'Pipeline with sync and generator-based execution. Usage: pipeline.add_stage(...).execute(5)',
-        code: `from typing import Generator, Any, Callable
+		language: 'python',
+		technologies: ['python'],
+		categories: ['types', 'validation'],
+	},
+	{
+		title: 'Pipeline Pattern with Generators',
+		description:
+			'Pipeline with sync and generator-based execution. Usage: pipeline.add_stage(...).execute(5)',
+		code: `from typing import Generator, Any, Callable
 
 class Pipeline:
     def __init__(self):
@@ -208,14 +215,15 @@ class Pipeline:
 # pipeline = Pipeline()
 # pipeline.add_stage(lambda x: x * 2).add_stage(lambda x: x + 1)
 # result = pipeline.execute(5)  # 11`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['architecture', 'utilities'],
-    },
-    {
-        title: 'Observer Pattern',
-        description: 'Observer/Subject pattern with notifications. Usage: subject.attach(Logger())',
-        code: `from abc import ABC, abstractmethod
+		language: 'python',
+		technologies: ['python'],
+		categories: ['architecture', 'utilities'],
+	},
+	{
+		title: 'Observer Pattern',
+		description:
+			'Observer/Subject pattern with notifications. Usage: subject.attach(Logger())',
+		code: `from abc import ABC, abstractmethod
 from typing import List, Any
 
 class Observer(ABC):
@@ -250,14 +258,15 @@ class Subject:
 # Usage:
 # class Logger(Observer):
 #     def update(self, subject): print(f"State changed: {subject.state}")`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['events', 'architecture'],
-    },
-    {
-        title: 'Fluent Interface Builder',
-        description: 'Fluent SQL-like query builder. Usage: QueryBuilder().select("id").from_table("users").build()',
-        code: `class QueryBuilder:
+		language: 'python',
+		technologies: ['python'],
+		categories: ['events', 'architecture'],
+	},
+	{
+		title: 'Fluent Interface Builder',
+		description:
+			'Fluent SQL-like query builder. Usage: QueryBuilder().select("id").from_table("users").build()',
+		code: `class QueryBuilder:
     def __init__(self):
         self._select = []
         self._from = None
@@ -303,14 +312,15 @@ class Subject:
 #                .order_by("name")
 #                .limit(10)
 #                .build())`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['data', 'utilities'],
-    },
-    {
-        title: 'Coroutine-based State Machine',
-        description: 'Simple coroutine state machine. Usage: machine = state_machine(); next(machine); machine.send("start")',
-        code: `def state_machine():
+		language: 'python',
+		technologies: ['python'],
+		categories: ['data', 'utilities'],
+	},
+	{
+		title: 'Coroutine-based State Machine',
+		description:
+			'Simple coroutine state machine. Usage: machine = state_machine(); next(machine); machine.send("start")',
+		code: `def state_machine():
     """Simple coroutine-based state machine"""
     state = 'idle'
     while True:
@@ -341,14 +351,15 @@ class Subject:
 # next(machine)  # Prime coroutine
 # machine.send('start')
 # machine.send('pause')`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['state', 'architecture'],
-    },
-    {
-        title: 'Async Web Scraper with Rate Limiting',
-        description: 'Async scraper with concurrency, retries, and rate limiting. Usage: async with AsyncScraper() as s: await s.scrape_many(urls, parser)',
-        code: `import asyncio
+		language: 'python',
+		technologies: ['python'],
+		categories: ['state', 'architecture'],
+	},
+	{
+		title: 'Async Web Scraper with Rate Limiting',
+		description:
+			'Async scraper with concurrency, retries, and rate limiting. Usage: async with AsyncScraper() as s: await s.scrape_many(urls, parser)',
+		code: `import asyncio
 import aiohttp
 from typing import List, Dict, Any, Optional
 import logging
@@ -433,14 +444,15 @@ class AsyncScraper:
 #         urls = ['https://example.com/page1', 'https://example.com/page2']
 #         results = await scraper.scrape_many(urls, parse_page)
 #         scraper.save_results('output.json')`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['network', 'performance'],
-    },
-    {
-        title: 'Event-Driven Architecture with Async Handlers',
-        description: 'Event bus with priority queue and async workers. Usage: bus.subscribe("user.created", handler)',
-        code: `import asyncio
+		language: 'python',
+		technologies: ['python'],
+		categories: ['network', 'performance'],
+	},
+	{
+		title: 'Event-Driven Architecture with Async Handlers',
+		description:
+			'Event bus with priority queue and async workers. Usage: bus.subscribe("user.created", handler)',
+		code: `import asyncio
 from typing import Dict, List, Callable, Any
 from enum import Enum
 from dataclasses import dataclass
@@ -531,14 +543,15 @@ class EventBus:
 # bus.subscribe("user.created", user_created_handler)
 # await bus.start()
 # bus.publish(Event("user.created", {"id": 1, "name": "John"}))`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['events', 'architecture'],
-    },
-    {
-        title: 'Generic Repository Pattern with SQLAlchemy',
-        description: 'Async generic repository for SQLAlchemy models. Usage: repo = Repository(User, session)',
-        code: `from typing import TypeVar, Generic, Type, List, Optional, Dict, Any
+		language: 'python',
+		technologies: ['python'],
+		categories: ['events', 'architecture'],
+	},
+	{
+		title: 'Generic Repository Pattern with SQLAlchemy',
+		description:
+			'Async generic repository for SQLAlchemy models. Usage: repo = Repository(User, session)',
+		code: `from typing import TypeVar, Generic, Type, List, Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
@@ -667,14 +680,15 @@ class Repository(Generic[T]):
 #
 # repo = Repository(User, session)
 # user = await repo.create(name="John", email="john@example.com")`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['database', 'architecture'],
-    },
-    {
-        title: 'Advanced Caching System',
-        description: 'Async LRU cache with TTL, stats, and persistence. Usage: value = await cache.get_or_set("user:1", factory)',
-        code: `from typing import TypeVar, Generic, Optional, Callable, Any
+		language: 'python',
+		technologies: ['python'],
+		categories: ['database', 'architecture'],
+	},
+	{
+		title: 'Advanced Caching System',
+		description:
+			'Async LRU cache with TTL, stats, and persistence. Usage: value = await cache.get_or_set("user:1", factory)',
+		code: `from typing import TypeVar, Generic, Optional, Callable, Any
 from datetime import datetime, timedelta
 import pickle
 import hashlib
@@ -802,14 +816,15 @@ class Cache(Generic[T]):
 # Usage:
 # cache = Cache[str](max_size=1000, default_ttl=60)
 # value = await cache.get_or_set("user:1", lambda: fetch_user_from_db(1))`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['performance', 'data'],
-    },
-    {
-        title: 'Message Queue with Priorities',
-        description: 'Priority queue for async message processing. Usage: queue.publish(Message({"event": "user_login"}, priority=MessagePriority.HIGH))',
-        code: `import asyncio
+		language: 'python',
+		technologies: ['python'],
+		categories: ['performance', 'data'],
+	},
+	{
+		title: 'Message Queue with Priorities',
+		description:
+			'Priority queue for async message processing. Usage: queue.publish(Message({"event": "user_login"}, priority=MessagePriority.HIGH))',
+		code: `import asyncio
 from typing import Any, Optional, Callable
 from enum import Enum
 from dataclasses import dataclass, field
@@ -933,14 +948,15 @@ class MessageQueue:
 # queue.subscribe("logger", log_consumer)
 # await queue.start()
 # queue.publish(Message({"event": "user_login"}, priority=MessagePriority.HIGH))`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['architecture', 'backend'],
-    },
-    {
-        title: 'Data Pipeline with Transformations',
-        description: 'Async pipeline with stages and error handlers. Usage: pipeline.add_stage(PipelineStage("extract", fn))',
-        code: `from typing import TypeVar, Generic, List, Any, Callable
+		language: 'python',
+		technologies: ['python'],
+		categories: ['architecture', 'backend'],
+	},
+	{
+		title: 'Data Pipeline with Transformations',
+		description:
+			'Async pipeline with stages and error handlers. Usage: pipeline.add_stage(PipelineStage("extract", fn))',
+		code: `from typing import TypeVar, Generic, List, Any, Callable
 from dataclasses import dataclass
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -1046,14 +1062,15 @@ class DataPipeline(Generic[T, U]):
 # pipeline.add_stage(PipelineStage("extract", extract_emails))
 # pipeline.add_stage(PipelineStage("dedupe", remove_duplicates))
 # result = await pipeline.execute("Contact john@email.com and jane@email.com")`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['data', 'architecture'],
-    },
-    {
-        title: 'Distributed Lock Implementation',
-        description: 'Redis-based distributed lock with renewal. Usage: async with lock.acquire_context(): ...',
-        code: `import asyncio
+		language: 'python',
+		technologies: ['python'],
+		categories: ['data', 'architecture'],
+	},
+	{
+		title: 'Distributed Lock Implementation',
+		description:
+			'Redis-based distributed lock with renewal. Usage: async with lock.acquire_context(): ...',
+		code: `import asyncio
 import uuid
 from typing import Optional, Callable
 import aioredis
@@ -1186,14 +1203,15 @@ class LockManager:
 # lock = manager.get_lock("resource:123")
 # async with lock.acquire_context():
 #     await process_resource()`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['infrastructure', 'backend'],
-    },
-    {
-        title: 'GraphQL-like Query Resolver',
-        description: 'Simple query parser and resolver with middleware. Usage: resolver.parse_query("users {id, name} where age > 18 limit 10")',
-        code: `from typing import Dict, Any, Optional, Callable, List
+		language: 'python',
+		technologies: ['python'],
+		categories: ['infrastructure', 'backend'],
+	},
+	{
+		title: 'GraphQL-like Query Resolver',
+		description:
+			'Simple query parser and resolver with middleware. Usage: resolver.parse_query("users {id, name} where age > 18 limit 10")',
+		code: `from typing import Dict, Any, Optional, Callable, List
 from dataclasses import dataclass, field
 from enum import Enum
 import re
@@ -1312,14 +1330,15 @@ class QueryResolver:
 #     return await db.fetch_users(query)
 # query = resolver.parse_query("users {id, name} where age > 18 limit 10")
 # result = await resolver.resolve(query)`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['data', 'architecture'],
-    },
-    {
-        title: 'Background Task Scheduler',
-        description: 'Async task scheduler with intervals and status tracking. Usage: @scheduler.schedule(interval=60, name="data_sync")',
-        code: `import asyncio
+		language: 'python',
+		technologies: ['python'],
+		categories: ['data', 'architecture'],
+	},
+	{
+		title: 'Background Task Scheduler',
+		description:
+			'Async task scheduler with intervals and status tracking. Usage: @scheduler.schedule(interval=60, name="data_sync")',
+		code: `import asyncio
 from typing import Callable, Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from enum import Enum
@@ -1442,14 +1461,15 @@ class TaskScheduler:
 # await scheduler.start()
 # status = scheduler.get_task_status("data_sync")
 # await scheduler.stop()`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['infrastructure', 'backend'],
-    },
-    {
-        title: 'API Rate Limiter with Multiple Strategies',
-        description: 'Token bucket and sliding window rate limiting. Usage: limiter = RateLimiter(TokenBucket(capacity=100, refill_rate=10))',
-        code: `from typing import Dict, Optional, Callable
+		language: 'python',
+		technologies: ['python'],
+		categories: ['infrastructure', 'backend'],
+	},
+	{
+		title: 'API Rate Limiter with Multiple Strategies',
+		description:
+			'Token bucket and sliding window rate limiting. Usage: limiter = RateLimiter(TokenBucket(capacity=100, refill_rate=10))',
+		code: `from typing import Dict, Optional, Callable
 import time
 import asyncio
 from collections import defaultdict, deque
@@ -1582,8 +1602,8 @@ class RateLimiter:
 #     result = await api_call("user123", {"action": "test"})
 # except Exception as e:
 #     print(f"Rate limited: {e}")`,
-        language: 'python',
-        technologies: ['python'],
-        categories: ['security', 'api'],
-    },
+		language: 'python',
+		technologies: ['python'],
+		categories: ['security', 'api'],
+	},
 ]

@@ -37,16 +37,33 @@ Key design points:
 - Environment-specific wiring lives in client/server containers.
 - API factories enable migration from `serverless` to `rest`/`graphql` modes.
 
-## Test and Script Commands
+## Testing
+
+Three test layers exist in this repo:
+
+- `pnpm test` runs fast unit-style tests and does not call live Firebase.
+- `pnpm test:formatter:integration` calls the real formatter microservice.
+- `pnpm test:firebase` runs live Firebase integration tests against the dev project.
+- `pnpm test:firebase:all` runs the combined scripted Firebase smoke flow.
+
+Useful commands:
 
 ```bash
 pnpm test
+pnpm test:formatter:integration
+pnpm test:firebase
+pnpm test:firebase:all
 pnpm test:auth
 pnpm test:user
 pnpm test:snippet
 pnpm test:database
 pnpm test:all
 ```
+
+Formatter integration tests require a reachable formatter service and valid formatter service credentials.
+Firebase integration tests require valid Firebase environment variables and a reachable dev Firebase project.
+
+## Test Tools
 
 ```bash
 pnpm tools:clear
@@ -55,6 +72,17 @@ pnpm tools:auth
 pnpm tools:user
 pnpm tools:snippet
 ```
+
+## CI
+
+GitHub Actions runs the pipeline in this order:
+
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm test:formatter:integration` when formatter service secrets are configured
+- `pnpm test:firebase` when Firebase secrets are configured
+- `pnpm build`
 
 ## Documentation
 

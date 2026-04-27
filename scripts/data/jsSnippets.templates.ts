@@ -1,64 +1,71 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-  {
-    title: 'Deep Clone Object',
-    description: 'Create a deep copy of any object using JSON serialization. Usage: const clonedObj = deepClone(originalObj)',
-    code: `const deepClone = obj => JSON.parse(JSON.stringify(obj));`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Check if Array is Empty',
-    description: 'Safely check if a value is an empty array. Usage: isEmpty([]) // true',
-    code: `const isEmpty = arr => !Array.isArray(arr) || arr.length === 0;`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Generate Random Hex Color',
-    description: 'Generate a random hex color code. Usage: randomColor() // "#3e2f1b"',
-    code: `const randomColor = () => \`#\${Math.floor(Math.random()*16777215).toString(16)}\`;`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Copy to Clipboard',
-    description: 'Copy any text to the clipboard using the Clipboard API. Usage: copyToClipboard("Hello World")',
-    code: `const copyToClipboard = text => navigator.clipboard?.writeText(text);`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Check if Element has Class',
-    description: 'Check whether a DOM element contains a specific CSS class. Usage: hasClass(document.body, "dark-mode")',
-    code: `const hasClass = (el, className) => el.classList.contains(className);`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Debounce Function',
-    description: 'Delay function execution until after a specified wait time has elapsed since the last call. Usage: window.addEventListener("resize", debounce(handleResize, 200))',
-    code: `const debounce = (func, delay) => {
+	{
+		title: 'Deep Clone Object',
+		description:
+			'Create a deep copy of any object using JSON serialization. Usage: const clonedObj = deepClone(originalObj)',
+		code: `const deepClone = obj => JSON.parse(JSON.stringify(obj));`,
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Check if Array is Empty',
+		description:
+			'Safely check if a value is an empty array. Usage: isEmpty([]) // true',
+		code: `const isEmpty = arr => !Array.isArray(arr) || arr.length === 0;`,
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Generate Random Hex Color',
+		description:
+			'Generate a random hex color code. Usage: randomColor() // "#3e2f1b"',
+		code: `const randomColor = () => \`#\${Math.floor(Math.random()*16777215).toString(16)}\`;`,
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Copy to Clipboard',
+		description:
+			'Copy any text to the clipboard using the Clipboard API. Usage: copyToClipboard("Hello World")',
+		code: `const copyToClipboard = text => navigator.clipboard?.writeText(text);`,
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Check if Element has Class',
+		description:
+			'Check whether a DOM element contains a specific CSS class. Usage: hasClass(document.body, "dark-mode")',
+		code: `const hasClass = (el, className) => el.classList.contains(className);`,
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Debounce Function',
+		description:
+			'Delay function execution until after a specified wait time has elapsed since the last call. Usage: window.addEventListener("resize", debounce(handleResize, 200))',
+		code: `const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func.apply(this, args), delay);
   };
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities', 'performance'],
-  },
-  {
-    title: 'Local Storage with Expiry',
-    description: 'Set and get localStorage values with a TTL expiry. Usage: storage.set("token", "abc123", 3600000) for 1 hour expiry',
-    code: `const storage = {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities', 'performance'],
+	},
+	{
+		title: 'Local Storage with Expiry',
+		description:
+			'Set and get localStorage values with a TTL expiry. Usage: storage.set("token", "abc123", 3600000) for 1 hour expiry',
+		code: `const storage = {
   set: (key, value, ttl) => {
     const item = { value, expiry: Date.now() + ttl };
     localStorage.setItem(key, JSON.stringify(item));
@@ -68,51 +75,55 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return item?.expiry > Date.now() ? item.value : null;
   }
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities', 'frontend'],
-  },
-  {
-    title: 'Format Currency',
-    description: 'Format a number as a localized currency string using Intl.NumberFormat. Usage: formatCurrency(1234.56) // "$1,234.56"',
-    code: `const formatCurrency = (amount, currency = 'USD', locale = 'en-US') => {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities', 'frontend'],
+	},
+	{
+		title: 'Format Currency',
+		description:
+			'Format a number as a localized currency string using Intl.NumberFormat. Usage: formatCurrency(1234.56) // "$1,234.56"',
+		code: `const formatCurrency = (amount, currency = 'USD', locale = 'en-US') => {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency
   }).format(amount);
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Group Array by Key',
-    description: 'Group an array of objects by a specific key into a dictionary. Usage: groupBy(users, "role")',
-    code: `const groupBy = (array, key) => {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Group Array by Key',
+		description:
+			'Group an array of objects by a specific key into a dictionary. Usage: groupBy(users, "role")',
+		code: `const groupBy = (array, key) => {
   return array.reduce((result, item) => {
     (result[item[key]] = result[item[key]] || []).push(item);
     return result;
   }, {});
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Flatten Nested Array',
-    description: 'Recursively flatten an arbitrarily nested array. Usage: flattenDeep([1, [2, [3, [4]]]]) // [1, 2, 3, 4]',
-    code: `const flattenDeep = (arr) => {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Flatten Nested Array',
+		description:
+			'Recursively flatten an arbitrarily nested array. Usage: flattenDeep([1, [2, [3, [4]]]]) // [1, 2, 3, 4]',
+		code: `const flattenDeep = (arr) => {
   return arr.reduce((acc, val) =>
     Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities'],
-  },
-  {
-    title: 'Throttle Function',
-    description: 'Limit how often a function can be called over time. Usage: window.addEventListener("scroll", throttle(handleScroll, 100))',
-    code: `const throttle = (func, limit) => {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities'],
+	},
+	{
+		title: 'Throttle Function',
+		description:
+			'Limit how often a function can be called over time. Usage: window.addEventListener("scroll", throttle(handleScroll, 100))',
+		code: `const throttle = (func, limit) => {
   let inThrottle;
   return function(...args) {
     if (!inThrottle) {
@@ -122,14 +133,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     }
   };
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities', 'performance'],
-  },
-  {
-    title: 'Query String Parser',
-    description: 'Parse URL query string parameters into a key-value object. Usage: parseQueryString("?page=2&sort=asc") // { page: "2", sort: "asc" }',
-    code: `const parseQueryString = (url = window.location.href) => {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities', 'performance'],
+	},
+	{
+		title: 'Query String Parser',
+		description:
+			'Parse URL query string parameters into a key-value object. Usage: parseQueryString("?page=2&sort=asc") // { page: "2", sort: "asc" }',
+		code: `const parseQueryString = (url = window.location.href) => {
   const queryString = url.split('?')[1] || '';
   return queryString.split('&').reduce((params, pair) => {
     const [key, value] = pair.split('=');
@@ -137,14 +149,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return params;
   }, {});
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities', 'frontend'],
-  },
-  {
-    title: 'Custom Event Emitter',
-    description: 'A lightweight pub/sub event emitter with on, off, emit, and once support. Usage: const emitter = new EventEmitter(); emitter.on("data", handler)',
-    code: `class EventEmitter {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities', 'frontend'],
+	},
+	{
+		title: 'Custom Event Emitter',
+		description:
+			'A lightweight pub/sub event emitter with on, off, emit, and once support. Usage: const emitter = new EventEmitter(); emitter.on("data", handler)',
+		code: `class EventEmitter {
   constructor() {
     this.events = {};
   }
@@ -173,14 +186,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     this.on(event, wrapper);
   }
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities', 'backend'],
-  },
-  {
-    title: 'Data Validator',
-    description: 'A simple rule-based data validator supporting required, min length, and email rules. Usage: validator.validate({ email: "test" }, { email: "required|email" })',
-    code: `const validator = {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities', 'backend'],
+	},
+	{
+		title: 'Data Validator',
+		description:
+			'A simple rule-based data validator supporting required, min length, and email rules. Usage: validator.validate({ email: "test" }, { email: "required|email" })',
+		code: `const validator = {
   rules: {},
 
   addRule(name, validationFn, message) {
@@ -206,14 +220,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return { isValid: errors.length === 0, errors };
   }
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['utilities', 'backend'],
-  },
-  {
-    title: 'Rate Limiter',
-    description: 'In-memory rate limiter that tracks requests per key within a sliding time window. Usage: const limiter = new RateLimiter(10, 60000) for 10 requests per minute',
-    code: `class RateLimiter {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['utilities', 'backend'],
+	},
+	{
+		title: 'Rate Limiter',
+		description:
+			'In-memory rate limiter that tracks requests per key within a sliding time window. Usage: const limiter = new RateLimiter(10, 60000) for 10 requests per minute',
+		code: `class RateLimiter {
   constructor(maxRequests, timeWindow) {
     this.maxRequests = maxRequests;
     this.timeWindow = timeWindow;
@@ -238,14 +253,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return Math.max(0, this.maxRequests - validRequests.length);
   }
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['backend', 'security'],
-  },
-  {
-    title: 'Simple State Manager',
-    description: 'A Redux-like state manager with reducers, dispatch, and subscriptions. Usage: const store = new Store({ count: 0 }); store.dispatch({ type: "INCREMENT" })',
-    code: `class Store {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['backend', 'security'],
+	},
+	{
+		title: 'Simple State Manager',
+		description:
+			'A Redux-like state manager with reducers, dispatch, and subscriptions. Usage: const store = new Store({ count: 0 }); store.dispatch({ type: "INCREMENT" })',
+		code: `class Store {
   constructor(initialState = {}) {
     this.state = initialState;
     this.subscribers = new Set();
@@ -277,14 +293,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return { ...this.state };
   }
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['frontend', 'utilities'],
-  },
-  {
-    title: 'Image Lazy Loader',
-    description: 'Lazy load images using IntersectionObserver when they enter the viewport. Usage: lazyLoad.init() — add data-src attribute to img tags instead of src',
-    code: `const lazyLoad = {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['frontend', 'utilities'],
+	},
+	{
+		title: 'Image Lazy Loader',
+		description:
+			'Lazy load images using IntersectionObserver when they enter the viewport. Usage: lazyLoad.init() — add data-src attribute to img tags instead of src',
+		code: `const lazyLoad = {
   init() {
     this.images = document.querySelectorAll('[data-src]');
     this.observer = new IntersectionObserver(this.loadImage.bind(this), {
@@ -312,14 +329,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     this.observer.disconnect();
   }
 };`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['frontend', 'performance'],
-  },
-  {
-    title: 'Pagination Helper',
-    description: 'A full-featured paginator with page navigation and smart page number generation with dots. Usage: const paginator = new Paginator(items, 10); paginator.getPage(2)',
-    code: `class Paginator {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['frontend', 'performance'],
+	},
+	{
+		title: 'Pagination Helper',
+		description:
+			'A full-featured paginator with page navigation and smart page number generation with dots. Usage: const paginator = new Paginator(items, 10); paginator.getPage(2)',
+		code: `class Paginator {
   constructor(items, pageSize = 10) {
     this.items = items;
     this.pageSize = pageSize;
@@ -363,14 +381,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return rangeWithDots;
   }
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['frontend', 'utilities'],
-  },
-  {
-    title: 'Form Validation with Real-time Feedback',
-    description: 'A class-based form validator with real-time input/blur validation, inline error messages, and submit handling. Usage: new FormValidator(formEl, { email: "required|email", name: "required|min:3" })',
-    code: `class FormValidator {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['frontend', 'utilities'],
+	},
+	{
+		title: 'Form Validation with Real-time Feedback',
+		description:
+			'A class-based form validator with real-time input/blur validation, inline error messages, and submit handling. Usage: new FormValidator(formEl, { email: "required|email", name: "required|min:3" })',
+		code: `class FormValidator {
   constructor(form, rules) {
     this.form = form;
     this.rules = rules;
@@ -453,14 +472,15 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     return errorDiv;
   }
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['frontend', 'utilities'],
-  },
-  {
-    title: 'Data Table with Sorting and Filtering',
-    description: 'A dynamic HTML table renderer with column sorting and per-column text filtering. Usage: const table = new DataTable(data, [{ key: "name", label: "Name" }], containerEl)',
-    code: `class DataTable {
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['frontend', 'utilities'],
+	},
+	{
+		title: 'Data Table with Sorting and Filtering',
+		description:
+			'A dynamic HTML table renderer with column sorting and per-column text filtering. Usage: const table = new DataTable(data, [{ key: "name", label: "Name" }], containerEl)',
+		code: `class DataTable {
   constructor(data, columns, container) {
     this.originalData = data;
     this.data = [...data];
@@ -535,8 +555,8 @@ export const JS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
   addRow(newRow) { this.originalData.push(newRow); this.render(); }
   deleteRows(filterFn) { this.originalData = this.originalData.filter(row => !filterFn(row)); this.render(); }
 }`,
-    language: 'javascript',
-    technologies: ['javascript'],
-    categories: ['frontend', 'utilities'],
-  },
+		language: 'javascript',
+		technologies: ['javascript'],
+		categories: ['frontend', 'utilities'],
+	},
 ]

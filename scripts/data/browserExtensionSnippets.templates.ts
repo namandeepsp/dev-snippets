@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const BROWSER_EXTENSION_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-  {
-    title: 'Basic manifest.json',
-    description: 'Minimal manifest file for a browser extension. Usage: Required for all extensions',
-    code: `{
+	{
+		title: 'Basic manifest.json',
+		description:
+			'Minimal manifest file for a browser extension. Usage: Required for all extensions',
+		code: `{
   "manifest_version": 3,
   "name": "My Extension",
   "version": "1.0",
@@ -15,14 +16,14 @@ export const BROWSER_EXTENSION_SNIPPET_TEMPLATES: SnippetTemplate[] = [
     "default_title": "Click me"
   }
 }`,
-    language: 'json',
-    technologies: ['browser-extension'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Content Script Injection',
-    description: 'Inject scripts into web pages. Usage: Modify page content',
-    code: `// manifest.json
+		language: 'json',
+		technologies: ['browser-extension'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Content Script Injection',
+		description: 'Inject scripts into web pages. Usage: Modify page content',
+		code: `// manifest.json
 "content_scripts": [
   {
     "matches": ["<all_urls>"],
@@ -33,14 +34,15 @@ export const BROWSER_EXTENSION_SNIPPET_TEMPLATES: SnippetTemplate[] = [
 // content.js
 console.log('Content script loaded on:', window.location.href);
 document.body.style.backgroundColor = 'lightblue';`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Background Service Worker',
-    description: 'Long-running background tasks. Usage: Handle events and timers',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Background Service Worker',
+		description:
+			'Long-running background tasks. Usage: Handle events and timers',
+		code: `// manifest.json
 "background": {
   "service_worker": "background.js"
 }
@@ -55,14 +57,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     console.log('Tab loaded:', tab.url);
   }
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Message Passing Between Scripts',
-    description: 'Communicate between content script and background script. Usage: Send data',
-    code: `// content.js - Send message
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Message Passing Between Scripts',
+		description:
+			'Communicate between content script and background script. Usage: Send data',
+		code: `// content.js - Send message
 chrome.runtime.sendMessage(
   { action: 'pageData', url: window.location.href },
   (response) => console.log('Response:', response)
@@ -75,14 +78,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ status: 'received' });
   }
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Storage API Usage',
-    description: 'Persist data using Chrome storage. Usage: Save user preferences',
-    code: `// Save data
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Storage API Usage',
+		description:
+			'Persist data using Chrome storage. Usage: Save user preferences',
+		code: `// Save data
 chrome.storage.local.set({ key: 'value', count: 42 }, () => {
   console.log('Data saved');
 });
@@ -97,14 +101,14 @@ chrome.storage.local.get(['key', 'count'], (result) => {
 chrome.storage.local.clear(() => {
   console.log('Storage cleared');
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Popup HTML and Styling',
-    description: 'Create extension popup interface. Usage: User interaction UI',
-    code: `<!-- popup.html -->
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Popup HTML and Styling',
+		description: 'Create extension popup interface. Usage: User interaction UI',
+		code: `<!-- popup.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -133,14 +137,14 @@ button {
   border-radius: 4px;
   cursor: pointer;
 }`,
-    language: 'html',
-    technologies: ['browser-extension', 'html'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Popup Script Interaction',
-    description: 'Handle popup button clicks and updates. Usage: User actions',
-    code: `// popup.js
+		language: 'html',
+		technologies: ['browser-extension', 'html'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Popup Script Interaction',
+		description: 'Handle popup button clicks and updates. Usage: User actions',
+		code: `// popup.js
 document.getElementById('myButton').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.tabs.sendMessage(tabs[0].id, { action: 'doSomething' });
@@ -151,14 +155,15 @@ document.getElementById('myButton').addEventListener('click', () => {
 chrome.storage.local.get('status', (result) => {
   document.getElementById('status').textContent = result.status || 'Ready';
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'DOM Manipulation',
-    description: 'Modify page elements dynamically. Usage: Add/remove/modify DOM nodes',
-    code: `// content.js
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'DOM Manipulation',
+		description:
+			'Modify page elements dynamically. Usage: Add/remove/modify DOM nodes',
+		code: `// content.js
 // Add element
 const banner = document.createElement('div');
 banner.id = 'extension-banner';
@@ -174,14 +179,15 @@ ads.forEach(ad => ad.remove());
 document.querySelectorAll('a').forEach(link => {
   link.style.color = 'red';
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Context Menu Integration',
-    description: 'Add custom context menu items. Usage: Right-click menu options',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Context Menu Integration',
+		description:
+			'Add custom context menu items. Usage: Right-click menu options',
+		code: `// manifest.json
 "permissions": ["contextMenus"]
 
 // background.js
@@ -198,14 +204,15 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     console.log('Link URL:', info.linkUrl);
   }
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Tab Management',
-    description: 'Create, update, and manage browser tabs. Usage: Open/close tabs',
-    code: `// Open new tab
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Tab Management',
+		description:
+			'Create, update, and manage browser tabs. Usage: Open/close tabs',
+		code: `// Open new tab
 chrome.tabs.create({ url: 'https://example.com' });
 
 // Update current tab
@@ -220,14 +227,14 @@ chrome.tabs.remove(tabId);
 chrome.tabs.query({}, (tabs) => {
   tabs.forEach(tab => console.log(tab.url));
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Keyboard Shortcuts',
-    description: 'Define keyboard shortcuts for extension. Usage: Quick access',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Keyboard Shortcuts',
+		description: 'Define keyboard shortcuts for extension. Usage: Quick access',
+		code: `// manifest.json
 "commands": {
   "toggle-feature": {
     "suggested_key": {
@@ -248,14 +255,14 @@ chrome.commands.onCommand.addListener((command) => {
     });
   }
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Fetch API with CORS',
-    description: 'Make HTTP requests from extension. Usage: Get external data',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Fetch API with CORS',
+		description: 'Make HTTP requests from extension. Usage: Get external data',
+		code: `// manifest.json
 "host_permissions": ["https://api.example.com/*"]
 
 // content.js or background.js
@@ -266,14 +273,14 @@ fetch('https://api.example.com/data')
     chrome.storage.local.set({ apiData: data });
   })
   .catch(error => console.error('Fetch error:', error));`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Notification API',
-    description: 'Show desktop notifications. Usage: Alert user',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Notification API',
+		description: 'Show desktop notifications. Usage: Alert user',
+		code: `// manifest.json
 "permissions": ["notifications"]
 
 // background.js or content.js
@@ -289,14 +296,15 @@ chrome.notifications.create({
 chrome.notifications.onClicked.addListener((notificationId) => {
   console.log('Notification clicked:', notificationId);
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Inject CSS Dynamically',
-    description: 'Add CSS styles to pages dynamically. Usage: Style modifications',
-    code: `// content.js
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Inject CSS Dynamically',
+		description:
+			'Add CSS styles to pages dynamically. Usage: Style modifications',
+		code: `// content.js
 const style = document.createElement('style');
 style.textContent = \`
   body {
@@ -316,14 +324,14 @@ chrome.scripting.insertCSS({
   target: { tabId: tabId },
   files: ['styles.css']
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Options Page',
-    description: 'Create settings page for extension. Usage: User preferences',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Options Page',
+		description: 'Create settings page for extension. Usage: User preferences',
+		code: `// manifest.json
 "options_page": "options.html"
 
 <!-- options.html -->
@@ -348,14 +356,15 @@ document.getElementById('save').addEventListener('click', () => {
   const enabled = document.getElementById('enableFeature').checked;
   chrome.storage.sync.set({ enableFeature: enabled });
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Web Request Interception',
-    description: 'Monitor and modify network requests. Usage: Block/modify requests',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Web Request Interception',
+		description:
+			'Monitor and modify network requests. Usage: Block/modify requests',
+		code: `// manifest.json
 "permissions": ["webRequest"],
 "host_permissions": ["<all_urls>"]
 
@@ -372,14 +381,15 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ['<all_urls>'] },
   ['blocking']
 );`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
-  {
-    title: 'Badge Counter',
-    description: 'Display badge with counter on extension icon. Usage: Show notifications count',
-    code: `// Set badge text
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
+	{
+		title: 'Badge Counter',
+		description:
+			'Display badge with counter on extension icon. Usage: Show notifications count',
+		code: `// Set badge text
 chrome.action.setBadgeText({ text: '5' });
 
 // Set badge color
@@ -394,14 +404,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Clear badge
 chrome.action.setBadgeText({ text: '' });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Alarms and Timers',
-    description: 'Schedule tasks to run at intervals. Usage: Periodic updates',
-    code: `// manifest.json
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Alarms and Timers',
+		description: 'Schedule tasks to run at intervals. Usage: Periodic updates',
+		code: `// manifest.json
 "permissions": ["alarms"]
 
 // background.js
@@ -423,9 +433,8 @@ chrome.alarms.clear('myAlarm');
 chrome.alarms.getAll((alarms) => {
   console.log('Active alarms:', alarms);
 });`,
-    language: 'javascript',
-    technologies: ['browser-extension', 'javascript'],
-    categories: ['backend'],
-  },
+		language: 'javascript',
+		technologies: ['browser-extension', 'javascript'],
+		categories: ['backend'],
+	},
 ]
-

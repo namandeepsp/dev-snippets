@@ -1,10 +1,10 @@
-import { userService } from '../../src/features/user/user.container'
-import { BaseScript } from '../core/base.script'
+import { fileURLToPath } from 'node:url'
 import type {
 	CreateUserDTO,
 	UpdateUserDTO,
 } from '../../src/features/user/core/user.types'
-import { fileURLToPath } from 'node:url'
+import { userService } from '../../src/features/user/user.container'
+import { BaseScript } from '../core/base.script'
 
 export class UserScript extends BaseScript {
 	name = 'User Tests'
@@ -125,10 +125,8 @@ export class UserScript extends BaseScript {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	new UserScript()
-		.run()
-		.catch((error) => {
-			console.error(error)
-			process.exit(1)
-		})
+	new UserScript().run().catch((error) => {
+		console.error(error)
+		process.exit(1)
+	})
 }

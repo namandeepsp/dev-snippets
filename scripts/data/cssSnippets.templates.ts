@@ -1,10 +1,11 @@
 import type { SnippetTemplate } from './snippet.templates'
 
 export const CSS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
-  {
-    title: 'Flexbox Container',
-    description: 'Flexible box layout for responsive designs. Usage: Apply to parent container',
-    code: `.flex-container {
+	{
+		title: 'Flexbox Container',
+		description:
+			'Flexible box layout for responsive designs. Usage: Apply to parent container',
+		code: `.flex-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,14 +17,15 @@ export const CSS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
   flex: 1;
   min-width: 200px;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'CSS Grid Layout',
-    description: 'Grid-based layout system for complex designs. Usage: Define grid-template-columns',
-    code: `.grid-container {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'CSS Grid Layout',
+		description:
+			'Grid-based layout system for complex designs. Usage: Define grid-template-columns',
+		code: `.grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
@@ -36,14 +38,15 @@ export const CSS_SNIPPET_TEMPLATES: SnippetTemplate[] = [
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Responsive Typography',
-    description: 'Fluid typography that scales with viewport. Usage: Use clamp() for responsive sizing',
-    code: `h1 {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Responsive Typography',
+		description:
+			'Fluid typography that scales with viewport. Usage: Use clamp() for responsive sizing',
+		code: `h1 {
   font-size: clamp(1.5rem, 5vw, 3rem);
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -54,14 +57,15 @@ p {
   line-height: 1.6;
   color: #333;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Smooth Transitions',
-    description: 'Smooth animations and transitions for interactive elements. Usage: Apply to hover states',
-    code: `.button {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Smooth Transitions',
+		description:
+			'Smooth animations and transitions for interactive elements. Usage: Apply to hover states',
+		code: `.button {
   background: #007bff;
   color: white;
   padding: 0.75rem 1.5rem;
@@ -76,14 +80,15 @@ p {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Dark Mode Toggle',
-    description: 'CSS variables for easy dark mode implementation. Usage: Toggle data-theme attribute',
-    code: `:root {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Dark Mode Toggle',
+		description:
+			'CSS variables for easy dark mode implementation. Usage: Toggle data-theme attribute',
+		code: `:root {
   --bg-color: #ffffff;
   --text-color: #000000;
   --border-color: #e0e0e0;
@@ -100,14 +105,15 @@ body {
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Gradient Background',
-    description: 'Beautiful gradient backgrounds with multiple colors. Usage: Customize colors as needed',
-    code: `.gradient-bg {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Gradient Background',
+		description:
+			'Beautiful gradient backgrounds with multiple colors. Usage: Customize colors as needed',
+		code: `.gradient-bg {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
 }
@@ -119,14 +125,15 @@ body {
   background-clip: text;
   font-weight: bold;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Box Shadow Effects',
-    description: 'Various shadow effects for depth and elevation. Usage: Apply to cards and containers',
-    code: `.shadow-sm {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Box Shadow Effects',
+		description:
+			'Various shadow effects for depth and elevation. Usage: Apply to cards and containers',
+		code: `.shadow-sm {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -141,14 +148,15 @@ body {
 .shadow-xl {
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Border Radius Utilities',
-    description: 'Rounded corner utilities for different elements. Usage: Apply to any element',
-    code: `.rounded-sm {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Border Radius Utilities',
+		description:
+			'Rounded corner utilities for different elements. Usage: Apply to any element',
+		code: `.rounded-sm {
   border-radius: 0.25rem;
 }
 
@@ -167,14 +175,15 @@ body {
 .rounded-full {
   border-radius: 9999px;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Responsive Padding/Margin',
-    description: 'Responsive spacing utilities using CSS variables. Usage: Adjust base values',
-    code: `:root {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Responsive Padding/Margin',
+		description:
+			'Responsive spacing utilities using CSS variables. Usage: Adjust base values',
+		code: `:root {
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -186,14 +195,15 @@ body {
 .m-lg { margin: var(--spacing-lg); }
 .px-lg { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
 .my-xl { margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xl); }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Text Truncation',
-    description: 'Truncate text with ellipsis for single and multiple lines. Usage: Apply to text containers',
-    code: `.truncate {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Text Truncation',
+		description:
+			'Truncate text with ellipsis for single and multiple lines. Usage: Apply to text containers',
+		code: `.truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -212,14 +222,15 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Hover Effects',
-    description: 'Collection of hover effects for interactive elements. Usage: Apply to buttons and links',
-    code: `.hover-scale:hover {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Hover Effects',
+		description:
+			'Collection of hover effects for interactive elements. Usage: Apply to buttons and links',
+		code: `.hover-scale:hover {
   transform: scale(1.05);
 }
 
@@ -235,14 +246,15 @@ body {
 .hover-rotate:hover {
   transform: rotate(5deg);
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Overlay Patterns',
-    description: 'Overlay effects for images and backgrounds. Usage: Apply to image containers',
-    code: `.overlay {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Overlay Patterns',
+		description:
+			'Overlay effects for images and backgrounds. Usage: Apply to image containers',
+		code: `.overlay {
   position: relative;
   overflow: hidden;
 }
@@ -261,14 +273,15 @@ body {
 .overlay:hover::before {
   background: rgba(0, 0, 0, 0.3);
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Scrollbar Styling',
-    description: 'Custom scrollbar styling for webkit browsers. Usage: Apply to scrollable containers',
-    code: `.custom-scrollbar {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Scrollbar Styling',
+		description:
+			'Custom scrollbar styling for webkit browsers. Usage: Apply to scrollable containers',
+		code: `.custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #888 #f1f1f1;
 }
@@ -289,14 +302,15 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Aspect Ratio Container',
-    description: 'Maintain aspect ratio for responsive images and videos. Usage: Set data-aspect-ratio',
-    code: `.aspect-ratio {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Aspect Ratio Container',
+		description:
+			'Maintain aspect ratio for responsive images and videos. Usage: Set data-aspect-ratio',
+		code: `.aspect-ratio {
   position: relative;
   width: 100%;
   padding-bottom: 56.25%; /* 16:9 */
@@ -317,14 +331,15 @@ body {
   width: 100%;
   height: 100%;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Backdrop Blur Effect',
-    description: 'Frosted glass effect with backdrop blur. Usage: Apply to overlays and modals',
-    code: `.backdrop-blur {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Backdrop Blur Effect',
+		description:
+			'Frosted glass effect with backdrop blur. Usage: Apply to overlays and modals',
+		code: `.backdrop-blur {
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.1);
 }
@@ -336,14 +351,15 @@ body {
   border-radius: 10px;
   padding: 2rem;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Animation Keyframes',
-    description: 'Reusable animation keyframes for common effects. Usage: Apply animation property',
-    code: `@keyframes fadeIn {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Animation Keyframes',
+		description:
+			'Reusable animation keyframes for common effects. Usage: Apply animation property',
+		code: `@keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
@@ -361,14 +377,15 @@ body {
 .fade-in { animation: fadeIn 0.5s ease-in; }
 .slide-in { animation: slideIn 0.5s ease-out; }
 .bounce { animation: bounce 1s infinite; }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Focus Styles',
-    description: 'Accessible focus styles for keyboard navigation. Usage: Apply to interactive elements',
-    code: `button:focus,
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Focus Styles',
+		description:
+			'Accessible focus styles for keyboard navigation. Usage: Apply to interactive elements',
+		code: `button:focus,
 input:focus,
 a:focus {
   outline: 2px solid #007bff;
@@ -384,14 +401,15 @@ input:focus-within {
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Print Styles',
-    description: 'CSS for optimizing print layout. Usage: Automatically applied when printing',
-    code: `@media print {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Print Styles',
+		description:
+			'CSS for optimizing print layout. Usage: Automatically applied when printing',
+		code: `@media print {
   body {
     font-size: 12pt;
     line-height: 1.5;
@@ -409,14 +427,15 @@ input:focus-within {
   
   page-break-inside: avoid;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'Mobile First Media Queries',
-    description: 'Responsive design using mobile-first approach. Usage: Start with mobile styles',
-    code: `/* Mobile styles (default) */
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'Mobile First Media Queries',
+		description:
+			'Responsive design using mobile-first approach. Usage: Start with mobile styles',
+		code: `/* Mobile styles (default) */
 .container {
   width: 100%;
   padding: 1rem;
@@ -443,14 +462,15 @@ input:focus-within {
     width: 1200px;
   }
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
-  {
-    title: 'CSS Counters',
-    description: 'Automatic numbering for lists and sections. Usage: Use counter-increment',
-    code: `.numbered-list {
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
+	{
+		title: 'CSS Counters',
+		description:
+			'Automatic numbering for lists and sections. Usage: Use counter-increment',
+		code: `.numbered-list {
   counter-reset: item;
   list-style: none;
   padding: 0;
@@ -467,8 +487,8 @@ input:focus-within {
   font-weight: bold;
   margin-left: -2rem;
 }`,
-    language: 'css',
-    technologies: ['css'],
-    categories: ['frontend'],
-  },
+		language: 'css',
+		technologies: ['css'],
+		categories: ['frontend'],
+	},
 ]

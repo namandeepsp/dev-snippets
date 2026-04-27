@@ -222,4 +222,36 @@ export class SnippetService {
 	async getLikedSnippetIds(userId: string): Promise<string[]> {
 		return this.snippetRepository.getLikedSnippetIds(userId)
 	}
+
+	async search(query: string) {
+		return this.readService.search(query)
+	}
+
+	async filterByTechnology(technology: string) {
+		return this.readService.filterByTechnology(technology)
+	}
+
+	async filterByCategory(category: string) {
+		return this.readService.filterByCategory(category)
+	}
+
+	async likeSnippet(snippetId: string, userId: string): Promise<void> {
+		const isLiked = await this.snippetRepository.checkLikeStatus(
+			snippetId,
+			userId,
+		)
+		if (!isLiked) {
+			await this.snippetRepository.toggleLike(snippetId, userId)
+		}
+	}
+
+	async dislikeSnippet(snippetId: string, userId: string): Promise<void> {
+		const isLiked = await this.snippetRepository.checkLikeStatus(
+			snippetId,
+			userId,
+		)
+		if (isLiked) {
+			await this.snippetRepository.toggleLike(snippetId, userId)
+		}
+	}
 }

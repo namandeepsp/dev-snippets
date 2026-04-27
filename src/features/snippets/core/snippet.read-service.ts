@@ -112,4 +112,19 @@ export class SnippetReadService {
 	): Promise<Snippet[]> {
 		return this.snippetRepository.listByVisibility(visibility, userId)
 	}
+
+	async search(query: string): Promise<Snippet[]> {
+		if (!query || query.trim().length === 0) return []
+		return this.snippetRepository.search(query)
+	}
+
+	async filterByTechnology(technology: string): Promise<Snippet[]> {
+		if (!technology) return []
+		return this.snippetRepository.filterByTechnology(technology)
+	}
+
+	async filterByCategory(category: string): Promise<Snippet[]> {
+		if (!category) return []
+		return this.snippetRepository.filterByCategory(category)
+	}
 }

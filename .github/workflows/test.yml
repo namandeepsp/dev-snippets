@@ -9,7 +9,6 @@ on:
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '8'
-
 jobs:
   # Stage 1: Lint and Type Check
   lint-and-typecheck:
@@ -17,10 +16,10 @@ jobs:
     name: Lint & Type Check
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
       
@@ -30,15 +29,15 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       
       - name: Get pnpm store directory
-        id: pnpm-cache
+        id: pnpm-cache-lint
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v4.0.2
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          path: ${{ steps.pnpm-cache-lint.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
@@ -59,10 +58,10 @@ jobs:
     needs: lint-and-typecheck
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
       
@@ -72,15 +71,15 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       
       - name: Get pnpm store directory
-        id: pnpm-cache
+        id: pnpm-cache-unit
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v4.0.2
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          path: ${{ steps.pnpm-cache-unit.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
@@ -104,7 +103,7 @@ jobs:
       
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: test-results
           path: coverage/
@@ -116,10 +115,10 @@ jobs:
     needs: unit-tests
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
       
@@ -129,15 +128,15 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       
       - name: Get pnpm store directory
-        id: pnpm-cache
+        id: pnpm-cache-integration
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v4.0.2
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          path: ${{ steps.pnpm-cache-integration.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
@@ -178,7 +177,7 @@ jobs:
 
       - name: Upload integration test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: integration-test-results
           path: coverage/
@@ -193,10 +192,10 @@ jobs:
     if: ${{ always() && needs.unit-tests.result == 'success' && (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'skipped') }}
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
       
@@ -206,15 +205,15 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       
       - name: Get pnpm store directory
-        id: pnpm-cache
+        id: pnpm-cache-build
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v4.0.2
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          path: ${{ steps.pnpm-cache-build.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
@@ -233,10 +232,15 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-        run: pnpm code:fix && pnpm exec next build
+        run: |
+          if [ -z "$FIREBASE_PROJECT_ID" ]; then
+            echo "Skipping build - Firebase secrets not configured"
+            exit 0
+          fi
+          pnpm code:fix && pnpm exec next build
       
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: build-output
           path: .next/
@@ -249,7 +253,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25

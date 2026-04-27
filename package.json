@@ -7,7 +7,7 @@
     "_comment": "─── Core ───",
     "dev": "pnpm code:fix && next dev",
     "build": "pnpm code:fix && next build",
-    "build:prod": "set -a; . ./.env.prod; set +a; pnpm lint && pnpm typecheck && NODE_ENV=production next build",
+    "build:prod": "pnpm lint && pnpm typecheck && NODE_ENV=production next build",
     "build:prod:with-integration": "pnpm lint && pnpm typecheck && pnpm test && set -a; . ./.env.prod; set +a; pnpm test:formatter && NODE_ENV=production next build",
     "start": "next start",
     "_comment2": "─── Code Quality ───",

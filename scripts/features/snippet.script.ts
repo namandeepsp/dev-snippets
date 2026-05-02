@@ -14,8 +14,7 @@ const DEFAULT_BULK_SNIPPET_COUNT = 20
 type SnippetTemplate = {
 	title: string
 	description: string
-	code: string
-	language: CreateSnippetServiceInput['language']
+	files: Array<{ filename: string; language: string; code: string }>
 	technologies: CreateSnippetServiceInput['technologies']
 	categories: CreateSnippetServiceInput['categories']
 }
@@ -25,7 +24,11 @@ const USEFUL_SNIPPET_TEMPLATES: SnippetTemplate[] = [
 		title: 'React Debounced Search Hook',
 		description:
 			'Debounce input changes to reduce API calls in searchable UIs.',
-		code: `import { useEffect, useState } from 'react'
+		files: [
+			{
+				filename: 'useDebouncedValue.ts',
+				language: 'typescript',
+				code: `import { useEffect, useState } from 'react'
 
 export function useDebouncedValue<T>(value: T, delay = 300) {
 	const [debounced, setDebounced] = useState(value)
@@ -37,14 +40,19 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
 
 	return debounced
 }`,
-		language: 'typescript',
+			},
+		],
 		technologies: ['react', 'typescript'],
 		categories: ['frontend', 'hooks'],
 	},
 	{
 		title: 'Express Rate Limit Middleware',
 		description: 'Simple in-memory rate limiter for API endpoints.',
-		code: `const requests = new Map()
+		files: [
+			{
+				filename: 'rateLimit.js',
+				language: 'javascript',
+				code: `const requests = new Map()
 
 export function rateLimit(windowMs = 60_000, max = 100) {
 	return (req, res, next) => {
@@ -67,7 +75,8 @@ export function rateLimit(windowMs = 60_000, max = 100) {
 		next()
 	}
 }`,
-		language: 'javascript',
+			},
+		],
 		technologies: ['express', 'node'],
 		categories: ['backend', 'middleware'],
 	},
@@ -75,21 +84,30 @@ export function rateLimit(windowMs = 60_000, max = 100) {
 		title: 'PostgreSQL Upsert Pattern',
 		description:
 			'Insert a row or update selected columns when a conflict occurs.',
-		code: `INSERT INTO user_settings (user_id, theme, timezone, updated_at)
+		files: [
+			{
+				filename: 'upsert.sql',
+				language: 'sql',
+				code: `INSERT INTO user_settings (user_id, theme, timezone, updated_at)
 VALUES ($1, $2, $3, NOW())
 ON CONFLICT (user_id)
 DO UPDATE SET
 	theme = EXCLUDED.theme,
 	timezone = EXCLUDED.timezone,
 	updated_at = NOW();`,
-		language: 'sql',
+			},
+		],
 		technologies: ['sql', 'postgres-sql'],
 		categories: ['database', 'queries'],
 	},
 	{
 		title: 'Docker Multi-Stage Node Build',
 		description: 'Lean production image using dependency and runtime stages.',
-		code: `FROM node:20-alpine AS deps
+		files: [
+			{
+				filename: 'Dockerfile',
+				language: 'dockerfile',
+				code: `FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && pnpm install --frozen-lockfile
@@ -100,7 +118,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 EXPOSE 3000
 CMD ["pnpm", "start"]`,
-		language: 'dockerfile',
+			},
+		],
 		technologies: ['docker', 'dev-ops'],
 		categories: ['infrastructure', 'deployment'],
 	},
@@ -108,7 +127,11 @@ CMD ["pnpm", "start"]`,
 		title: 'Python Sliding Window Maximum Sum',
 		description:
 			'Find the maximum sum of any contiguous subarray of fixed length.',
-		code: `def max_window_sum(nums, k):
+		files: [
+			{
+				filename: 'sliding_window.py',
+				language: 'python',
+				code: `def max_window_sum(nums, k):
     if k <= 0 or k > len(nums):
         return None
 
@@ -120,7 +143,8 @@ CMD ["pnpm", "start"]`,
         best = max(best, window_sum)
 
     return best`,
-		language: 'python',
+			},
+		],
 		technologies: ['python'],
 		categories: ['algorithms', 'data-structures'],
 	},
@@ -128,7 +152,11 @@ CMD ["pnpm", "start"]`,
 		title: 'Next.js Server Action Form Handler',
 		description:
 			'Validate form input in a server action and return typed field errors.',
-		code: `'use server'
+		files: [
+			{
+				filename: 'actions.ts',
+				language: 'typescript',
+				code: `'use server'
 
 export async function submitFeedback(_: unknown, formData: FormData) {
 	const message = String(formData.get('message') || '').trim()
@@ -140,7 +168,8 @@ export async function submitFeedback(_: unknown, formData: FormData) {
 	// Persist to DB here
 	return { ok: true }
 }`,
-		language: 'typescript',
+			},
+		],
 		technologies: ['nextjs', 'typescript'],
 		categories: ['framework', 'frontend'],
 	},
@@ -385,11 +414,11 @@ export class SnippetScript extends BaseScript {
 			throw new Error('Restore version failed (missing test snippet)')
 		}
 
+		const updateInput: UpdateSnippetServiceInput = { title: 'Updated Title' }
+
 		await this.snippetService.updateSnippet(
 			this.snippetId,
-			{
-				code: `${Date.now()} // restore version test update`,
-			},
+			updateInput,
 			this.ownerId,
 		)
 
@@ -417,7 +446,7 @@ export class SnippetScript extends BaseScript {
 			throw new Error('Snippet not found after restore')
 		}
 
-		if (updatedSnippet.code !== firstVersion.code) {
+		if (updatedSnippet.files[0]?.code !== firstVersion.files[0]?.code) {
 			throw new Error('Restored code does not match original version')
 		}
 
@@ -427,12 +456,21 @@ export class SnippetScript extends BaseScript {
 	private buildUsefulRandomSnippet(seed?: number): CreateSnippetServiceInput {
 		const template = this.pickRandom(USEFUL_SNIPPET_TEMPLATES)
 		const suffix = seed ?? Math.floor(Math.random() * 10_000)
+		const now = Date.now()
 
 		return {
 			title: `${template.title} #${suffix}`,
 			description: template.description,
-			code: template.code,
-			language: template.language,
+			files: template.files.map((f, idx) => ({
+				id: `file-${now}-${idx}`,
+				filename: f.filename,
+				language: f.language as any,
+				code: f.code,
+				order: idx,
+				createdAt: now,
+				updatedAt: now,
+			})),
+			primaryLanguage: template.files[0]?.language as any,
 			technologies: template.technologies,
 			categories: template.categories,
 			visibility: 'public',

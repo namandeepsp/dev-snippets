@@ -10,4 +10,12 @@ export type SnippetTemplate = Pick<
 	| 'categories'
 >
 
-export const USER_TEMPLATES: SnippetTemplate[] = []
+export type UserTemplate = {
+	username: string
+	name: string
+	email: string
+	avatarUrl?: string
+	bio?: string
+}
+
+export const USER_TEMPLATES: UserTemplate[] = []

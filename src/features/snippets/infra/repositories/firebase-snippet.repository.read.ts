@@ -113,7 +113,7 @@ export async function searchSnippets(
 			(snippet) =>
 				snippet.title.toLowerCase().includes(lowerQuery) ||
 				(snippet.description?.toLowerCase().includes(lowerQuery) ?? false) ||
-				snippet.code.toLowerCase().includes(lowerQuery),
+				snippet.files.some((f) => f.code.toLowerCase().includes(lowerQuery)),
 		)
 }
 

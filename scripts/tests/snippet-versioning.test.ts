@@ -14,11 +14,23 @@ describe.sequential('Snippet Versioning Feature', () => {
 		await script.testCreateSnippet()
 	})
 
-	it('gets version history', async () => {
+	it('creates multiple versions by updating files', async () => {
+		await script.testCreateMultipleVersions()
+	})
+
+	it('gets version history with all versions', async () => {
 		await script.testGetVersionHistory()
 	})
 
-	it('restores version', async () => {
+	it('gets version detail for specific version', async () => {
+		await script.testGetVersionDetail()
+	})
+
+	it('restores to previous version', async () => {
 		await script.testRestoreVersion()
+	})
+
+	it('verifies restored version creates new version entry', async () => {
+		await script.testRestoreVersionCreatesNewVersion()
 	})
 })

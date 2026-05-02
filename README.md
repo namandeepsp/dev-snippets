@@ -34,6 +34,12 @@ Note: `pnpm dev` runs `pnpm code:fix` first (format + organize imports).
 - File tabs with keyboard navigation (Ctrl+Shift+Left/Right)
 - Add new files with Ctrl+Alt+N
 - Maximum 10 files per snippet, 50 character filename limit
+- Update multiple files in a single snippet and preserve the full change set with version history
+
+### Snippet Versioning
+- View full snippet version history with file snapshots for every saved version
+- Restore any prior version as a new version to keep an audit trail
+- Lazy-loaded version history modal prevents unnecessary version data from loading on initial page view
 
 ### Code Editor
 - Syntax highlighting with CodeMirror 6
@@ -104,6 +110,8 @@ pnpm test:snippet
 pnpm test:database
 pnpm test:all
 ```
+
+- `pnpm test:snippet` includes snippet versioning coverage and related history/restore tests.
 
 Formatter integration tests require a reachable formatter service and valid formatter service credentials.
 Firebase integration tests require valid Firebase environment variables and a reachable dev Firebase project.

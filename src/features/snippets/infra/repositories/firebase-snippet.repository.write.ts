@@ -60,9 +60,9 @@ export async function updateSnippet(
 		const versions = data.versions || []
 		const newVersion: SnippetVersion = {
 			version: versions.length + 1,
-			files: data.files,
 			createdAt: Date.now(),
 			createdBy: data.ownerId,
+			files: data.files,
 		}
 
 		updatePayload.versions = [...versions, newVersion]

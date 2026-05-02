@@ -14,6 +14,10 @@ export class SnippetReadService {
 		return this.snippetRepository.getById(id)
 	}
 
+	async getByIdWithoutVersions(id: string): Promise<Snippet | null> {
+		return this.snippetRepository.getByIdWithoutVersions(id)
+	}
+
 	async listPublic(sortBy?: SnippetSortBy): Promise<Snippet[]> {
 		return this.snippetRepository.listPublic(sortBy)
 	}

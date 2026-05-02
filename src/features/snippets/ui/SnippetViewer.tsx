@@ -8,7 +8,7 @@ import { logger } from '@/shared/utils/logger'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { LuDownload } from 'react-icons/lu'
-import type { EnrichedSnippet } from '../core/snippet.types'
+import type { EnrichedSnippet, SnippetVersion } from '../core/snippet.types'
 import { toggleLikeAction } from '../snippet.actions'
 import { AuthorCard } from './AuthorCard'
 import { DeleteConfirmationModal } from './DeleteConfirmationModal'
@@ -17,6 +17,7 @@ import { SnippetOwnerActions } from './SnippetOwnerActions'
 import { SnippetStats } from './SnippetStats'
 import { SnippetVersionHistory } from './SnippetVersionHistory'
 import { TechnologyBadge } from './TechnologyBadge'
+import { VersionHistoryModal } from './VersionHistoryModal'
 import { VisibilityBadge } from './VisibilityBadge'
 import { CodeBlock } from './code/CodeBlock'
 import { downloadSingleFile, exportSnippet } from './code/export-utils'
@@ -32,6 +33,25 @@ export function SnippetViewer({ snippet }: Props) {
 	const { requireAuth, modal } = useRequireAuth()
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+	const [showVersionHistory, setShowVersionHistory] = useState(false)
+	const [versions, setVersions] = useState<SnippetVersion[]>([])
+	const [versionsLoading, setVersionsLoading] = useState(false)
+	const handleOpenVersionHistory = async () => {
+		setShowVersionHistory(true)
+		if (versions.length === 0 && !versionsLoading) {
+			setVersionsLoading(true)
+			try {
+				const versionHistory = await snippetApiClient.getVersionHistory(
+					snippet.id,
+				)
+				setVersions(versionHistory)
+			} catch (error) {
+				logger.error('Failed to load version history', error)
+			} finally {
+				setVersionsLoading(false)
+			}
+		}
+	}
 	const [isLiked, setIsLiked] = useState(snippet.isLikedByUser ?? false)
 
 	const likesCount = Math.max(
@@ -54,7 +74,7 @@ export function SnippetViewer({ snippet }: Props) {
 		saveRecentSnippet({
 			id: snippet.id,
 			title: snippet.title,
-			language: snippet.primaryLanguage,
+			primaryLanguage: snippet.primaryLanguage,
 			ownerName: snippet.ownerName,
 		})
 	}, [snippet.id, snippet.title, snippet.primaryLanguage, snippet.ownerName])
@@ -193,10 +213,45 @@ export function SnippetViewer({ snippet }: Props) {
 				/>
 			)}
 
-			<SnippetVersionHistory
-				versions={snippet.versions}
+			<div className="border-t border-default pt-4">
+				<Button
+					type="button"
+					variant="secondary"
+					onClick={handleOpenVersionHistory}
+					disabled={versionsLoading}
+				>
+					{versionsLoading ? 'Loading...' : 'Version History'}
+				</Button>
+			</div>
+
+			{versions.length > 1 && (
+				<SnippetVersionHistory
+					versions={versions}
+					authorName={author.name}
+					ownerId={snippet.ownerId}
+					onViewAll={handleOpenVersionHistory}
+				/>
+			)}
+
+			<VersionHistoryModal
+				isOpen={showVersionHistory}
+				onClose={() => setShowVersionHistory(false)}
+				versions={versions}
 				authorName={author.name}
 				ownerId={snippet.ownerId}
+				snippetId={snippet.id}
+				snippetTitle={snippet.title}
+				snippetDescription={snippet.description}
+				visibility={snippet.visibility}
+				loading={versionsLoading}
+				onRestore={
+					isOwner
+						? async (versionNumber) => {
+								await snippetApiClient.restoreVersion(snippet.id, versionNumber)
+								window.location.reload()
+							}
+						: undefined
+				}
 			/>
 
 			<DeleteConfirmationModal

@@ -8,12 +8,14 @@ interface SnippetVersionHistoryProps {
 	versions: SnippetVersion[]
 	authorName: string
 	ownerId: string
+	onViewAll?: () => void
 }
 
 export function SnippetVersionHistory({
 	versions,
 	authorName,
 	ownerId,
+	onViewAll,
 }: SnippetVersionHistoryProps) {
 	if (versions.length <= 1) return null
 
@@ -51,6 +53,7 @@ export function SnippetVersionHistory({
 						variant="ghost"
 						size="sm"
 						className="h-auto px-0 py-0 text-sm text-blue-600 hover:underline dark:text-blue-400"
+						onClick={onViewAll}
 					>
 						View all versions
 					</Button>

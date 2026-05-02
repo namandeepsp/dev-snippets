@@ -10,6 +10,7 @@ import type {
 import type {
 	Snippet,
 	SnippetTechnology,
+	SnippetVersionDetail,
 	SnippetVisibility,
 } from '../../core/snippet.types'
 import {
@@ -69,7 +70,11 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 	}
 
 	async getById(id: string): Promise<Snippet | null> {
-		return getSnippetById(this, id)
+		return getSnippetById(this, id, true)
+	}
+
+	async getByIdWithoutVersions(id: string): Promise<Snippet | null> {
+		return getSnippetById(this, id, false)
 	}
 
 	async listPublic(sortBy: SnippetSortBy = 'latest'): Promise<Snippet[]> {
@@ -160,5 +165,23 @@ export class FirebaseSnippetRepository implements SnippetRepository {
 
 	async filterByCategory(category: string): Promise<Snippet[]> {
 		return filterByCategory(this, category)
+	}
+
+	async getVersionDetail(
+		snippetId: string,
+		versionNumber: number,
+	): Promise<SnippetVersionDetail | null> {
+		const snippet = await this.getById(snippetId)
+		if (!snippet) return null
+
+		const version = snippet.versions.find((v) => v.version === versionNumber)
+		if (!version) return null
+
+		return {
+			version: version.version,
+			files: version.files,
+			createdAt: version.createdAt,
+			createdBy: version.createdBy,
+		}
 	}
 }

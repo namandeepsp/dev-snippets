@@ -59,6 +59,10 @@ export class SnippetService {
 		return this.readService.getById(id)
 	}
 
+	getByIdWithoutVersions(id: string) {
+		return this.readService.getByIdWithoutVersions(id)
+	}
+
 	listPublic(sortBy?: any) {
 		return this.readService.listPublic(sortBy)
 	}
@@ -178,6 +182,14 @@ export class SnippetService {
 
 	getVersionHistory(snippetId: string, userId?: string) {
 		return this.versionService.getVersionHistory(snippetId, userId)
+	}
+
+	getVersionDetail(snippetId: string, versionNumber: number, userId?: string) {
+		return this.versionService.getVersionDetail(
+			snippetId,
+			versionNumber,
+			userId,
+		)
 	}
 
 	shareWithUsers(

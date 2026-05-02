@@ -1,9 +1,7 @@
-import type { EditorLanguage } from '@/features/editor/editor.config'
-
 export type RecentSnippet = {
 	id: string
 	title: string
-	language: EditorLanguage
+	primaryLanguage: string
 	ownerName: string
 	viewedAt: number
 }
@@ -25,7 +23,7 @@ function readRecentSnippets(): RecentSnippet[] {
 			(item): item is RecentSnippet =>
 				typeof item?.id === 'string' &&
 				typeof item?.title === 'string' &&
-				typeof item?.language === 'string' &&
+				typeof item?.primaryLanguage === 'string' &&
 				typeof item?.ownerName === 'string' &&
 				typeof item?.viewedAt === 'number',
 		)

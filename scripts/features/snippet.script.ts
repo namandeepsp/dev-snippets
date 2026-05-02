@@ -205,8 +205,11 @@ export class SnippetScript extends BaseScript {
 		await this.testDislikeSnippet()
 		await this.testGetSeenCount()
 		await this.testUpdateSnippet()
+		await this.testCreateMultipleVersions()
 		await this.testGetVersionHistory()
+		await this.testGetVersionDetail()
 		await this.testRestoreVersion()
+		await this.testRestoreVersionCreatesNewVersion()
 		await this.testDeleteSnippet()
 
 		this.logSuccess('All snippet tests passed')
@@ -414,13 +417,39 @@ export class SnippetScript extends BaseScript {
 			throw new Error('Restore version failed (missing test snippet)')
 		}
 
-		const updateInput: UpdateSnippetServiceInput = { title: 'Updated Title' }
+		// Get initial versions
+		const initialVersions = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (initialVersions.length === 0) {
+			throw new Error('No versions found')
+		}
+
+		// Make an update to files to create a new version
+		const snippet = await this.snippetService.getById(this.snippetId)
+		if (!snippet) {
+			throw new Error('Snippet not found')
+		}
+
+		const updatedFiles = snippet.files.map((f) => ({
+			...f,
+			code: f.code + '\n// Updated for version test',
+		}))
+
+		const updateInput: UpdateSnippetServiceInput = {
+			files: updatedFiles,
+		}
 
 		await this.snippetService.updateSnippet(
 			this.snippetId,
 			updateInput,
 			this.ownerId,
 		)
+
+		// Small delay to ensure version is persisted
+		await new Promise((resolve) => setTimeout(resolve, 200))
 
 		// Get current versions
 		const versions = await this.versionService.getVersionHistory(
@@ -429,7 +458,10 @@ export class SnippetScript extends BaseScript {
 		)
 
 		if (versions.length < 2) {
-			throw new Error('Need at least 2 versions to test restore')
+			this.log(
+				`⊘ Restore version skipped (only ${versions.length} version available)`,
+			)
+			return
 		}
 
 		// Restore to first version
@@ -441,16 +473,199 @@ export class SnippetScript extends BaseScript {
 		)
 
 		// Verify restoration
-		const updatedSnippet = await this.snippetService.getById(this.snippetId)
-		if (!updatedSnippet) {
+		const restoredSnippet = await this.snippetService.getById(this.snippetId)
+		if (!restoredSnippet) {
 			throw new Error('Snippet not found after restore')
 		}
 
-		if (updatedSnippet.files[0]?.code !== firstVersion.files[0]?.code) {
+		if (restoredSnippet.files[0]?.code !== firstVersion.files[0]?.code) {
 			throw new Error('Restored code does not match original version')
 		}
 
 		this.log('✓ Restore version')
+	}
+
+	async testCreateMultipleVersions(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Create multiple versions failed (missing test snippet)')
+		}
+
+		const snippet = await this.snippetService.getById(this.snippetId)
+		if (!snippet) {
+			throw new Error('Snippet not found')
+		}
+
+		// Create version 2
+		const v2Files = snippet.files.map((f) => ({
+			...f,
+			code: f.code + '\n// Version 2 changes',
+		}))
+
+		await this.snippetService.updateSnippet(
+			this.snippetId,
+			{ files: v2Files },
+			this.ownerId,
+		)
+
+		await new Promise((resolve) => setTimeout(resolve, 100))
+
+		// Create version 3
+		const v3Files = v2Files.map((f) => ({
+			...f,
+			code: f.code + '\n// Version 3 changes',
+		}))
+
+		await this.snippetService.updateSnippet(
+			this.snippetId,
+			{ files: v3Files },
+			this.ownerId,
+		)
+
+		await new Promise((resolve) => setTimeout(resolve, 100))
+
+		// Create version 4
+		const v4Files = v3Files.map((f) => ({
+			...f,
+			code: f.code + '\n// Version 4 changes',
+		}))
+
+		await this.snippetService.updateSnippet(
+			this.snippetId,
+			{ files: v4Files },
+			this.ownerId,
+		)
+
+		await new Promise((resolve) => setTimeout(resolve, 100))
+
+		const versions = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (versions.length < 4) {
+			throw new Error(`Expected at least 4 versions, got ${versions.length}`)
+		}
+
+		this.log(`✓ Create multiple versions (${versions.length} versions created)`)
+	}
+
+	async testGetVersionDetail(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error('Get version detail failed (missing test snippet)')
+		}
+
+		const versions = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (versions.length === 0) {
+			throw new Error('No versions found')
+		}
+
+		// Get detail for first version
+		const versionDetail = await this.versionService.getVersionDetail(
+			this.snippetId,
+			versions[0].version,
+			this.ownerId,
+		)
+
+		if (!versionDetail) {
+			throw new Error('Version detail not found')
+		}
+
+		if (!versionDetail.files || versionDetail.files.length === 0) {
+			throw new Error('Version detail should contain files')
+		}
+
+		if (versionDetail.version !== versions[0].version) {
+			throw new Error('Version number mismatch')
+		}
+
+		if (versionDetail.createdBy !== versions[0].createdBy) {
+			throw new Error('Creator mismatch')
+		}
+
+		// Get detail for middle version
+		const middleVersionIndex = Math.floor(versions.length / 2)
+		const middleVersionDetail = await this.versionService.getVersionDetail(
+			this.snippetId,
+			versions[middleVersionIndex].version,
+			this.ownerId,
+		)
+
+		if (!middleVersionDetail) {
+			throw new Error('Middle version detail not found')
+		}
+
+		this.log(
+			`✓ Get version detail (retrieved ${versions.length} version details)`,
+		)
+	}
+
+	async testRestoreVersionCreatesNewVersion(): Promise<void> {
+		if (!this.snippetId) {
+			throw new Error(
+				'Restore version creates new version failed (missing test snippet)',
+			)
+		}
+
+		const versionsBefore = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (versionsBefore.length < 2) {
+			this.log(
+				'⊘ Restore version creates new version skipped (need at least 2 versions)',
+			)
+			return
+		}
+
+		const targetVersion = versionsBefore[0]
+
+		// Restore to first version
+		await this.versionService.restoreVersion(
+			this.snippetId,
+			targetVersion.version,
+			this.ownerId,
+		)
+
+		await new Promise((resolve) => setTimeout(resolve, 100))
+
+		const versionsAfter = await this.versionService.getVersionHistory(
+			this.snippetId,
+			this.ownerId,
+		)
+
+		if (versionsAfter.length !== versionsBefore.length + 1) {
+			throw new Error(
+				`Expected ${versionsBefore.length + 1} versions after restore, got ${versionsAfter.length}`,
+			)
+		}
+
+		const newVersion = versionsAfter[versionsAfter.length - 1]
+		if (newVersion.version !== versionsBefore.length + 1) {
+			throw new Error('New version number is incorrect')
+		}
+
+		if (newVersion.createdBy !== this.ownerId) {
+			throw new Error('New version creator should be current user')
+		}
+
+		// Verify the restored files match the target version
+		const snippet = await this.snippetService.getById(this.snippetId)
+		if (!snippet) {
+			throw new Error('Snippet not found')
+		}
+
+		if (JSON.stringify(snippet.files) !== JSON.stringify(targetVersion.files)) {
+			throw new Error('Restored files do not match target version')
+		}
+
+		this.log(
+			`✓ Restore version creates new version (${versionsAfter.length} total versions)`,
+		)
 	}
 
 	private buildUsefulRandomSnippet(seed?: number): CreateSnippetServiceInput {

@@ -82,6 +82,13 @@ export type SnippetFile = {
 
 export type SnippetVersion = {
 	version: number
+	createdAt: number
+	createdBy: string
+	files: SnippetFile[]
+}
+
+export type SnippetVersionDetail = {
+	version: number
 	files: SnippetFile[]
 	createdAt: number
 	createdBy: string

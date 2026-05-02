@@ -16,8 +16,14 @@ export class SnippetValidator {
 			)
 		}
 
-		if (!input.code.trim()) {
-			throw new Error('Code is required')
+		if (!input.files || input.files.length === 0) {
+			throw new Error('At least one file is required')
+		}
+
+		for (const file of input.files) {
+			if (!file.code.trim()) {
+				throw new Error(`Code in file "${file.filename}" is required`)
+			}
 		}
 	}
 

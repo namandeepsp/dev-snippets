@@ -1,17 +1,13 @@
-export type UserTemplate = {
-	email: string
-	name: string
-	username: string
-	bio: string
-	avatarUrl?: string
-}
+import type { FirestoreSnippet } from '../../src/features/snippets/core/snippet.types'
 
-export const USER_TEMPLATES: UserTemplate[] = [
-	{
-		email: 'namandeepsp@gmail.com',
-		name: 'Naman deep singh',
-		username: 'namandeepsp',
-		bio: 'Genius, billionaire, playboy, philanthropist. Building the future with code and arc reactors.',
-		avatarUrl: undefined,
-	},
-]
+export type SnippetTemplate = Pick<
+	FirestoreSnippet,
+	| 'title'
+	| 'description'
+	| 'files'
+	| 'primaryLanguage'
+	| 'technologies'
+	| 'categories'
+>
+
+export const USER_TEMPLATES: SnippetTemplate[] = []

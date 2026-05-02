@@ -111,9 +111,9 @@ export function useCodeEditorActions({
 					toast.success('Pasted from clipboard')
 				}
 			}
-		} catch (_err) {
-			logger.error('Paste failed')
-			toast.error('Failed to paste from clipboard')
+		} catch (err) {
+			logger.error('Paste failed', err)
+			toast.error('Failed to paste from clipboard. Try using Ctrl+V instead.')
 		}
 	}
 

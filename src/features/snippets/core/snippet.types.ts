@@ -70,9 +70,19 @@ export type SnippetCategory =
 	| 'api'
 	| 'microservices'
 
+export type SnippetFile = {
+	id: string
+	filename: string
+	language: EditorLanguage
+	code: string
+	order: number
+	createdAt: number
+	updatedAt: number
+}
+
 export type SnippetVersion = {
 	version: number
-	code: string
+	files: SnippetFile[]
 	createdAt: number
 	createdBy: string
 }
@@ -80,8 +90,8 @@ export type SnippetVersion = {
 export type SnippetContent = {
 	title: string
 	description?: string
-	code: string
-	language: EditorLanguage
+	files: SnippetFile[]
+	primaryLanguage: EditorLanguage
 	technologies: SnippetTechnology[]
 	categories: SnippetCategory[]
 	visibility: SnippetVisibility

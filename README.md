@@ -8,6 +8,8 @@ A Next.js application for storing, organizing, and sharing reusable code snippet
 - React 19
 - TypeScript
 - Firebase Auth + Firestore
+- CodeMirror 6 (Code Editor)
+- jszip (Multi-file export)
 - Vitest for script-driven integration tests
 - App Router (`src/app`)
 
@@ -21,6 +23,49 @@ pnpm dev
 Open `http://localhost:3000`.
 
 Note: `pnpm dev` runs `pnpm code:fix` first (format + organize imports).
+
+## Key Features
+
+### Multi-File Snippets
+- Store multiple code files in a single snippet
+- Each file has its own language, filename, and code
+- Automatic language detection on paste
+- Per-file and global export (ZIP archive for multiple files)
+- File tabs with keyboard navigation (Ctrl+Shift+Left/Right)
+- Add new files with Ctrl+Alt+N
+- Maximum 10 files per snippet, 50 character filename limit
+
+### Code Editor
+- Syntax highlighting with CodeMirror 6
+- Real-time code formatting with language-specific formatters
+- Language auto-detection from pasted code
+- Keyboard shortcuts (Shift+Alt+F to format, Ctrl+S to save)
+- Centered loading indicator during formatting and language detection
+- Error display with collapsible accordion
+- Undo/Redo support
+
+### UI/UX Improvements
+- Responsive design (mobile-first)
+- Dark mode support
+- Skeleton loaders for better perceived performance
+- Toast notifications for user feedback
+- Improved file tabs styling with active state highlighting
+- Format button with label on desktop, icon-only on mobile
+
+## Keyboard Shortcuts
+
+**File Management:**
+- `Ctrl+Alt+N` / `Cmd+Alt+N` - Add new file
+- `Ctrl+Alt+D` / `Cmd+Alt+D` - Delete current file
+- `Ctrl+Shift+Right` / `Cmd+Shift+Right` - Next file tab
+- `Ctrl+Shift+Left` / `Cmd+Shift+Left` - Previous file tab
+
+**Code Editor:**
+- `Shift+Alt+F` - Format code
+- `Ctrl+S` / `Cmd+S` - Save snippet
+- `Ctrl+Shift+/` / `Cmd+Shift+/` - Show editor shortcuts
+- `Ctrl+Z` / `Cmd+Z` - Undo
+- `Ctrl+Y` / `Cmd+Y` - Redo
 
 ## Architecture Summary
 
@@ -91,6 +136,7 @@ GitHub Actions runs the pipeline in this order:
 - `docs/FEATURE_GUIDE.md` - Guide for creating new features following the architecture
 - `docs/SNIPPET_FEATURE.md` - Deep dive into the Snippet feature (versioning, sharing, soft delete)
 - `docs/ERROR_HANDLING.md` - Error handling patterns and standardization
+- `docs/QUICK_REFERENCE.md` - Quick reference guide for common tasks
 - `scripts/README.md` - Script architecture and test execution model
 
 ## Environment Variables

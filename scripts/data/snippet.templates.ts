@@ -1,15 +1,39 @@
 import type { FirestoreSnippet } from '../../src/features/snippets/core/snippet.types'
+import { createSnippetFile } from '../../src/features/snippets/core/snippet.utils'
 
 export type SnippetTemplate = Pick<
 	FirestoreSnippet,
-	'title' | 'description' | 'code' | 'language' | 'technologies' | 'categories'
+	| 'title'
+	| 'description'
+	| 'files'
+	| 'primaryLanguage'
+	| 'technologies'
+	| 'categories'
 >
 
+function createTemplate(
+	title: string,
+	description: string,
+	code: string,
+	language: string,
+	technologies: string[],
+	categories: string[],
+): SnippetTemplate {
+	return {
+		title,
+		description,
+		files: [createSnippetFile(code, language as any)],
+		primaryLanguage: language as any,
+		technologies: technologies as any,
+		categories: categories as any,
+	}
+}
+
 export const SNIPPET_TEMPLATES_PART1: SnippetTemplate[] = [
-	{
-		title: 'Debounced Search Hook',
-		description: 'React hook to debounce input changes and reduce API calls',
-		code: `import { useEffect, useState } from "react";
+	createTemplate(
+		'Debounced Search Hook',
+		'React hook to debounce input changes and reduce API calls',
+		`import { useEffect, useState } from "react";
 
 export function useDebouncedValue<T>(value: T, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -21,14 +45,14 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
 
   return debounced;
 }`,
-		language: 'typescript',
-		technologies: ['react', 'typescript'],
-		categories: ['frontend', 'framework'],
-	},
-	{
-		title: 'Deep Clone Object',
-		description: 'Create a deep copy of nested objects and arrays',
-		code: `function deepClone(obj) {
+		'typescript',
+		['react', 'typescript'],
+		['frontend', 'framework'],
+	),
+	createTemplate(
+		'Deep Clone Object',
+		'Create a deep copy of nested objects and arrays',
+		`function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj);
   if (obj instanceof Array) return obj.map(item => deepClone(item));
@@ -41,14 +65,14 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
   }
   return cloned;
 }`,
-		language: 'javascript',
-		technologies: ['javascript'],
-		categories: ['language', 'utilities'],
-	},
-	{
-		title: 'Async Retry with Exponential Backoff',
-		description: 'Retry failed async operations with increasing delays',
-		code: `async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+		'javascript',
+		['javascript'],
+		['language', 'utilities'],
+	),
+	createTemplate(
+		'Async Retry with Exponential Backoff',
+		'Retry failed async operations with increasing delays',
+		`async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
@@ -59,14 +83,14 @@ export function useDebouncedValue<T>(value: T, delay = 300) {
     }
   }
 }`,
-		language: 'typescript',
-		technologies: ['typescript'],
-		categories: ['language', 'utilities'],
-	},
-	{
-		title: 'Local Storage Hook',
-		description: 'React hook for syncing state with localStorage',
-		code: `import { useState, useEffect } from 'react';
+		'typescript',
+		['typescript'],
+		['language', 'utilities'],
+	),
+	createTemplate(
+		'Local Storage Hook',
+		'React hook for syncing state with localStorage',
+		`import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [value, setValue] = useState<T>(() => {
@@ -80,14 +104,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   return [value, setValue] as const;
 }`,
-		language: 'typescript',
-		technologies: ['react', 'typescript'],
-		categories: ['frontend', 'framework'],
-	},
-	{
-		title: 'Throttle Function',
-		description: 'Limit function execution rate for performance',
-		code: `function throttle(func, limit) {
+		'typescript',
+		['react', 'typescript'],
+		['frontend', 'framework'],
+	),
+	createTemplate(
+		'Throttle Function',
+		'Limit function execution rate for performance',
+		`function throttle(func, limit) {
   let inThrottle;
   return function(...args) {
     if (!inThrottle) {
@@ -97,14 +121,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     }
   };
 }`,
-		language: 'javascript',
-		technologies: ['javascript'],
-		categories: ['language', 'utilities'],
-	},
-	{
-		title: 'Binary Search Implementation',
-		description: 'Efficient search in sorted arrays with O(log n) complexity',
-		code: `def binary_search(arr, target):
+		'javascript',
+		['javascript'],
+		['language', 'utilities'],
+	),
+	createTemplate(
+		'Binary Search Implementation',
+		'Efficient search in sorted arrays with O(log n) complexity',
+		`def binary_search(arr, target):
     left, right = 0, len(arr) - 1
     
     while left <= right:
@@ -117,14 +141,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
             right = mid - 1
     
     return -1`,
-		language: 'python',
-		technologies: ['python'],
-		categories: ['language', 'algorithms'],
-	},
-	{
-		title: 'Decorator for Function Timing',
-		description: 'Measure execution time of any function',
-		code: `import time
+		'python',
+		['python'],
+		['language', 'algorithms'],
+	),
+	createTemplate(
+		'Decorator for Function Timing',
+		'Measure execution time of any function',
+		`import time
 from functools import wraps
 
 def timer(func):
@@ -136,14 +160,14 @@ def timer(func):
         print(f"{func.__name__} took {end - start:.4f}s")
         return result
     return wrapper`,
-		language: 'python',
-		technologies: ['python'],
-		categories: ['language', 'utilities'],
-	},
-	{
-		title: 'LRU Cache Implementation',
-		description: 'Least Recently Used cache with O(1) operations',
-		code: `from collections import OrderedDict
+		'python',
+		['python'],
+		['language', 'utilities'],
+	),
+	createTemplate(
+		'LRU Cache Implementation',
+		'Least Recently Used cache with O(1) operations',
+		`from collections import OrderedDict
 
 class LRUCache:
     def __init__(self, capacity):
@@ -162,14 +186,14 @@ class LRUCache:
         self.cache[key] = value
         if len(self.cache) > self.capacity:
             self.cache.popitem(last=False)`,
-		language: 'python',
-		technologies: ['python'],
-		categories: ['language', 'data-structures'],
-	},
-	{
-		title: 'Flatten Nested List',
-		description: 'Recursively flatten arbitrarily nested lists',
-		code: `def flatten(nested_list):
+		'python',
+		['python'],
+		['language', 'data-structures'],
+	),
+	createTemplate(
+		'Flatten Nested List',
+		'Recursively flatten arbitrarily nested lists',
+		`def flatten(nested_list):
     result = []
     for item in nested_list:
         if isinstance(item, list):
@@ -177,14 +201,14 @@ class LRUCache:
         else:
             result.append(item)
     return result`,
-		language: 'python',
-		technologies: ['python'],
-		categories: ['language', 'utilities'],
-	},
-	{
-		title: 'Context Manager for File Operations',
-		description: 'Safe file handling with automatic cleanup',
-		code: `class FileManager:
+		'python',
+		['python'],
+		['language', 'utilities'],
+	),
+	createTemplate(
+		'Context Manager for File Operations',
+		'Safe file handling with automatic cleanup',
+		`class FileManager:
     def __init__(self, filename, mode):
         self.filename = filename
         self.mode = mode
@@ -197,14 +221,14 @@ class LRUCache:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.file:
             self.file.close()`,
-		language: 'python',
-		technologies: ['python'],
-		categories: ['language', 'utilities'],
-	},
-	{
-		title: 'HTTP Server with Graceful Shutdown',
-		description: 'Handle shutdown signals properly in Go HTTP servers',
-		code: `package main
+		'python',
+		['python'],
+		['language', 'utilities'],
+	),
+	createTemplate(
+		'HTTP Server with Graceful Shutdown',
+		'Handle shutdown signals properly in Go HTTP servers',
+		`package main
 
 import (
     "context"
@@ -231,14 +255,14 @@ func main() {
     defer cancel()
     srv.Shutdown(ctx)
 }`,
-		language: 'go',
-		technologies: ['golang'],
-		categories: ['language', 'backend'],
-	},
-	{
-		title: 'Worker Pool Pattern',
-		description: 'Concurrent task processing with limited goroutines',
-		code: `package main
+		'go',
+		['golang'],
+		['language', 'backend'],
+	),
+	createTemplate(
+		'Worker Pool Pattern',
+		'Concurrent task processing with limited goroutines',
+		`package main
 
 func worker(id int, jobs <-chan int, results chan<- int) {
     for j := range jobs {
@@ -263,14 +287,14 @@ func main() {
         <-results
     }
 }`,
-		language: 'go',
-		technologies: ['golang'],
-		categories: ['language', 'backend'],
-	},
-	{
-		title: 'Rate Limiter with Token Bucket',
-		description: 'Control request rate using token bucket algorithm',
-		code: `package main
+		'go',
+		['golang'],
+		['language', 'backend'],
+	),
+	createTemplate(
+		'Rate Limiter with Token Bucket',
+		'Control request rate using token bucket algorithm',
+		`package main
 
 import (
     "sync"
@@ -315,14 +339,14 @@ func (rl *RateLimiter) refill() {
         rl.mu.Unlock()
     }
 }`,
-		language: 'go',
-		technologies: ['golang'],
-		categories: ['language', 'backend'],
-	},
-	{
-		title: 'Generic Stack Implementation',
-		description: 'Type-safe stack using Go generics',
-		code: `package main
+		'go',
+		['golang'],
+		['language', 'backend'],
+	),
+	createTemplate(
+		'Generic Stack Implementation',
+		'Type-safe stack using Go generics',
+		`package main
 
 type Stack[T any] struct {
     items []T
@@ -349,14 +373,14 @@ func (s *Stack[T]) Peek() (T, bool) {
     }
     return s.items[len(s.items)-1], true
 }`,
-		language: 'go',
-		technologies: ['golang'],
-		categories: ['language', 'data-structures'],
-	},
-	{
-		title: 'Circuit Breaker Pattern',
-		description: 'Prevent cascading failures in distributed systems',
-		code: `package main
+		'go',
+		['golang'],
+		['language', 'data-structures'],
+	),
+	createTemplate(
+		'Circuit Breaker Pattern',
+		'Prevent cascading failures in distributed systems',
+		`package main
 
 import (
     "errors"
@@ -407,28 +431,28 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
     cb.state = "closed"
     return nil
 }`,
-		language: 'go',
-		technologies: ['golang'],
-		categories: ['language', 'backend'],
-	},
-	{
-		title: 'Upsert with ON CONFLICT',
-		description: 'Insert or update records in PostgreSQL',
-		code: `INSERT INTO user_settings (user_id, theme, timezone, updated_at)
+		'go',
+		['golang'],
+		['language', 'backend'],
+	),
+	createTemplate(
+		'Upsert with ON CONFLICT',
+		'Insert or update records in PostgreSQL',
+		`INSERT INTO user_settings (user_id, theme, timezone, updated_at)
 VALUES ($1, $2, $3, NOW())
 ON CONFLICT (user_id)
 DO UPDATE SET
   theme = EXCLUDED.theme,
   timezone = EXCLUDED.timezone,
   updated_at = NOW();`,
-		language: 'sql',
-		technologies: ['sql', 'postgres-sql'],
-		categories: ['database', 'backend'],
-	},
-	{
-		title: 'Recursive CTE for Hierarchical Data',
-		description: 'Query tree structures like org charts or categories',
-		code: `WITH RECURSIVE category_tree AS (
+		'sql',
+		['sql', 'postgres-sql'],
+		['database', 'backend'],
+	),
+	createTemplate(
+		'Recursive CTE for Hierarchical Data',
+		'Query tree structures like org charts or categories',
+		`WITH RECURSIVE category_tree AS (
   SELECT id, name, parent_id, 1 as level
   FROM categories
   WHERE parent_id IS NULL
@@ -441,14 +465,14 @@ DO UPDATE SET
 )
 SELECT * FROM category_tree
 ORDER BY level, name;`,
-		language: 'sql',
-		technologies: ['sql', 'postgres-sql'],
-		categories: ['database', 'backend'],
-	},
-	{
-		title: 'Window Functions for Running Totals',
-		description: 'Calculate cumulative sums and rankings',
-		code: `SELECT 
+		'sql',
+		['sql', 'postgres-sql'],
+		['database', 'backend'],
+	),
+	createTemplate(
+		'Window Functions for Running Totals',
+		'Calculate cumulative sums and rankings',
+		`SELECT 
   order_date,
   amount,
   SUM(amount) OVER (ORDER BY order_date) as running_total,
@@ -456,14 +480,14 @@ ORDER BY level, name;`,
 FROM orders
 WHERE order_date >= CURRENT_DATE - INTERVAL '30 days'
 ORDER BY order_date;`,
-		language: 'sql',
-		technologies: ['sql', 'postgres-sql'],
-		categories: ['database', 'backend'],
-	},
-	{
-		title: 'Pivot Table with CASE',
-		description: 'Transform rows into columns for reporting',
-		code: `SELECT 
+		'sql',
+		['sql', 'postgres-sql'],
+		['database', 'backend'],
+	),
+	createTemplate(
+		'Pivot Table with CASE',
+		'Transform rows into columns for reporting',
+		`SELECT 
   product_id,
   SUM(CASE WHEN EXTRACT(MONTH FROM order_date) = 1 THEN amount ELSE 0 END) as jan,
   SUM(CASE WHEN EXTRACT(MONTH FROM order_date) = 2 THEN amount ELSE 0 END) as feb,
@@ -471,14 +495,14 @@ ORDER BY order_date;`,
 FROM orders
 WHERE EXTRACT(YEAR FROM order_date) = 2024
 GROUP BY product_id;`,
-		language: 'sql',
-		technologies: ['sql', 'postgres-sql'],
-		categories: ['database', 'backend'],
-	},
-	{
-		title: 'Find Duplicate Records',
-		description: 'Identify and handle duplicate entries',
-		code: `SELECT email, COUNT(*) as count
+		'sql',
+		['sql', 'postgres-sql'],
+		['database', 'backend'],
+	),
+	createTemplate(
+		'Find Duplicate Records',
+		'Identify and handle duplicate entries',
+		`SELECT email, COUNT(*) as count
 FROM users
 GROUP BY email
 HAVING COUNT(*) > 1;
@@ -490,8 +514,8 @@ WHERE id NOT IN (
   FROM users
   GROUP BY email
 );`,
-		language: 'sql',
-		technologies: ['sql', 'postgres-sql'],
-		categories: ['database', 'backend'],
-	},
+		'sql',
+		['sql', 'postgres-sql'],
+		['database', 'backend'],
+	),
 ]

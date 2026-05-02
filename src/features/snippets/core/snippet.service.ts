@@ -45,7 +45,7 @@ export class SnippetService {
 			versions: [
 				{
 					version: 1,
-					code: input.code,
+					files: input.files,
 					createdAt: now,
 					createdBy: userId,
 				},
@@ -142,9 +142,12 @@ export class SnippetService {
 			updatedAt: Date.now(),
 		}
 
-		if (input.code && input.code !== snippet.code) {
+		if (
+			input.files &&
+			JSON.stringify(input.files) !== JSON.stringify(snippet.files)
+		) {
 			const { createNextVersion } = await import('./snippet.model')
-			const newVersion = createNextVersion(snippet, input.code, userId)
+			const newVersion = createNextVersion(snippet, input.files, userId)
 			updateInput.versions = [...snippet.versions, newVersion]
 		}
 

@@ -5,9 +5,8 @@ import { useEffect } from 'react'
 import type { Snippet } from '../core/snippet.types'
 import { SnippetFormActions } from './SnippetFormActions'
 import { SnippetFormCategories } from './SnippetFormCategories'
-import { SnippetFormCodeEditor } from './SnippetFormCodeEditor'
+import { SnippetFormFiles } from './SnippetFormFiles'
 import { SnippetFormPreview } from './SnippetFormPreview'
-import { SnippetFormSkeleton } from './SnippetFormSkeleton'
 import { SnippetFormTechnologySelect } from './SnippetFormTechnologySelect'
 import { SnippetFormTitleDescription } from './SnippetFormTitleDescription'
 import { SnippetFormVisibility } from './SnippetFormVisibility'
@@ -28,8 +27,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 		snippet,
 		title: formState.title,
 		description: formState.description,
-		code: formState.code,
-		formatterLanguage: formState.formatterLanguage,
+		files: formState.files,
 		visibility: formState.visibility,
 		technologies: formState.technologies,
 		categories: formState.categories,
@@ -41,8 +39,7 @@ export function SnippetForm({ mode, snippet }: Props) {
 		snippet,
 		normalizedTitle: validation.normalizedTitle,
 		normalizedDescription: validation.normalizedDescription,
-		code: formState.code,
-		formatterLanguage: formState.formatterLanguage,
+		files: formState.files,
 		technologies: formState.technologies,
 		categories: formState.categories,
 		visibility: formState.visibility,
@@ -62,16 +59,6 @@ export function SnippetForm({ mode, snippet }: Props) {
 		return () => window.removeEventListener('keydown', onKeyDown)
 	}, [submission])
 
-	if (submission.isSaving) {
-		return (
-			<div className="fixed inset-0 z-50 overflow-auto bg-white dark:bg-slate-950">
-				<SnippetFormSkeleton
-					maxWidth={mode === 'edit' ? 'max-w-4xl' : 'max-w-5xl'}
-				/>
-			</div>
-		)
-	}
-
 	return (
 		<form onSubmit={submission.handleSubmit} className="space-y-8">
 			<SnippetFormTitleDescription
@@ -83,25 +70,13 @@ export function SnippetForm({ mode, snippet }: Props) {
 				titleLength={validation.titleLength}
 			/>
 
-			<SnippetFormCodeEditor
-				primaryTechnology={formState.primaryTechnology}
-				onTechSelected={(tech) => {
-					if (formState.technologies.includes(tech)) {
-						formState.setTechnologies((prev) => [
-							tech,
-							...prev.filter((t) => t !== tech),
-						])
-					} else {
-						formState.setTechnologies((prev) => [tech, ...prev])
-					}
-				}}
-				code={formState.code}
-				onCodeChange={formState.setCode}
-				formatterLanguage={formState.formatterLanguage}
-				onLanguageDetected={formState.handleDetectedLanguage}
+			<SnippetFormFiles
+				files={formState.files}
+				onFilesChange={formState.setFiles}
 				isSaving={submission.isSaving}
 				isFormatting={formState.isFormatting}
 				onSave={submission.submit}
+				onLanguageDetected={formState.handleDetectedLanguage}
 			/>
 
 			<SnippetFormVisibility
@@ -134,6 +109,20 @@ export function SnippetForm({ mode, snippet }: Props) {
 				mode={mode}
 				canSubmit={validation.canSubmit}
 				isSaving={submission.isSaving}
+			/>
+
+			<ConfirmationModal
+				open={submission.showEmptyFilesWarning}
+				onClose={() => submission.setShowEmptyFilesWarning(false)}
+				title="Empty Files Detected"
+				description={`${submission.emptyFilesCount} file(s) with no code will not be saved. Do you want to continue?`}
+				confirmText="Save"
+				cancelText="Cancel"
+				onConfirm={async () => {
+					submission.setShowEmptyFilesWarning(false)
+					await submission.performSave(formState.visibility)
+				}}
+				isLoading={submission.isSaving}
 			/>
 
 			<ConfirmationModal

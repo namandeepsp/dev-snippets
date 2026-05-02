@@ -1,5 +1,3 @@
-import type { EditorLanguage } from '@/features/editor/editor.config'
-import { formatCodeWithStatus } from '@/features/editor/formatter/formatter.registry'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
 import { toast } from '@/shared/ui/design-system'
 import { useRouter } from 'next/navigation'
@@ -8,6 +6,7 @@ import type { CreateSnippetServiceInput } from '../core/repositories/snippet.rep
 import type {
 	Snippet,
 	SnippetCategory,
+	SnippetFile,
 	SnippetTechnology,
 	SnippetVisibility,
 } from '../core/snippet.types'
@@ -17,8 +16,7 @@ type UseSnippetFormSubmissionProps = {
 	snippet?: Snippet
 	normalizedTitle: string
 	normalizedDescription: string
-	code: string
-	formatterLanguage: EditorLanguage
+	files: SnippetFile[]
 	technologies: SnippetTechnology[]
 	categories: SnippetCategory[]
 	visibility: SnippetVisibility
@@ -30,8 +28,7 @@ export function useSnippetFormSubmission({
 	snippet,
 	normalizedTitle,
 	normalizedDescription,
-	code,
-	formatterLanguage,
+	files,
 	technologies,
 	categories,
 	visibility,
@@ -40,6 +37,10 @@ export function useSnippetFormSubmission({
 	const router = useRouter()
 	const [isSaving, setIsSaving] = useState(false)
 	const [showSharedWarning, setShowSharedWarning] = useState(false)
+	const [showEmptyFilesWarning, setShowEmptyFilesWarning] = useState(false)
+
+	const getEmptyFiles = () => files.filter((f) => !f.code.trim())
+	const hasEmptyFiles = getEmptyFiles().length > 0
 
 	const performSubmit = async (finalVisibility: SnippetVisibility) => {
 		if (isSaving) return
@@ -48,26 +49,24 @@ export function useSnippetFormSubmission({
 			return
 		}
 
+		if (hasEmptyFiles) {
+			setShowEmptyFilesWarning(true)
+			return
+		}
+
+		await performSave(finalVisibility)
+	}
+
+	const performSave = async (finalVisibility: SnippetVisibility) => {
 		setIsSaving(true)
 
 		try {
-			const formatResult = await formatCodeWithStatus(code, formatterLanguage)
-
-			if (formatResult.error) {
-				toast.error('Code formatting failed', {
-					description: formatResult.error,
-				})
-				setIsSaving(false)
-				return
-			}
-
-			const formattedCode = formatResult.formattedCode
-
+			const nonEmptyFiles = files.filter((f) => f.code.trim())
 			const input: CreateSnippetServiceInput = {
 				title: normalizedTitle,
 				description: normalizedDescription || undefined,
-				code: formattedCode,
-				language: formatterLanguage,
+				files: nonEmptyFiles,
+				primaryLanguage: nonEmptyFiles[0]?.language || 'javascript',
 				technologies,
 				categories,
 				visibility: finalVisibility,
@@ -111,5 +110,10 @@ export function useSnippetFormSubmission({
 		showSharedWarning,
 		setShowSharedWarning,
 		performSubmit,
+		showEmptyFilesWarning,
+		setShowEmptyFilesWarning,
+		hasEmptyFiles,
+		emptyFilesCount: getEmptyFiles().length,
+		performSave,
 	}
 }

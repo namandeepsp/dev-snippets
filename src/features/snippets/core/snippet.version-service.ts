@@ -26,10 +26,10 @@ export class SnippetVersionService {
 			throw new Error('Version not found')
 		}
 
-		const newVersion = createNextVersion(snippet, snippet.code, userId)
+		const newVersion = createNextVersion(snippet, version.files, userId)
 
 		await this.snippetRepository.update(snippetId, {
-			code: version.code,
+			files: version.files,
 			versions: [...snippet.versions, newVersion],
 			updatedAt: Date.now(),
 		})

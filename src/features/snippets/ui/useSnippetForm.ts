@@ -9,9 +9,11 @@ import { useEffect, useState } from 'react'
 import type {
 	Snippet,
 	SnippetCategory,
+	SnippetFile,
 	SnippetTechnology,
 	SnippetVisibility,
 } from '../core/snippet.types'
+import { createSnippetFile } from '../core/snippet.utils'
 
 type UseSnippetFormStateProps = {
 	mode: 'create' | 'edit'
@@ -24,9 +26,11 @@ export function useSnippetFormState({
 }: UseSnippetFormStateProps) {
 	const [title, setTitle] = useState(snippet?.title ?? '')
 	const [description, setDescription] = useState(snippet?.description ?? '')
-	const [code, setCode] = useState(snippet?.code ?? '')
+	const [files, setFiles] = useState<SnippetFile[]>(
+		snippet?.files ?? [createSnippetFile('', 'javascript', 'index.js', 1)],
+	)
 	const [language, _setLanguage] = useState<EditorLanguage>(
-		(snippet?.language as EditorLanguage) ?? 'javascript',
+		(snippet?.primaryLanguage as EditorLanguage) ?? 'javascript',
 	)
 	const [visibility, setVisibility] = useState<SnippetVisibility>(
 		snippet?.visibility ?? 'public',
@@ -43,15 +47,12 @@ export function useSnippetFormState({
 
 	const handleDetectedLanguage = (detected: EditorLanguage) => {
 		logger.info('🔍 handleDetectedLanguage called with:', detected)
-		logger.info('Language detected in form:', detected)
 
 		const primaryTech = LANGUAGE_TO_PRIMARY_TECHNOLOGY[detected]
 		logger.info('📍 Primary tech mapping:', primaryTech)
-		logger.info('Primary tech for detected language:', primaryTech)
 
 		if (!primaryTech) {
 			logger.warn('⚠️ No primary technology mapping found for:', detected)
-			logger.warn('No primary technology mapping found for:', detected)
 			return
 		}
 
@@ -61,7 +62,6 @@ export function useSnippetFormState({
 				? [primaryTech, ...prev.filter((t) => t !== primaryTech)]
 				: [primaryTech, ...prev]
 			logger.info('✅ Updated technologies array:', updated)
-			logger.info('Updated technologies array:', updated)
 			return updated
 		})
 	}
@@ -96,12 +96,6 @@ export function useSnippetFormState({
 			(primaryTechnology as EditorLanguage)
 		: language
 
-	useEffect(() => {
-		logger.info('📤 formatterLanguage updated to:', formatterLanguage)
-		logger.info('📤 primaryTechnology:', primaryTechnology)
-		logger.info('Formatter language updated:', formatterLanguage)
-	}, [formatterLanguage, primaryTechnology])
-
 	function toggleCategory(cat: SnippetCategory) {
 		setCategories((prev) =>
 			prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
@@ -135,8 +129,8 @@ export function useSnippetFormState({
 		setTitle,
 		description,
 		setDescription,
-		code,
-		setCode,
+		files,
+		setFiles,
 		language,
 		visibility,
 		setVisibility,

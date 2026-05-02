@@ -16,8 +16,8 @@ export type UpdateSnippetInput = Partial<
 		FirestoreSnippet,
 		| 'title'
 		| 'description'
-		| 'code'
-		| 'language'
+		| 'files'
+		| 'primaryLanguage'
 		| 'technologies'
 		| 'categories'
 		| 'visibility'

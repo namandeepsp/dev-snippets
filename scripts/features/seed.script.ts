@@ -24,7 +24,12 @@ type SeedOwner = {
 
 type SnippetTemplate = Pick<
 	FirestoreSnippet,
-	'title' | 'description' | 'code' | 'language' | 'technologies' | 'categories'
+	| 'title'
+	| 'description'
+	| 'files'
+	| 'primaryLanguage'
+	| 'technologies'
+	| 'categories'
 >
 
 const ALL_SNIPPET_TEMPLATES: SnippetTemplate[] = [
@@ -142,8 +147,8 @@ export class SeedScript extends BaseScript {
 			snippets.push({
 				title: template.title,
 				description: template.description,
-				code: template.code,
-				language: template.language,
+				files: template.files,
+				primaryLanguage: template.primaryLanguage,
 				technologies: template.technologies,
 				categories: template.categories,
 				visibility,
@@ -155,7 +160,7 @@ export class SeedScript extends BaseScript {
 				versions: [
 					{
 						version: 1,
-						code: template.code,
+						files: template.files,
 						createdAt,
 						createdBy: owner.id,
 					},

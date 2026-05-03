@@ -80,13 +80,13 @@ export function filterByQuery(snippets: Snippet[], query: string): Snippet[] {
 	if (!normalizedQuery) return snippets
 
 	return snippets.filter((snippet) => {
-		const languageTerms = getLanguageSearchTerms(snippet.language)
+		const languageTerms = getLanguageSearchTerms(snippet.primaryLanguage)
 
 		const searchable = [
 			snippet.title,
 			snippet.description || '',
 			snippet.ownerName,
-			snippet.language,
+			snippet.primaryLanguage,
 			...languageTerms,
 			...snippet.technologies,
 			...snippet.categories,

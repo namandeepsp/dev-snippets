@@ -1,10 +1,19 @@
-import { useRef, useState } from 'react'
-export function useCodeEditorState() {
+import { useEffect, useRef, useState } from 'react'
+export function useCodeEditorState(initialErrors?: string[]) {
 	const [copied, setCopied] = useState(false)
-	const [formattingErrors, setFormattingErrors] = useState<string[]>([])
-	const [isErrorAccordionOpen, setIsErrorAccordionOpen] = useState(false)
+	const [formattingErrors, setFormattingErrors] = useState<string[]>(
+		initialErrors || [],
+	)
+	const [isErrorAccordionOpen, setIsErrorAccordionOpen] = useState(
+		Boolean(initialErrors && initialErrors.length > 0),
+	)
 	const errorAccordionRef = useRef<HTMLDivElement>(null)
 	const editorRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		setFormattingErrors(initialErrors || [])
+		setIsErrorAccordionOpen(Boolean(initialErrors && initialErrors.length > 0))
+	}, [initialErrors])
 
 	const handleFormattingError = (error: string) => {
 		setFormattingErrors([error])

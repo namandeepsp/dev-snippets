@@ -24,6 +24,8 @@ type Props = {
 	snippetTitle?: string
 	snippetDescription?: string
 	visibility?: 'public' | 'private' | 'shared'
+	filename?: string
+	onExport?: () => void
 }
 
 export function CodeBlock({
@@ -37,6 +39,7 @@ export function CodeBlock({
 	snippetTitle,
 	snippetDescription,
 	visibility,
+	onExport,
 }: Props) {
 	const [copied, setCopied] = useState(false)
 	const [copyError, setCopyError] = useState<string | null>(null)
@@ -110,6 +113,7 @@ export function CodeBlock({
 				showShareButton={showShareButton}
 				onShare={handleShare}
 				onCopy={handleCopy}
+				onExport={onExport}
 				copied={copied}
 				copyError={copyError}
 				actionButtonBaseClasses={actionButtonBaseClasses}

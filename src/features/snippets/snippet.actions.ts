@@ -169,6 +169,53 @@ export async function restoreSnippetVersionAction(
 	}
 }
 
+export async function getVersionDetailAction(
+	snippetId: string,
+	versionNumber: number,
+): Promise<ApiResponse<any>> {
+	try {
+		const user = await getCurrentServerUser()
+		const versionDetail = await snippetService.getVersionDetail(
+			snippetId,
+			versionNumber,
+			user?.id,
+		)
+
+		return { success: true, data: versionDetail }
+	} catch (error) {
+		logger.error('Failed to get version detail', error)
+
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Failed to get version',
+		}
+	}
+}
+
+export async function getVersionHistoryAction(
+	snippetId: string,
+): Promise<ApiResponse<any[]>> {
+	try {
+		const user = await getCurrentServerUser()
+		const versionHistory = await snippetService.getVersionHistory(
+			snippetId,
+			user?.id,
+		)
+
+		return { success: true, data: versionHistory }
+	} catch (error) {
+		logger.error('Failed to get version history', error)
+
+		return {
+			success: false,
+			error:
+				error instanceof Error
+					? error.message
+					: 'Failed to get version history',
+		}
+	}
+}
+
 export async function shareSnippetAction(
 	snippetId: string,
 	userIds: string[],

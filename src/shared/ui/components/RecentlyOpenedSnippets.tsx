@@ -42,7 +42,8 @@ const RecentlyOpenedSnippets = ({
 						>
 							<p className="text-sm font-medium">{item.title}</p>
 							<p className="text-xs text-foreground/60">
-								{item.ownerName} • {item.language} • {formatDate(item.viewedAt)}
+								{item.ownerName} • {item.primaryLanguage} •{' '}
+								{formatDate(item.viewedAt)}
 							</p>
 						</Link>
 						<Button

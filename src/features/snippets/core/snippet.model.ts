@@ -1,6 +1,7 @@
 import type {
 	Snippet,
 	SnippetContent,
+	SnippetFile,
 	SnippetOwnership,
 	SnippetVersion,
 } from './snippet.types'
@@ -12,7 +13,7 @@ export function createSnippet(
 
 	const initialVersion: SnippetVersion = {
 		version: 1,
-		code: input.code,
+		files: input.files,
 		createdAt: now,
 		createdBy: input.ownerId,
 	}
@@ -31,12 +32,12 @@ export function createSnippet(
 
 export function createNextVersion(
 	snippet: Snippet,
-	_newCode: string,
+	newFiles: SnippetFile[],
 	userId: string,
 ): SnippetVersion {
 	return {
 		version: snippet.versions.length + 1,
-		code: snippet.code,
+		files: newFiles,
 		createdAt: Date.now(),
 		createdBy: userId,
 	}
@@ -81,16 +82,17 @@ export function getVersion(
 
 export function summarizeSnippet(snippet: Snippet): Omit<
 	Snippet,
-	'versions' | 'code'
+	'versions' | 'files'
 > & {
 	codePreview: string
 } {
-	const { versions, code, ...rest } = snippet
+	const { versions, files, ...rest } = snippet
+	const firstFile = files[0]
 
 	return {
 		...rest,
 		codePreview:
-			code.split('\n').slice(0, 5).join('\n') +
-			(code.split('\n').length > 5 ? '\n...' : ''),
+			firstFile.code.split('\n').slice(0, 5).join('\n') +
+			(firstFile.code.split('\n').length > 5 ? '\n...' : ''),
 	}
 }

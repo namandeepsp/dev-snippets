@@ -45,7 +45,7 @@ export class SnippetService {
 			versions: [
 				{
 					version: 1,
-					code: input.code,
+					files: input.files,
 					createdAt: now,
 					createdBy: userId,
 				},
@@ -57,6 +57,10 @@ export class SnippetService {
 
 	getById(id: string) {
 		return this.readService.getById(id)
+	}
+
+	getByIdWithoutVersions(id: string) {
+		return this.readService.getByIdWithoutVersions(id)
 	}
 
 	listPublic(sortBy?: any) {
@@ -142,9 +146,12 @@ export class SnippetService {
 			updatedAt: Date.now(),
 		}
 
-		if (input.code && input.code !== snippet.code) {
+		if (
+			input.files &&
+			JSON.stringify(input.files) !== JSON.stringify(snippet.files)
+		) {
 			const { createNextVersion } = await import('./snippet.model')
-			const newVersion = createNextVersion(snippet, input.code, userId)
+			const newVersion = createNextVersion(snippet, input.files, userId)
 			updateInput.versions = [...snippet.versions, newVersion]
 		}
 
@@ -175,6 +182,14 @@ export class SnippetService {
 
 	getVersionHistory(snippetId: string, userId?: string) {
 		return this.versionService.getVersionHistory(snippetId, userId)
+	}
+
+	getVersionDetail(snippetId: string, versionNumber: number, userId?: string) {
+		return this.versionService.getVersionDetail(
+			snippetId,
+			versionNumber,
+			userId,
+		)
 	}
 
 	shareWithUsers(

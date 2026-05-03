@@ -11,6 +11,7 @@ interface CodeBlockHeaderProps {
 	showShareButton?: string | boolean
 	onShare: () => void
 	onCopy: () => void
+	onExport?: () => void
 	copied: boolean
 	copyError: string | null
 	actionButtonBaseClasses: string
@@ -22,6 +23,7 @@ export function CodeBlockHeader({
 	showShareButton,
 	onShare,
 	onCopy,
+	onExport,
 	copied,
 	copyError,
 	actionButtonBaseClasses,
@@ -53,6 +55,35 @@ export function CodeBlockHeader({
 					>
 						<LuShare2 className="h-3.5 w-3.5" />
 						<span className="hidden sm:inline">Share</span>
+					</Button>
+				)}
+
+				{onExport && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={onExport}
+						data-tooltip-id="app-tooltip"
+						data-tooltip-content="Download file"
+						className={actionButtonBaseClasses}
+						aria-label="Download file"
+					>
+						<svg
+							className="h-3.5 w-3.5"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							aria-hidden="true"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+							/>
+						</svg>
+						<span className="hidden sm:inline">Export</span>
 					</Button>
 				)}
 

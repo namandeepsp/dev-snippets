@@ -35,6 +35,8 @@ interface CodeEditorProps {
 	onLanguageDetected?: (language: EditorLanguage) => void
 	onDetectingChange?: (isDetecting: boolean) => void
 	onSave?: () => void
+	onFormatError?: (error: string) => void
+	initialErrors?: string[]
 }
 
 interface CodeEditorRef {
@@ -55,6 +57,8 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			onLanguageDetected,
 			onDetectingChange,
 			onSave,
+			onFormatError,
+			initialErrors,
 		},
 		ref,
 	) {
@@ -68,7 +72,7 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			resolvedTheme,
 		)
 
-		const state = useCodeEditorState()
+		const state = useCodeEditorState(initialErrors)
 
 		const {
 			formatWithStatusForEditor,
@@ -86,6 +90,7 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 			onChange,
 			handleFormattingError: (error: string) => {
 				state.handleFormattingError(error)
+				onFormatError?.(error)
 				toast.error('Formatting failed. Check errors below.')
 			},
 			clearFormattingErrors: state.clearFormattingErrors,
@@ -331,7 +336,7 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 								}}
 							/>
 						</div>
-						{isApiFormatting ? (
+						{isApiFormatting || isDetecting ? (
 							<div className="absolute inset-0 z-10 flex items-center justify-center bg-[#303841]/80 backdrop-blur-[1px] dark:bg-[#1E1E1E]/80">
 								<div className="flex items-center gap-2 rounded-lg bg-black/30 px-3 py-2 text-xs font-semibold text-slate-100 ring-1 ring-white/10">
 									<svg
@@ -355,7 +360,7 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(
 											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
 										/>
 									</svg>
-									Formatting...
+									{isDetecting ? 'Detecting language...' : 'Formatting...'}
 								</div>
 							</div>
 						) : null}

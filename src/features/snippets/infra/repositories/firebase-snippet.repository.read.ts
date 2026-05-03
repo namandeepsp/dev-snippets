@@ -13,6 +13,7 @@ export interface FirebaseSnippetRepositoryContext {
 export async function getSnippetById(
 	repo: FirebaseSnippetRepositoryContext,
 	id: string,
+	includeVersions = true,
 ): Promise<Snippet | null> {
 	const docRef = repo.getCollection().doc(id)
 	const snapshot = await docRef.get()
@@ -25,7 +26,7 @@ export async function getSnippetById(
 	return {
 		id: snapshot.id,
 		...data,
-		versions: data.versions || [],
+		versions: includeVersions ? data.versions || [] : [],
 	}
 }
 
@@ -113,7 +114,7 @@ export async function searchSnippets(
 			(snippet) =>
 				snippet.title.toLowerCase().includes(lowerQuery) ||
 				(snippet.description?.toLowerCase().includes(lowerQuery) ?? false) ||
-				snippet.code.toLowerCase().includes(lowerQuery),
+				snippet.files.some((f) => f.code.toLowerCase().includes(lowerQuery)),
 		)
 }
 

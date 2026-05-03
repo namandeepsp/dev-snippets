@@ -16,5 +16,11 @@ export interface SnippetAPIClient {
 
 	delete(id: string): Promise<void>
 
+	restoreVersion(id: string, versionNumber: number): Promise<void>
+
+	getVersionDetail(id: string, versionNumber: number): Promise<any>
+
+	getVersionHistory(id: string): Promise<any[]>
+
 	incrementViews(id: string): Promise<void>
 }

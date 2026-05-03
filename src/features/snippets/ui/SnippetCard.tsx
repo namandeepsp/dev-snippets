@@ -4,6 +4,7 @@ import type { PublicUser } from '@/features/user/core/user.types'
 import { formatDate } from '@/shared/utils/date'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { FiEdit3 } from 'react-icons/fi'
 import type { Snippet } from '../core/snippet.types'
 import { TechnologyBadge } from './TechnologyBadge'
 
@@ -11,12 +12,14 @@ type Props = {
 	snippet: Snippet & { author?: PublicUser }
 	showAuthor?: boolean
 	compact?: boolean
+	showEditButton?: boolean
 }
 
 export function SnippetCard({
 	snippet,
 	showAuthor = false,
 	compact = false,
+	showEditButton = false,
 }: Props) {
 	const author = snippet.author || {
 		id: snippet.ownerId,
@@ -31,10 +34,26 @@ export function SnippetCard({
 	const router = useRouter()
 
 	return (
-		<Link
-			href={`/snippets/${snippet.id}`}
+		<div
+			role="link"
+			tabIndex={0}
+			onClick={(event) => {
+				const targetUrl = `/snippets/${snippet.id}`
+				if (event.ctrlKey || event.metaKey) {
+					window.open(targetUrl, '_blank', 'noopener,noreferrer')
+					return
+				}
+
+				router.push(targetUrl)
+			}}
+			onKeyDown={(event) => {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault()
+					router.push(`/snippets/${snippet.id}`)
+				}
+			}}
 			className={`
-        group flex h-full flex-col rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50
+        relative group flex h-full flex-col rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50
         hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md
         transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20
         ${compact ? 'p-4' : 'p-5'}
@@ -139,7 +158,20 @@ export function SnippetCard({
 						</span>
 					</div>
 				</div>
+
+				{showEditButton && (
+					<Link
+						href={`/snippets/${snippet.id}/edit`}
+						target="_blank"
+						rel="noreferrer"
+						aria-label={`Edit snippet: ${snippet.title}`}
+						className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 opacity-0 transition-all duration-200 hover:bg-gray-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 group-hover:opacity-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+						onClick={(event) => event.stopPropagation()}
+					>
+						<FiEdit3 className="h-5 w-5" aria-hidden="true" />
+					</Link>
+				)}
 			</div>
-		</Link>
+		</div>
 	)
 }

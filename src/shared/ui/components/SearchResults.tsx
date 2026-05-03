@@ -20,7 +20,7 @@ const SearchResults = ({ results, onClose }: Props) => {
 						<div className="min-w-0">
 							<p className="truncate text-sm font-medium">{snippet.title}</p>
 							<p className="truncate text-xs text-foreground/60">
-								@{snippet.author.username} • {snippet.language}
+								@{snippet.author.username} • {snippet.primaryLanguage}
 							</p>
 						</div>
 						<span className="text-xs text-foreground/60">

@@ -1,9 +1,35 @@
 import type { SnippetRepository } from './repositories/snippet.repository'
-import { createNextVersion } from './snippet.model'
-import type { SnippetVersion } from './snippet.types'
+import type { SnippetVersion, SnippetVersionDetail } from './snippet.types'
 
 export class SnippetVersionService {
 	constructor(private readonly snippetRepository: SnippetRepository) {}
+
+	async getVersionDetail(
+		snippetId: string,
+		versionNumber: number,
+		userId?: string,
+	): Promise<SnippetVersionDetail> {
+		const snippet = await this.snippetRepository.getById(snippetId)
+
+		if (!snippet) {
+			throw new Error('Snippet not found')
+		}
+
+		if (snippet.visibility === 'private' && snippet.ownerId !== userId) {
+			throw new Error('Unauthorized')
+		}
+
+		const versionData = await this.snippetRepository.getVersionDetail(
+			snippetId,
+			versionNumber,
+		)
+
+		if (!versionData) {
+			throw new Error('Version not found')
+		}
+
+		return versionData
+	}
 
 	async restoreVersion(
 		snippetId: string,
@@ -26,10 +52,15 @@ export class SnippetVersionService {
 			throw new Error('Version not found')
 		}
 
-		const newVersion = createNextVersion(snippet, snippet.code, userId)
+		const newVersion: SnippetVersion = {
+			version: snippet.versions.length + 1,
+			files: version.files,
+			createdAt: Date.now(),
+			createdBy: userId,
+		}
 
 		await this.snippetRepository.update(snippetId, {
-			code: version.code,
+			files: version.files,
 			versions: [...snippet.versions, newVersion],
 			updatedAt: Date.now(),
 		})

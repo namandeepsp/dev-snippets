@@ -4,6 +4,7 @@ import type {
 	Snippet,
 	SnippetContent,
 	SnippetTechnology,
+	SnippetVersionDetail,
 	SnippetVisibility,
 } from '../snippet.types'
 
@@ -16,8 +17,8 @@ export type UpdateSnippetInput = Partial<
 		FirestoreSnippet,
 		| 'title'
 		| 'description'
-		| 'code'
-		| 'language'
+		| 'files'
+		| 'primaryLanguage'
 		| 'technologies'
 		| 'categories'
 		| 'visibility'
@@ -82,4 +83,11 @@ export interface SnippetRepository
 	filterByTechnology(technology: string): Promise<Snippet[]>
 
 	filterByCategory(category: string): Promise<Snippet[]>
+
+	getVersionDetail(
+		snippetId: string,
+		versionNumber: number,
+	): Promise<SnippetVersionDetail | null>
+
+	getByIdWithoutVersions(id: string): Promise<Snippet | null>
 }

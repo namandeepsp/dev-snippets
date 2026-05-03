@@ -15,7 +15,7 @@ type Props = {
 }
 
 const getSnippet = cache(async (id: string) => {
-	return snippetService.getById(id)
+	return snippetService.getByIdWithoutVersions(id)
 })
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

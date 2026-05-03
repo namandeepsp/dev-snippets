@@ -53,13 +53,16 @@ export async function updateSnippet(
 		updatedAt: Date.now(),
 	}
 
-	if (input.code && input.code !== data.code) {
+	if (
+		input.files &&
+		JSON.stringify(input.files) !== JSON.stringify(data.files)
+	) {
 		const versions = data.versions || []
 		const newVersion: SnippetVersion = {
 			version: versions.length + 1,
-			code: data.code,
 			createdAt: Date.now(),
 			createdBy: data.ownerId,
+			files: data.files,
 		}
 
 		updatePayload.versions = [...versions, newVersion]

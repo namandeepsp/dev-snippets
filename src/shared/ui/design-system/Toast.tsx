@@ -16,7 +16,7 @@ export function Toaster() {
 					backdropFilter: 'blur(14px)',
 				},
 				className:
-					'rounded-2xl border border-white/50 bg-white/85 text-slate-900 shadow-xl shadow-slate-900/10 dark:border-white/15 dark:bg-slate-900/85 dark:text-slate-100',
+					'rounded-2xl border border-white/50 bg-white/85 text-slate-900 shadow-xl shadow-slate-900/10 dark:border-white/15 dark:bg-slate-900/85 dark:text-slate-50',
 			}}
 			richColors
 		/>

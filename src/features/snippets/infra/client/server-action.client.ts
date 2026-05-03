@@ -8,7 +8,10 @@ import type { SnippetAPIClient } from './snippet-api.client'
 import {
 	createSnippetAction,
 	deleteSnippetAction,
+	getVersionDetailAction,
+	getVersionHistoryAction,
 	incrementViewsAction,
+	restoreSnippetVersionAction,
 	updateSnippetAction,
 } from '../../snippet.actions'
 
@@ -46,6 +49,29 @@ export class ServerActionSnippetClient implements SnippetAPIClient {
 		if (!response.success) {
 			throw new Error(response.error || 'Failed to increment views')
 		}
+	}
+
+	async restoreVersion(id: string, versionNumber: number): Promise<void> {
+		const response = await restoreSnippetVersionAction(id, versionNumber)
+		if (!response.success) {
+			throw new Error(response.error || 'Failed to restore version')
+		}
+	}
+
+	async getVersionDetail(id: string, versionNumber: number): Promise<any> {
+		const response = await getVersionDetailAction(id, versionNumber)
+		if (!response.success) {
+			throw new Error(response.error || 'Failed to get version')
+		}
+		return response.data
+	}
+
+	async getVersionHistory(id: string): Promise<any[]> {
+		const response = await getVersionHistoryAction(id)
+		if (!response.success) {
+			throw new Error(response.error || 'Failed to get version history')
+		}
+		return response.data || []
 	}
 
 	async getById(_id: string): Promise<Snippet | null> {

@@ -1,8 +1,8 @@
-import type { EditorLanguage } from '@/features/editor/editor.config'
 import { useMemo } from 'react'
 import type {
 	Snippet,
 	SnippetCategory,
+	SnippetFile,
 	SnippetTechnology,
 	SnippetVisibility,
 } from '../core/snippet.types'
@@ -13,8 +13,7 @@ type UseSnippetFormValidationProps = {
 	snippet?: Snippet
 	title: string
 	description: string
-	code: string
-	formatterLanguage: EditorLanguage
+	files: SnippetFile[]
 	visibility: SnippetVisibility
 	technologies: SnippetTechnology[]
 	categories: SnippetCategory[]
@@ -26,8 +25,7 @@ export function useSnippetFormValidation({
 	snippet,
 	title,
 	description,
-	code,
-	formatterLanguage,
+	files,
 	visibility,
 	technologies,
 	categories,
@@ -37,7 +35,8 @@ export function useSnippetFormValidation({
 	const normalizedDescription = description.trim()
 	const titleLength = title.length
 	const isTitleWithinLimit = titleLength <= SNIPPET_TITLE_MAX_LENGTH
-	const hasRequiredFields = Boolean(normalizedTitle && code.trim())
+	const hasCode = files.some((f) => f.code.trim())
+	const hasRequiredFields = Boolean(normalizedTitle && hasCode)
 
 	const hasEditChanges = useMemo(() => {
 		if (mode !== 'edit' || !snippet) return true
@@ -49,11 +48,19 @@ export function useSnippetFormValidation({
 			return left.every((value, index) => value === right[index])
 		}
 
+		const filesChanged =
+			files.length !== snippet.files.length ||
+			files.some(
+				(f, i) =>
+					f.filename !== snippet.files[i]?.filename ||
+					f.code !== snippet.files[i]?.code ||
+					f.language !== snippet.files[i]?.language,
+			)
+
 		return (
 			normalizedTitle !== snippet.title.trim() ||
 			normalizedDescription !== (snippet.description ?? '').trim() ||
-			code !== snippet.code ||
-			formatterLanguage !== (snippet.language as EditorLanguage) ||
+			filesChanged ||
 			visibility !== snippet.visibility ||
 			!sameArray(technologies, snippet.technologies ?? []) ||
 			!sameArray(categories, snippet.categories ?? [])
@@ -63,8 +70,7 @@ export function useSnippetFormValidation({
 		snippet,
 		normalizedTitle,
 		normalizedDescription,
-		code,
-		formatterLanguage,
+		files,
 		visibility,
 		technologies,
 		categories,

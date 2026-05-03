@@ -36,6 +36,7 @@ export function SnippetFormTitleDescription({
 					name="title"
 					maxLength={SNIPPET_TITLE_MAX_LENGTH}
 					required
+					autoFocus={false}
 				/>
 				<p className="mt-1 text-right text-xs text-gray-500">
 					{titleLength}/{SNIPPET_TITLE_MAX_LENGTH}

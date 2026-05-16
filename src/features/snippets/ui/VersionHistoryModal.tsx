@@ -1,10 +1,15 @@
 'use client'
 
+import { snippetApiClient } from '@/features/snippets/snippet.client.container'
 import { Button } from '@/shared/ui/design-system'
 import { formatDate } from '@/shared/utils/date'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LuX } from 'react-icons/lu'
-import type { SnippetVersion } from '../core/snippet.types'
+import type {
+	SnippetVersion,
+	SnippetVersionDetail,
+} from '../core/snippet.types'
+import { VersionHistoryModalSkeleton } from './VersionHistoryModalSkeleton'
 import { CodeBlock } from './code/CodeBlock'
 
 interface VersionHistoryModalProps {
@@ -36,6 +41,31 @@ export function VersionHistoryModal({
 		versions[versions.length - 1]?.version || 1,
 	)
 	const [isRestoring, setIsRestoring] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+	const [versionDetail, setVersionDetail] =
+		useState<SnippetVersionDetail | null>(null)
+
+	useEffect(() => {
+		if (!isOpen) return
+
+		// Fetch version detail when modal opens or version changes
+		const fetchVersionDetail = async () => {
+			setIsLoading(true)
+			try {
+				const detail = await snippetApiClient.getVersionDetail(
+					snippetId,
+					selectedVersion,
+				)
+				setVersionDetail(detail)
+			} catch (error) {
+				console.error('Failed to load version detail', error)
+			} finally {
+				setIsLoading(false)
+			}
+		}
+
+		fetchVersionDetail()
+	}, [isOpen, selectedVersion, snippetId])
 
 	if (!isOpen) return null
 
@@ -72,88 +102,94 @@ export function VersionHistoryModal({
 
 				{/* Scrollable Content */}
 				<div className="p-6 space-y-6 overflow-y-auto flex-1">
-					<div className="space-y-2">
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-							Select Version
-						</label>
-						<select
-							value={selectedVersion}
-							onChange={(e) => setSelectedVersion(Number(e.target.value))}
-							className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
-						>
-							{versions
-								.slice()
-								.reverse()
-								.map((version) => (
-									<option key={version.version} value={version.version}>
-										v{version.version} - {formatDate(version.createdAt)} by{' '}
-										{version.createdBy === ownerId ? authorName : 'User'}
-									</option>
-								))}
-						</select>
-					</div>
-
-					<div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-4 space-y-2">
-						<div className="flex items-center justify-between">
-							<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-								Version {currentVersion.version}
-							</span>
-							<span className="text-xs text-gray-500">
-								{formatDate(currentVersion.createdAt)}
-							</span>
-						</div>
-						<p className="text-sm text-gray-600 dark:text-gray-400">
-							Created by{' '}
-							{currentVersion.createdBy === ownerId ? authorName : 'User'}
-						</p>
-					</div>
-
-					<div className="space-y-3">
-						<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-							Code
-						</h3>
-						{!currentVersion.files || currentVersion.files.length === 0 ? (
-							<div className="flex items-center justify-center py-8 text-gray-500">
-								No files in this version
+					{isLoading ? (
+						<VersionHistoryModalSkeleton />
+					) : (
+						<>
+							<div className="space-y-2">
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+									Select Version
+								</label>
+								<select
+									value={selectedVersion}
+									onChange={(e) => setSelectedVersion(Number(e.target.value))}
+									className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+								>
+									{versions
+										.slice()
+										.reverse()
+										.map((version) => (
+											<option key={version.version} value={version.version}>
+												v{version.version} - {formatDate(version.createdAt)} by{' '}
+												{version.createdBy === ownerId ? authorName : 'User'}
+											</option>
+										))}
+								</select>
 							</div>
-						) : currentVersion.files && currentVersion.files.length > 0 ? (
-							<div className="space-y-4">
-								{currentVersion.files.map((file, index) => (
-									<div key={file.id} className="space-y-2">
-										{currentVersion.files.length > 1 && (
-											<div className="flex items-center justify-between px-1">
-												<div className="flex items-center gap-2">
-													<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-														{file.filename}
-													</span>
-													<span className="text-xs font-medium text-gray-400">
-														{file.language}
-													</span>
-												</div>
-												<span className="text-xs text-gray-400">
-													{index + 1} of {currentVersion.files.length}
-												</span>
-											</div>
-										)}
-										<CodeBlock
-											code={file.code}
-											language={file.language}
-											filename={file.filename}
-											showLineNumbers
-											snippetId={snippetId}
-											snippetTitle={snippetTitle}
-											snippetDescription={snippetDescription}
-											visibility={visibility}
-										/>
+
+							<div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-4 space-y-2">
+								<div className="flex items-center justify-between">
+									<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+										Version {currentVersion.version}
+									</span>
+									<span className="text-xs text-gray-500">
+										{formatDate(currentVersion.createdAt)}
+									</span>
+								</div>
+								<p className="text-sm text-gray-600 dark:text-gray-400">
+									Created by{' '}
+									{currentVersion.createdBy === ownerId ? authorName : 'User'}
+								</p>
+							</div>
+
+							<div className="space-y-3">
+								<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+									Code
+								</h3>
+								{!versionDetail?.files || versionDetail.files.length === 0 ? (
+									<div className="flex items-center justify-center py-8 text-gray-500">
+										No files in this version
 									</div>
-								))}
+								) : versionDetail?.files && versionDetail.files.length > 0 ? (
+									<div className="space-y-4">
+										{versionDetail.files.map((file, index) => (
+											<div key={file.id} className="space-y-2">
+												{versionDetail.files.length > 1 && (
+													<div className="flex items-center justify-between px-1">
+														<div className="flex items-center gap-2">
+															<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+																{file.filename}
+															</span>
+															<span className="text-xs font-medium text-gray-400">
+																{file.language}
+															</span>
+														</div>
+														<span className="text-xs text-gray-400">
+															{index + 1} of {versionDetail.files.length}
+														</span>
+													</div>
+												)}
+												<CodeBlock
+													code={file.code}
+													language={file.language}
+													filename={file.filename}
+													showLineNumbers
+													snippetId={snippetId}
+													snippetTitle={snippetTitle}
+													snippetDescription={snippetDescription}
+													visibility={visibility}
+												/>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="text-center py-8 text-gray-500">
+										No code available for this version
+									</div>
+								)}
 							</div>
-						) : (
-							<div className="text-center py-8 text-gray-500">
-								No code available for this version
-							</div>
-						)}
-					</div>
+						</>
+					)}
 				</div>
 
 				{/* Fixed Footer */}

@@ -51,7 +51,6 @@ async function checkData() {
 
 		// Check users collection
 		const usersRef = db.collection('users')
-		const usersSnapshot = await usersRef.limit(1).get()
 		const totalUsers = (await usersRef.count().get()).data().count
 
 		console.log(`\n👥 Users Collection:`)

@@ -243,7 +243,6 @@ export function SnippetViewer({ snippet }: Props) {
 				snippetTitle={snippet.title}
 				snippetDescription={snippet.description}
 				visibility={snippet.visibility}
-				loading={versionsLoading}
 				onRestore={
 					isOwner
 						? async (versionNumber) => {

@@ -74,7 +74,7 @@ export const FEATURES: Feature[] = [
 		description:
 			'Track changes with automatic versioning and restore previous versions',
 		icon: LuHistory,
-		category: 'upcoming',
+		category: 'existing',
 		requiresAuth: true,
 		details:
 			'Every change to your snippet is automatically versioned. View the complete history of modifications and restore any previous version with a single click.',
@@ -231,7 +231,7 @@ export const FEATURES: Feature[] = [
 		description:
 			'Export snippets as files or copy to clipboard in various formats',
 		icon: LuDownload,
-		category: 'upcoming',
+		category: 'existing',
 		requiresAuth: true,
 		details:
 			'Export your snippets in multiple formats (raw code, markdown, JSON) or download as individual files. Perfect for sharing and backup.',

@@ -43,3 +43,5 @@ next-env.d.ts
 
 # code review graph (auto-generated)
 .code-review-graph/
+
+firebase-service-account-prod.json

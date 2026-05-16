@@ -2,13 +2,15 @@
 
 import { useAuth } from '@/features/auth/auth.client.container'
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
+import { queryKeys } from '@/shared/hooks/query-keys'
 import { useRequireAuth } from '@/shared/ui/AuthRequired'
 import { Button } from '@/shared/ui/design-system'
 import { logger } from '@/shared/utils/logger'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { LuDownload } from 'react-icons/lu'
-import type { EnrichedSnippet, SnippetVersion } from '../core/snippet.types'
+import type { EnrichedSnippet } from '../core/snippet.types'
 import { toggleLikeAction } from '../snippet.actions'
 import { AuthorCard } from './AuthorCard'
 import { DeleteConfirmationModal } from './DeleteConfirmationModal'
@@ -31,27 +33,19 @@ export function SnippetViewer({ snippet }: Props) {
 	const router = useRouter()
 	const { user } = useAuth()
 	const { requireAuth, modal } = useRequireAuth()
+	const queryClient = useQueryClient()
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 	const [showVersionHistory, setShowVersionHistory] = useState(false)
-	const [versions, setVersions] = useState<SnippetVersion[]>([])
-	const [versionsLoading, setVersionsLoading] = useState(false)
-	const handleOpenVersionHistory = async () => {
-		setShowVersionHistory(true)
-		if (versions.length === 0 && !versionsLoading) {
-			setVersionsLoading(true)
-			try {
-				const versionHistory = await snippetApiClient.getVersionHistory(
-					snippet.id,
-				)
-				setVersions(versionHistory)
-			} catch (error) {
-				logger.error('Failed to load version history', error)
-			} finally {
-				setVersionsLoading(false)
-			}
-		}
-	}
+
+	const { data: versions = [], isFetching: versionsLoading } = useQuery({
+		queryKey: queryKeys.snippets.versionHistory(snippet.id),
+		queryFn: () => snippetApiClient.getVersionHistory(snippet.id),
+		enabled: showVersionHistory,
+	})
+
+	const handleOpenVersionHistory = () => setShowVersionHistory(true)
+
 	const [isLiked, setIsLiked] = useState(snippet.isLikedByUser ?? false)
 
 	const likesCount = Math.max(
@@ -247,6 +241,9 @@ export function SnippetViewer({ snippet }: Props) {
 					isOwner
 						? async (versionNumber) => {
 								await snippetApiClient.restoreVersion(snippet.id, versionNumber)
+								queryClient.invalidateQueries({
+									queryKey: queryKeys.snippets.versionHistory(snippet.id),
+								})
 								window.location.reload()
 							}
 						: undefined

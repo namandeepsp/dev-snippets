@@ -1,9 +1,11 @@
 'use client'
 
 import { snippetApiClient } from '@/features/snippets/snippet.client.container'
+import { queryKeys } from '@/shared/hooks/query-keys'
 import { Button } from '@/shared/ui/design-system'
 import { formatDate } from '@/shared/utils/date'
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { LuX } from 'react-icons/lu'
 import type {
 	SnippetVersion,
@@ -41,31 +43,14 @@ export function VersionHistoryModal({
 		versions[versions.length - 1]?.version || 1,
 	)
 	const [isRestoring, setIsRestoring] = useState(false)
-	const [isLoading, setIsLoading] = useState(false)
-	const [versionDetail, setVersionDetail] =
-		useState<SnippetVersionDetail | null>(null)
 
-	useEffect(() => {
-		if (!isOpen) return
-
-		// Fetch version detail when modal opens or version changes
-		const fetchVersionDetail = async () => {
-			setIsLoading(true)
-			try {
-				const detail = await snippetApiClient.getVersionDetail(
-					snippetId,
-					selectedVersion,
-				)
-				setVersionDetail(detail)
-			} catch (error) {
-				console.error('Failed to load version detail', error)
-			} finally {
-				setIsLoading(false)
-			}
-		}
-
-		fetchVersionDetail()
-	}, [isOpen, selectedVersion, snippetId])
+	const { data: versionDetail, isFetching: isLoading } =
+		useQuery<SnippetVersionDetail>({
+			queryKey: queryKeys.snippets.versionDetail(snippetId, selectedVersion),
+			queryFn: () =>
+				snippetApiClient.getVersionDetail(snippetId, selectedVersion),
+			enabled: isOpen,
+		})
 
 	if (!isOpen) return null
 

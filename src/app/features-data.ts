@@ -206,7 +206,6 @@ export const FEATURES: Feature[] = [
 		actionHref: '/snippets',
 	},
 
-	// Upcoming Features
 	{
 		id: 'code-formatting',
 		title: 'Auto Code Formatting',
@@ -223,7 +222,8 @@ export const FEATURES: Feature[] = [
 			'Review the formatted code',
 			'Save if satisfied',
 		],
-		actionLabel: 'Coming Soon',
+		actionLabel: 'Create Snippet',
+		actionHref: '/snippets/create',
 	},
 	{
 		id: 'export-snippets',
@@ -242,7 +242,8 @@ export const FEATURES: Feature[] = [
 			'Download or copy to clipboard',
 			'Use in your projects',
 		],
-		actionLabel: 'Coming Soon',
+		actionLabel: 'Explore Snippets',
+		actionHref: '/snippets',
 	},
 	{
 		id: 'collections',
@@ -278,6 +279,7 @@ export const FEATURES: Feature[] = [
 			'Organize favorites by category',
 			'Share favorite collections',
 		],
-		actionLabel: 'Coming Soon',
+		actionLabel: 'Explore Snippets',
+		actionHref: '/snippets',
 	},
 ]

@@ -1,10 +1,11 @@
 'use client'
 
-import type { SnippetListCursor } from '@/features/snippets/core/repositories/snippet.repository'
 import { EmptySnippetsState } from '@/features/snippets/ui/EmptySnippetsState'
 import { SnippetCard } from '@/features/snippets/ui/SnippetCard'
 import { SnippetCardSkeleton } from '@/features/snippets/ui/SnippetCardSkeleton'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { queryKeys } from '@/shared/hooks/query-keys'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 import { getProfileSnippetsPage } from './actions'
 
 type Props = {
@@ -24,58 +25,28 @@ export function ProfileSnippetsSection({
 	initialCursor,
 	pageSize,
 }: Props) {
-	const [snippets, setSnippets] = useState(initialSnippets)
-	const [cursor, setCursor] = useState<SnippetListCursor | null>(initialCursor)
-	const [hasMore, setHasMore] = useState(Boolean(initialCursor))
-	const [loadingMore, setLoadingMore] = useState(false)
 	const sentinelRef = useRef<HTMLDivElement | null>(null)
-	const isFetchingRef = useRef(false)
-	const requestedCursorRef = useRef<Set<string>>(new Set())
 
-	useEffect(() => {
-		setSnippets(initialSnippets)
-		setCursor(initialCursor)
-		setHasMore(Boolean(initialCursor))
-		setLoadingMore(false)
-		isFetchingRef.current = false
-		requestedCursorRef.current.clear()
-	}, [initialCursor, initialSnippets, username])
+	const { data, isFetchingNextPage, fetchNextPage, hasNextPage } =
+		useInfiniteQuery({
+			queryKey: queryKeys.profile.snippets(username),
+			queryFn: ({ pageParam }) =>
+				getProfileSnippetsPage({
+					username,
+					limit: pageSize,
+					cursor: pageParam,
+				}),
+			initialPageParam: null as Awaited<
+				ReturnType<typeof getProfileSnippetsPage>
+			>['nextCursor'],
+			getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+			initialData: {
+				pages: [{ items: initialSnippets, nextCursor: initialCursor }],
+				pageParams: [null],
+			},
+		})
 
-	const loadMore = useCallback(async () => {
-		if (!hasMore || !cursor || isFetchingRef.current) {
-			return
-		}
-
-		const cursorKey = `${String(cursor.sortValue)}::${cursor.id}`
-		if (requestedCursorRef.current.has(cursorKey)) {
-			return
-		}
-		requestedCursorRef.current.add(cursorKey)
-
-		setLoadingMore(true)
-		isFetchingRef.current = true
-
-		try {
-			const page = await getProfileSnippetsPage({
-				username,
-				limit: pageSize,
-				cursor,
-			})
-
-			setSnippets((prev) => {
-				const existingIds = new Set(prev.map((snippet) => snippet.id))
-				const uniqueNewItems = page.items.filter(
-					(snippet) => !existingIds.has(snippet.id),
-				)
-				return [...prev, ...uniqueNewItems]
-			})
-			setCursor(page.nextCursor)
-			setHasMore(Boolean(page.nextCursor))
-		} finally {
-			isFetchingRef.current = false
-			setLoadingMore(false)
-		}
-	}, [cursor, hasMore, pageSize, username])
+	const snippets = data.pages.flatMap((p) => p.items)
 
 	useEffect(() => {
 		const node = sentinelRef.current
@@ -83,20 +54,16 @@ export function ProfileSnippetsSection({
 
 		const observer = new IntersectionObserver(
 			(entries) => {
-				const first = entries[0]
-				if (first?.isIntersecting) {
-					void loadMore()
+				if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+					void fetchNextPage()
 				}
 			},
-			{
-				rootMargin: '0px 0px 24px 0px',
-				threshold: 0.9,
-			},
+			{ rootMargin: '0px 0px 24px 0px', threshold: 0.9 },
 		)
 
 		observer.observe(node)
 		return () => observer.disconnect()
-	}, [loadMore])
+	}, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
 	if (snippets.length === 0) {
 		return isOwnProfile ? (
@@ -122,9 +89,9 @@ export function ProfileSnippetsSection({
 				))}
 			</div>
 
-			{hasMore && <div ref={sentinelRef} className="h-6 w-full" />}
+			{hasNextPage && <div ref={sentinelRef} className="h-6 w-full" />}
 
-			{loadingMore && (
+			{isFetchingNextPage && (
 				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{[...Array(pageSize)].map((_, i) => (
 						<SnippetCardSkeleton key={`loading-${i}`} />
@@ -132,7 +99,7 @@ export function ProfileSnippetsSection({
 				</div>
 			)}
 
-			{!hasMore && snippets.length > 0 && (
+			{!hasNextPage && snippets.length > 0 && (
 				<p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
 					No more snippets to load.
 				</p>

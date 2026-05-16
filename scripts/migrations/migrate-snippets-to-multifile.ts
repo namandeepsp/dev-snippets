@@ -1,21 +1,4 @@
 #!/usr/bin/env tsx
-
-/**
- * Migration Script: Convert Single-File Snippets to Multi-File Format
- *
- * This script migrates all existing snippets from the old format:
- *   { code: string, language: string }
- * to the new format:
- *   { files: [{ id, filename, language, code, order, createdAt, updatedAt }], primaryLanguage }
- *
- * Usage:
- *   tsx scripts/migrations/migrate-snippets-to-multifile.ts
- *
- * Environment:
- *   Requires .env.local or .env.prod with Firebase credentials
- */
-
-import * as fs from 'fs'
 import { cert, initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
@@ -81,19 +64,24 @@ interface NewSnippet {
 
 // Initialize Firebase Admin
 function initializeFirebase() {
-	const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
-	if (!serviceAccountPath) {
+	const firebaseConfig = {
+		projectId: process.env.FIREBASE_PROJECT_ID,
+		clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+		privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+	}
+
+	if (
+		!firebaseConfig.projectId ||
+		!firebaseConfig.clientEmail ||
+		!firebaseConfig.privateKey
+	) {
 		throw new Error(
-			'FIREBASE_SERVICE_ACCOUNT_PATH environment variable not set',
+			'Missing Firebase credentials. Ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY are set in environment.',
 		)
 	}
 
-	const serviceAccount = JSON.parse(
-		fs.readFileSync(serviceAccountPath, 'utf-8'),
-	)
-
 	initializeApp({
-		credential: cert(serviceAccount),
+		credential: cert(firebaseConfig as any),
 	})
 
 	return getFirestore()
@@ -130,7 +118,7 @@ function convertSnippet(oldSnippet: OldSnippet): NewSnippet {
 		createdBy: version.createdBy,
 	}))
 
-	return {
+	const newSnippet: NewSnippet = {
 		id: oldSnippet.id,
 		files: [file],
 		primaryLanguage: oldSnippet.language,
@@ -149,6 +137,15 @@ function convertSnippet(oldSnippet: OldSnippet): NewSnippet {
 		sharedWith: oldSnippet.sharedWith,
 		versions: newVersions,
 	}
+
+	// Remove undefined fields to avoid Firestore errors
+	Object.keys(newSnippet).forEach(
+		(key) =>
+			newSnippet[key as keyof NewSnippet] === undefined &&
+			delete newSnippet[key as keyof NewSnippet],
+	)
+
+	return newSnippet
 }
 
 // Get file extension based on language

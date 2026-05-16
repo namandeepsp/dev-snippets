@@ -1,8 +1,8 @@
 'use client'
 
-import { Button, Skeleton } from '@/shared/ui/design-system'
+import { Button } from '@/shared/ui/design-system'
 import { formatDate } from '@/shared/utils/date'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { LuX } from 'react-icons/lu'
 import type { SnippetVersion } from '../core/snippet.types'
 import { CodeBlock } from './code/CodeBlock'
@@ -17,38 +17,7 @@ interface VersionHistoryModalProps {
 	snippetTitle: string
 	snippetDescription?: string
 	visibility: 'public' | 'private' | 'shared'
-	loading?: boolean
 	onRestore?: (versionNumber: number) => Promise<void>
-}
-
-function VersionHistoryModalSkeleton() {
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-			<div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg bg-white dark:bg-gray-900 shadow-lg">
-				<div className="sticky top-0 flex items-center justify-between border-b border-default bg-white dark:bg-gray-900 px-6 py-4">
-					<Skeleton className="h-6 w-48" />
-					<Skeleton className="h-8 w-8 rounded-full" />
-				</div>
-				<div className="p-6 space-y-6">
-					<div className="space-y-3">
-						<Skeleton className="h-5 w-40" />
-						<Skeleton className="h-10 w-full rounded-lg" />
-					</div>
-					<div className="grid gap-4">
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-							<Skeleton className="h-10 w-full rounded-lg" />
-							<Skeleton className="h-10 w-full rounded-lg" />
-						</div>
-						<Skeleton className="h-4 w-32" />
-						<div className="space-y-3">
-							<Skeleton className="h-48 w-full rounded-lg" />
-							<Skeleton className="h-48 w-full rounded-lg" />
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	)
 }
 
 export function VersionHistoryModal({
@@ -61,50 +30,14 @@ export function VersionHistoryModal({
 	snippetTitle,
 	snippetDescription,
 	visibility,
-	loading = false,
 	onRestore,
 }: VersionHistoryModalProps) {
-	const [selectedVersion, setSelectedVersion] = useState<number>(1)
+	const [selectedVersion, setSelectedVersion] = useState<number>(
+		versions[versions.length - 1]?.version || 1,
+	)
 	const [isRestoring, setIsRestoring] = useState(false)
 
-	// Update selected version when versions load
-	useEffect(() => {
-		if (versions.length > 0 && !loading) {
-			setSelectedVersion(versions[versions.length - 1]?.version || 1)
-		}
-	}, [versions, loading])
-
 	if (!isOpen) return null
-
-	if (loading) {
-		return <VersionHistoryModalSkeleton />
-	}
-
-	if (versions.length === 0) {
-		return (
-			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-				<div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg bg-white dark:bg-gray-900 shadow-lg">
-					<div className="sticky top-0 flex items-center justify-between border-b border-default bg-white dark:bg-gray-900 px-6 py-4">
-						<h2 className="text-lg font-semibold">Version History</h2>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={onClose}
-							aria-label="Close"
-						>
-							<LuX className="h-5 w-5" />
-						</Button>
-					</div>
-					<div className="p-6">
-						<div className="flex items-center justify-center py-8">
-							<div className="text-gray-500">No versions found</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		)
-	}
 
 	const currentVersion = versions.find((v) => v.version === selectedVersion)
 	if (!currentVersion) return null
@@ -123,21 +56,22 @@ export function VersionHistoryModal({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-			<div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg bg-white dark:bg-gray-900 shadow-lg">
-				<div className="sticky top-0 flex items-center justify-between border-b border-default bg-white dark:bg-gray-900 px-6 py-4">
+			<div className="w-full max-w-4xl h-[90vh] rounded-lg bg-white dark:bg-gray-900 shadow-lg flex flex-col">
+				{/* Fixed Header */}
+				<div className="flex items-center justify-between border-b border-default bg-white dark:bg-gray-900 px-6 py-4 shrink-0">
 					<h2 className="text-lg font-semibold">Version History</h2>
 					<Button
-						type="button"
 						variant="ghost"
-						size="sm"
 						onClick={onClose}
+						className="rounded-md p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
 						aria-label="Close"
 					>
 						<LuX className="h-5 w-5" />
 					</Button>
 				</div>
 
-				<div className="p-6 space-y-6">
+				{/* Scrollable Content */}
+				<div className="p-6 space-y-6 overflow-y-auto flex-1">
 					<div className="space-y-2">
 						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
 							Select Version
@@ -220,27 +154,28 @@ export function VersionHistoryModal({
 							</div>
 						)}
 					</div>
+				</div>
 
-					<div className="flex items-center justify-end gap-3 border-t border-default pt-4">
+				{/* Fixed Footer */}
+				<div className="flex items-center justify-end gap-3 border-t border-default px-6 py-4 bg-white dark:bg-gray-900 shrink-0">
+					<Button
+						type="button"
+						variant="ghost"
+						onClick={onClose}
+						disabled={isRestoring}
+					>
+						Close
+					</Button>
+					{selectedVersion !== versions[versions.length - 1]?.version && (
 						<Button
 							type="button"
-							variant="ghost"
-							onClick={onClose}
+							onClick={handleRestore}
 							disabled={isRestoring}
+							className="bg-blue-600 hover:bg-blue-700 text-white"
 						>
-							Close
+							{isRestoring ? 'Restoring...' : 'Restore This Version'}
 						</Button>
-						{selectedVersion !== versions[versions.length - 1]?.version && (
-							<Button
-								type="button"
-								onClick={handleRestore}
-								disabled={isRestoring}
-								className="bg-blue-600 hover:bg-blue-700 text-white"
-							>
-								{isRestoring ? 'Restoring...' : 'Restore This Version'}
-							</Button>
-						)}
-					</div>
+					)}
 				</div>
 			</div>
 		</div>

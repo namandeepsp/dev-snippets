@@ -2,6 +2,7 @@
 
 import { Button } from '@/shared/ui/design-system'
 import { useEffect, useRef } from 'react'
+import { LuX } from 'react-icons/lu'
 import type { EditorShortcut } from './editor.shortcuts'
 
 type EditorShortcutsModalProps = {
@@ -95,7 +96,7 @@ export function EditorShortcutsModal({
 						onClick={onClose}
 						className="rounded-md border border-default px-3 py-1.5 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition"
 					>
-						Close
+						<LuX className="h-4 w-4" />
 					</Button>
 				</div>
 
